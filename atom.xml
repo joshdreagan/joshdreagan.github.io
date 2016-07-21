@@ -317,13 +317,13 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
-    
       <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+    
+      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
   </entry>
   
@@ -461,9 +461,9 @@
     
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
-    
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+    
+      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
   </entry>
   
