@@ -317,9 +317,9 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
-    
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+    
+      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
     
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
     
