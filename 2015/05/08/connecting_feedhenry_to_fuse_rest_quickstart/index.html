@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    
+    <title>Connecting FeedHenry to Fuse REST Quickstart | Reagan&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Connecting FeedHenry to Fuse REST Quickstart">
+<meta property="og:url" content="http://joshdreagan.github.io/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/index.html">
+<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:description" content="This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.">
+<meta property="og:image" content="http://joshdreagan.github.io/post-bg.png">
+<meta property="og:updated_time" content="2016-07-21T16:52:54.633Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Connecting FeedHenry to Fuse REST Quickstart">
+<meta name="twitter:description" content="This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.">
+<meta name="twitter:image" content="http://joshdreagan.github.io/post-bg.png">
+    
+
+    
+        <link rel="alternate" href="atom.xml" title="Reagan&#39;s Blog" type="application/atom+xml" />
+    
+
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-81075900-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                
+                <span class="site-title">Reagan&#39;s Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/29313b56e332976a2383b911a27c15b2" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/29313b56e332976a2383b911a27c15b2?s=128" />
+            <h2 id="name">Josh Reagan</h2>
+            <h3 id="title">Software Engineer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Colorado, USA</span>
+            <a id="follow" target="_blank" href="https://github.com/joshdreagan/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                10
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                15
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://twitter.com/joshdreagan" target="_blank" title="twitter" class=tooltip>
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://plus.google.com/+JoshReagan" target="_blank" title="google-plus" class=tooltip>
+                            <i class="fa fa-google-plus"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://www.linkedin.com/in/joshdreagan" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://github.com/joshdreagan" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-connecting_feedhenry_to_fuse_rest_quickstart" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            
+	
+		<img src="post-bg.png" class="article-banner" />
+	
+
+
+
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Connecting FeedHenry to Fuse REST Quickstart
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/">
+            <time datetime="2015-05-08T06:00:00.000Z" itemprop="datePublished">2015-05-08</time>
+        </a>
+    </div>
+
+
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/camel/">camel</a>, <a class="tag-link" href="/tags/cxf/">cxf</a>, <a class="tag-link" href="/tags/fabric8/">fabric8</a>, <a class="tag-link" href="/tags/feedhenry/">feedhenry</a>, <a class="tag-link" href="/tags/fuse/">fuse</a>, <a class="tag-link" href="/tags/jboss/">jboss</a>, <a class="tag-link" href="/tags/karaf/">karaf</a>, <a class="tag-link" href="/tags/openshift/">openshift</a>
+    </div>
+
+                    </div>
+                
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.<a id="more"></a></p>
+<p>Here are a few assumptions before you begin:</p>
+<ul>
+<li><a href="/2015/05/07/getting_started__feedhenry_hello_world/" title="You've already completed the guide in my previous blog about creating a FeedHenry Hello World project">You've already completed the guide in my previous blog about creating a FeedHenry Hello World project</a></li>
+<li><a href="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/" title="You've already completed the guide in my previous blog about creating a Fuse REST quickstart project on OpenShift">You've already completed the guide in my previous blog about creating a Fuse REST quickstart project on OpenShift</a>
+</li>
+</ul>
+<p>Once you’ve completed the prerequisite blog guides, connecting the two is a simple matter of modifying a few files. You can even use the browser based editor so you can do everything online.</p>
+<p>Log into your FeedHenry domain and find your previously created Hello World project.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/explore_project.png" alt="[Explore Project]" title="[Explore Project]">
+<h1 id="Step-1-Modify-the-Hello-World-Cloud-App"><a href="#Step-1-Modify-the-Hello-World-Cloud-App" class="headerlink" title="Step 1: Modify the Hello World Cloud App"></a>Step 1: Modify the Hello World Cloud App</h1><p>First, you’ll modify the cloud app files. Click on the “<strong>Cloud App</strong>“ panel shown below.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/explore_project_cloud_code.png" alt="[Explore Project]" title="[Explore Project]">
+<p>Next, click on the “<strong>Editor</strong>“ button in the column on the left.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/explore_project_cloud_code_editor_button.png" alt="[Explore Project]" title="[Explore Project]">
+<p>Edit the <code>/package.json</code> file and add a dependency for “<em>xml2js</em>“ version “<em>~0.4.8</em>“ to the end of the <em>dependencies</em> section. If you’d like, you can copy/paste the entire contents from the text below.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"name"</span>: <span class="string">"fh-app"</span>,</div><div class="line">  <span class="attr">"version"</span>: <span class="string">"0.2.0"</span>,</div><div class="line">  <span class="attr">"dependencies"</span>: &#123;</div><div class="line">    <span class="attr">"body-parser"</span>: <span class="string">"~1.0.2"</span>,</div><div class="line">    <span class="attr">"cors"</span>: <span class="string">"~2.2.0"</span>,</div><div class="line">    <span class="attr">"express"</span>: <span class="string">"~4.0.0"</span>,</div><div class="line">    <span class="attr">"fh-mbaas-api"</span>: <span class="string">"~4.9.0"</span>,</div><div class="line">    <span class="attr">"mocha"</span>: <span class="string">"^2.1.0"</span>,</div><div class="line">    <span class="attr">"request"</span>: <span class="string">"~2.40.0"</span>,</div><div class="line">    <span class="attr">"xml2js"</span>: <span class="string">"~0.4.8"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"devDependencies"</span>: &#123;</div><div class="line">    <span class="attr">"grunt-contrib-watch"</span>: <span class="string">"latest"</span>,</div><div class="line">    <span class="attr">"grunt-nodemon"</span>: <span class="string">"0.2.0"</span>,</div><div class="line">    <span class="attr">"grunt-concurrent"</span>: <span class="string">"latest"</span>,</div><div class="line">    <span class="attr">"supertest"</span>: <span class="string">"0.8.2"</span>,</div><div class="line">    <span class="attr">"should"</span>: <span class="string">"2.1.1"</span>,</div><div class="line">    <span class="attr">"proxyquire"</span>: <span class="string">"0.5.3"</span>,</div><div class="line">    <span class="attr">"grunt-shell"</span>: <span class="string">"0.6.4"</span>,</div><div class="line">    <span class="attr">"istanbul"</span>: <span class="string">"0.2.7"</span>,</div><div class="line">    <span class="attr">"grunt-env"</span>: <span class="string">"~0.4.1"</span>,</div><div class="line">    <span class="attr">"load-grunt-tasks"</span>: <span class="string">"~0.4.0"</span>,</div><div class="line">    <span class="attr">"time-grunt"</span>: <span class="string">"~0.3.1"</span>,</div><div class="line">    <span class="attr">"grunt-node-inspector"</span>: <span class="string">"~0.1.5"</span>,</div><div class="line">    <span class="attr">"grunt-open"</span>: <span class="string">"~0.2.3"</span>,</div><div class="line">    <span class="attr">"grunt-plato"</span>: <span class="string">"~1.0.0"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"main"</span>: <span class="string">"application.js"</span>,</div><div class="line">  <span class="attr">"scripts"</span>: &#123;</div><div class="line">    <span class="attr">"test"</span>: <span class="string">"grunt test"</span>,</div><div class="line">    <span class="attr">"debug"</span>: <span class="string">"grunt serve"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"license"</span>: <span class="string">"mit"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Next, edit the <code>/lib/hello.js</code> file and replace its contents with the text below. <strong>Make sure to replace the <em>uri</em> field in both the <em>get</em> and <em>post</em> methods with the URI to your Fuse REST quickstart that you created in the previous guide.</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</div><div class="line"><span class="keyword">var</span> bodyParser = <span class="built_in">require</span>(<span class="string">'body-parser'</span>);</div><div class="line"><span class="keyword">var</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>);</div><div class="line"><span class="keyword">var</span> request = <span class="built_in">require</span>(<span class="string">'request'</span>);</div><div class="line"><span class="keyword">var</span> xml2js = <span class="built_in">require</span>(<span class="string">'xml2js'</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">helloRoute</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> hello = <span class="keyword">new</span> express.Router();</div><div class="line">  hello.use(cors());</div><div class="line">  hello.use(bodyParser());</div><div class="line"></div><div class="line">  hello.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">'In hello route GET / req.query='</span>, req.query);</div><div class="line">    <span class="keyword">var</span> id = req.query &amp;&amp; req.query.hello ? req.query.hello : <span class="string">'000'</span>;</div><div class="line">    request(&#123;uri: <span class="string">'http://restchild-joshdreagan.rhcloud.com/cxf/crm/customerservice/customers/'</span> + id,</div><div class="line">             method: <span class="string">"GET"</span>&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error, response, body</span>) </span>&#123;</div><div class="line">        xml2js.parseString(body, <span class="function"><span class="keyword">function</span> (<span class="params">err, result</span>) </span>&#123;</div><div class="line">          <span class="keyword">var</span> name = result.Customer.name[<span class="number">0</span>];</div><div class="line">          res.json(&#123;msg: <span class="string">'Hello '</span> + name&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  hello.post(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">'In hello route POST / req.body='</span>, req.body);</div><div class="line">    <span class="keyword">var</span> id = req.body &amp;&amp; req.body.hello ? req.body.hello : <span class="string">'000'</span>;</div><div class="line">    request(&#123;uri: <span class="string">'http://restchild-joshdreagan.rhcloud.com/cxf/crm/customerservice/customers/'</span> + id,</div><div class="line">             method: <span class="string">"GET"</span>&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error, response, body</span>) </span>&#123;</div><div class="line">        xml2js.parseString(body, <span class="function"><span class="keyword">function</span> (<span class="params">err, result</span>) </span>&#123;</div><div class="line">          <span class="keyword">var</span> name = result.Customer.name[<span class="number">0</span>];</div><div class="line">          res.json(&#123;msg: <span class="string">'Hello '</span> + name&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  <span class="keyword">return</span> hello;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = helloRoute;</div></pre></td></tr></table></figure>
+<p>Finally, edit the <code>/README.md</code> file and change the sample request body to “<em>123</em>“ instead of “<em>world</em>“. If you’d like, you can copy/paste the entire contents from the text below. <em>This step is optional, but is nice to do since it will allow you to test directly from the “<strong>Docs</strong>“ page.</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"># FeedHenry Hello World MBaaS Server</div><div class="line"></div><div class="line">This is a blank &apos;hello world&apos; FeedHenry MBaaS. Use it as a starting point for building your APIs. </div><div class="line"></div><div class="line"># Group Hello World API</div><div class="line"></div><div class="line"># hello [/hello]</div><div class="line"></div><div class="line">&apos;Hello world&apos; endpoint.</div><div class="line"></div><div class="line">## hello [POST] </div><div class="line"></div><div class="line">&apos;Hello world&apos; endpoint.</div><div class="line"></div><div class="line">+ Request (application/json)</div><div class="line">    + Body</div><div class="line">            &#123;</div><div class="line">              &quot;hello&quot;: &quot;123&quot;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">+ Response 200 (application/json)</div><div class="line">    + Body</div><div class="line">            &#123;</div><div class="line">              &quot;msg&quot;: &quot;Hello world&quot;</div><div class="line">            &#125;</div></pre></td></tr></table></figure>
+<p>Now, save all of the files and click on the “<strong>Deploy</strong>“ button in the column on the left.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_deploy_button.png" alt="[Deploy Project]" title="[Deploy Project]">
+<p>That should bring you to the “<strong>Deploy</strong>“ page. Click on the “<strong>Deploy Cloud App</strong>“ button.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_deploy_page.png" alt="[Deploy Project]" title="[Deploy Project]">
+<p>Deployment should take less than 1 minute. You will be shown a progress bar and status text box.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_deploy_in_progress.png" alt="[Deploy Project]" title="[Deploy Project]">
+<p>When the deploy process is complete, you will see a green progress bar and no errors in the status text box.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_deploy_success.png" alt="[Deploy Project]" title="[Deploy Project]">
+<p>Once everything deploys successfully, you can click on the “<strong>Docs</strong>“ button in the column on the left.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_docs_button.png" alt="[Test Project]" title="[Test Project]">
+<p>This will take you to the test page for your app. It should look like the picture below.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_test_page.png" alt="[Test Project]" title="[Test Project]">
+<p>Click on the “<strong>Try it!</strong>“ button to expand the <em>request</em> &amp; <em>response</em> text boxes.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_test_page_request.png" alt="[Test Project]" title="[Test Project]">
+<p>Click on the “<strong>Submit</strong>“ button to invoke the service. You should see a successful response like the one pictured below.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/cloud_code_test_page_response.png" alt="[Test Project]" title="[Test Project]">
+<h1 id="Step-2-Modify-The-Hello-World-Cordova-Light-App"><a href="#Step-2-Modify-The-Hello-World-Cordova-Light-App" class="headerlink" title="Step 2: Modify The Hello World Cordova Light App"></a>Step 2: Modify The Hello World Cordova Light App</h1><p>Now, you’ll modify the Cordova application files. Click on the “<strong>Cordova Light App</strong>“ panel shown below.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/explore_project_apps.png" alt="[Explore Project]" title="[Explore Project]">
+<p>Next, click on the “<strong>Editor</strong>“ button in the column on the left.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/explore_project_apps_editor_button.png" alt="[Explore Project]" title="[Explore Project]">
+<p>Edit the <code>/www/index.html</code> file and replace the placeholder text for the input box with “<em>Enter Your ID Here.</em>“. If you’d like, you can copy/paste the entire contents from the text below.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1, user-scalable=no"</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Hello World<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"css/app.css"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"></div><div class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">header</span> <span class="attr">class</span>=<span class="string">"header-footer-bg"</span>&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"center"</span>&gt;</span></div><div class="line">          <span class="tag">&lt;<span class="name">h3</span>&gt;</span>FeedHenry</div><div class="line">              <span class="tag">&lt;<span class="name">small</span>&gt;</span>QuickStart - HTML5<span class="tag">&lt;/<span class="name">small</span>&gt;</span></div><div class="line">          <span class="tag">&lt;/<span class="name">h3</span>&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">header</span>&gt;</span></div><div class="line"></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"count"</span> <span class="attr">class</span>=<span class="string">""</span>&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"formWrapper"</span>&gt;</span></div><div class="line">          <span class="tag">&lt;<span class="name">p</span> <span class="attr">id</span>=<span class="string">"description"</span>&gt;</span>This is a basic Javascript App that can take in your name, send it to a cloud app and display the response.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">          <span class="tag">&lt;<span class="name">br</span>&gt;</span></div><div class="line"></div><div class="line">          <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"input-div"</span>&gt;</span></div><div class="line">              <span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">"hello_to"</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"input-text"</span> <span class="attr">placeholder</span>=<span class="string">"Enter Your ID Here."</span>/&gt;</span></div><div class="line">          <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"></div><div class="line">          <span class="tag">&lt;<span class="name">br</span>&gt;</span></div><div class="line"></div><div class="line">          <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"say_hello"</span> <span class="attr">type</span>=<span class="string">"button"</span> <span class="attr">class</span>=<span class="string">"say-hello-button"</span>&gt;</span>Say Hello From The Cloud<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line">          <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"cloudResponse"</span> <span class="attr">class</span>=<span class="string">"cloudResponse"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"></div><div class="line">      <span class="tag">&lt;<span class="name">footer</span> <span class="attr">class</span>=<span class="string">"header-footer-bg"</span>&gt;</span></div><div class="line">          <span class="tag">&lt;<span class="name">div</span>&gt;</span></div><div class="line">              <span class="tag">&lt;<span class="name">small</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span></div><div class="line">                  <span class="comment">&lt;!-- v.&amp;nbsp; --&gt;</span></div><div class="line">              <span class="tag">&lt;/<span class="name">small</span>&gt;</span></div><div class="line">          <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">footer</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"feedhenry.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"hello.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>Don’t forget to save the file. The simulator on the right should automatically update. Don’t worry if it doesn’t. Sometimes it needs a page refresh. However, since the changes we made were purely cosmetic, it doesn’t really matter if you see the update.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/apps_test_sim.png" alt="[Test Project]" title="[Test Project]">
+<p>Enter “<em>123</em>“ into the input box on the simulator and click “<strong>Say Hello From The Cloud</strong>“.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/apps_test_sim_request.png" alt="[Test Project]" title="[Test Project]">
+<p>If everything was successful, you should see a response like the one pictured below.</p>
+<img src="/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/apps_test_sim_response.png" alt="[Test Project]" title="[Test Project]">
+<p>Now you’ve successfully wired your FeedHenry Hello World project to a backend Fuse REST quickstart running on OpenShift.</p>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://joshdreagan.github.io/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/" data-id="ciqwkjyw8000qlolht38s30nh" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2015/08/04/fuse_fabric_offline_ci__cd/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    Fuse Fabric Offline CI/CD
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2015/05/07/getting_started__feedhenry_hello_world/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Getting Started - FeedHenry Hello World</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/05/27/ordered_messaging_with_activemq_and_camel//post-bg.jpg)" alt="Ordered Messaging With ActiveMQ &amp; Camel" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" class="title">Ordered Messaging With ActiveMQ &amp; Camel</a></p>
+                            <p class="item-date"><time datetime="2016-05-27T06:00:00.000Z" itemprop="datePublished">2016-05-27</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/02/02/amqp_performance_testing/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/02/02/amqp_performance_testing//post-bg.png)" alt="AMQP Performance Testing With JBoss A-MQ" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/02/02/amqp_performance_testing/" class="title">AMQP Performance Testing With JBoss A-MQ</a></p>
+                            <p class="item-date"><time datetime="2016-02-02T07:00:00.000Z" itemprop="datePublished">2016-02-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2015/12/04/custom_camel_loadbalancer_with_infinispan/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2015/12/04/custom_camel_loadbalancer_with_infinispan//post-bg.png)" alt="Custom Camel LoadBalancer With Infinispan" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2015/12/04/custom_camel_loadbalancer_with_infinispan/" class="title">Custom Camel LoadBalancer With Infinispan</a></p>
+                            <p class="item-date"><time datetime="2015-12-04T07:00:00.000Z" itemprop="datePublished">2015-12-04</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2015/10/30/correcting_data_with_fuse_and_bpms/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2015/10/30/correcting_data_with_fuse_and_bpms//post-bg.png)" alt="Correcting Malformed Data With Fuse+BPMS" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2015/10/30/correcting_data_with_fuse_and_bpms/" class="title">Correcting Malformed Data With Fuse+BPMS</a></p>
+                            <p class="item-date"><time datetime="2015-10-30T06:00:00.000Z" itemprop="datePublished">2015-10-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2015/08/04/fuse_fabric_offline_ci__cd/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2015/08/04/fuse_fabric_offline_ci__cd//post-bg.png)" alt="Fuse Fabric Offline CI/CD" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2015/08/04/fuse_fabric_offline_ci__cd/" class="title">Fuse Fabric Offline CI/CD</a></p>
+                            <p class="item-date"><time datetime="2015-08-04T06:00:00.000Z" itemprop="datePublished">2015-08-04</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activemq/">activemq</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/camel/">camel</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cxf/">cxf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eap/">eap</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuse/">fuse</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jboss/">jboss</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/karaf/">karaf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openshift/">openshift</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wildfly/">wildfly</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2016 Josh Reagan<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

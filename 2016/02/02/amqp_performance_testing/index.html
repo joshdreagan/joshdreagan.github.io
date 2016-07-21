@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    
+    <title>AMQP Performance Testing With JBoss A-MQ | Reagan&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="I recently had a customer that wanted us to do some load testing of Red Hat’s JBoss A-MQ for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AMQP Performance Testing With JBoss A-MQ">
+<meta property="og:url" content="http://joshdreagan.github.io/2016/02/02/amqp_performance_testing/index.html">
+<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:description" content="I recently had a customer that wanted us to do some load testing of Red Hat’s JBoss A-MQ for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s">
+<meta property="og:image" content="http://joshdreagan.github.io/post-bg.png">
+<meta property="og:updated_time" content="2016-07-21T16:53:53.732Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AMQP Performance Testing With JBoss A-MQ">
+<meta name="twitter:description" content="I recently had a customer that wanted us to do some load testing of Red Hat’s JBoss A-MQ for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s">
+<meta name="twitter:image" content="http://joshdreagan.github.io/post-bg.png">
+    
+
+    
+        <link rel="alternate" href="atom.xml" title="Reagan&#39;s Blog" type="application/atom+xml" />
+    
+
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-81075900-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                
+                <span class="site-title">Reagan&#39;s Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/29313b56e332976a2383b911a27c15b2" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/29313b56e332976a2383b911a27c15b2?s=128" />
+            <h2 id="name">Josh Reagan</h2>
+            <h3 id="title">Software Engineer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Colorado, USA</span>
+            <a id="follow" target="_blank" href="https://github.com/joshdreagan/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                10
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                15
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://twitter.com/joshdreagan" target="_blank" title="twitter" class=tooltip>
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://plus.google.com/+JoshReagan" target="_blank" title="google-plus" class=tooltip>
+                            <i class="fa fa-google-plus"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://www.linkedin.com/in/joshdreagan" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://github.com/joshdreagan" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-amqp_performance_testing" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            
+	
+		<img src="post-bg.png" class="article-banner" />
+	
+
+
+
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            AMQP Performance Testing With JBoss A-MQ
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2016/02/02/amqp_performance_testing/">
+            <time datetime="2016-02-02T07:00:00.000Z" itemprop="datePublished">2016-02-02</time>
+        </a>
+    </div>
+
+
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/a-mq/">a-mq</a>, <a class="tag-link" href="/tags/activemq/">activemq</a>, <a class="tag-link" href="/tags/jboss/">jboss</a>
+    </div>
+
+                    </div>
+                
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>I recently had a customer that wanted us to do some load testing of <a href="http://www.jboss.org/products/amq/overview/" target="_blank" rel="external">Red Hat’s JBoss A-MQ</a> for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn’t see any blogs or posts on the subject. More specifically, I didn’t see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I’d write up some steps and post my results for future reference.<a id="more"></a></p>
+<blockquote>
+<p><strong>Please note that the purpose of this blog post is not to give you a number of msg/s to expect or tell you the absolute best way to tune your broker. The purpose of this post is to show you how to run the tests yourself and give you some very rough idea of the performance difference between the two protocols. All of my testing was done on my laptop using the default configurations. You will probably get wildly different performance in your environment and will likely need to tune the broker specific to your use case to get the best performance possible.</strong></p>
+</blockquote>
+<h2 id="Protocol-Basics"><a href="#Protocol-Basics" class="headerlink" title="Protocol Basics"></a>Protocol Basics</h2><p>Both <a href="https://www.amqp.org/" target="_blank" rel="external">AMQP (Advanced Message Queuing Protocol)</a> and <a href="http://activemq.apache.org/openwire.html" target="_blank" rel="external">OpenWire</a> are what we refer to as “wire-level protocols”. They define how a client and broker will negotiate a connection, how they’ll format messages, and how they’ll communicate in general. ActiveMQ can speak many different wire-level protocols, but OpenWire and AMQP are supposed to be the fastest as they are both binary in nature. In both cases, you have multiple options as to what language your clients can be written in (ie, Java, .NET, C++, …). It really doesn’t matter as long as they are communicating via the same wire-level protocol as the broker. In this case, I’ll be using Java simply because of the availability of test tools.</p>
+<h2 id="Test-Details"><a href="#Test-Details" class="headerlink" title="Test Details"></a>Test Details</h2><p>There are a ton of available test tools that you can use to drive traffic to your brokers. For this blog, I used the <a href="http://activemq.apache.org/activemq-performance-module-users-manual.html" target="_blank" rel="external">ActiveMQ Perf Maven Plugin</a>. This is a great tool that comes with the ActiveMQ source code and allows you to run as both producers and consumers. It is easily configurable and gives you a ton of options to test various scenarios (ie, persistent/non-persistent, transacted/non-transacted, 1-n producer/consumer threads, …). The only caveat to the tool is that it will load a connection factory that uses the OpenWire protocol. Luckily, it was written in such a way that we can extend it to use AMQP as well. To do that, we only need to create one class that knows how to load an AMQP connection factory. The source for the class is as follows:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> org.jboss.examples.amqp.spi;</div><div class="line"></div><div class="line"><span class="keyword">import</span> org.apache.activemq.tool.spi.ReflectionSPIConnectionFactory;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AMQPReflectionSPIConnectionFactory</span> <span class="keyword">extends</span> <span class="title">ReflectionSPIConnectionFactory</span> </span>&#123;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getClassName</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="string">"org.apache.qpid.jms.JmsConnectionFactory"</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Then we just need to make sure that our custom class and the Qpid client libraries are on the Maven classpath.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>$&#123;project.groupId&#125;<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;project.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.activemq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activemq-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;activemq.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.qpid<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>qpid-jms-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;qpid.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>The tricky part is that we need them on the classpath of the Maven plugin itself and not necessarily the classpath of the project. Take a look at the <a href="https://github.com/joshdreagan/amqp-perf-test/blob/master/pom.xml" target="_blank" rel="external">pom.xml</a> file to see what I mean. The full code for this test can be found at <a href="https://github.com/joshdreagan/amqp-perf-test" target="_blank" rel="external">https://github.com/joshdreagan/amqp-perf-test</a>. Feel free to just clone it down and use it directly.</p>
+<p>If you take a look at the <a href="http://activemq.apache.org/activemq-performance-module-users-manual.html" target="_blank" rel="external">plugin’s documentation</a>, you’ll see several properties that can be set for the test as a whole, the consumer, the producer, and the connection factory. You can configure the properties using “-Dkey=value” arguments on the command line, or via a .properties file (or some combination of the two). If you plan to run the test multiple times, it’s probably worth creating a .properties file. The only detail that I’ll give here is that the connection factory properties are set via reflection and will be specific to the connection factory used. I mention this because we swap out the connection factory when we run the AMQP tests. To give a concrete example, when using the <code>org.apache.activemq.tool.spi.ActiveMQReflectionSPI</code> you will set the URI for the broker using <code>-Dfactory.brokerURL=tcp://localhost:61616</code>, but when using the <code>org.jboss.examples.amqp.spi.AMQPReflectionSPIConnectionFactory</code> you will set the URI for the broker using <code>-Dfactory.remoteURI=amqp://localhost:5672</code>. This is because the “setters” are named differently for the different connection factory implementations. The available options for the AMQP connection factory can be found in the <a href="https://qpid.apache.org/releases/qpid-jms-0.5.0/docs/index.html" target="_blank" rel="external">Qpid docs</a>. All other options (ie, producer, consumers, &amp; test) should be the same and are found on the <a href="http://activemq.apache.org/activemq-performance-module-users-manual.html" target="_blank" rel="external">plugin docs</a>.</p>
+<h2 id="Test-Results"><a href="#Test-Results" class="headerlink" title="Test Results"></a>Test Results</h2><p>Here are some sample runs that I did. <em>Please note the disclaimer at the beginning of this blog post regarding performance results.</em></p>
+<h3 id="Producer-OpenWire"><a href="#Producer-OpenWire" class="headerlink" title="Producer OpenWire"></a>Producer OpenWire</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">$&gt; mvn activemq-perf:producer -DsysTest.propsConfigFile=src/main/resources/tcp-producer.properties</div><div class="line">OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was removed in 8.0</div><div class="line">[INFO] Scanning for projects...</div><div class="line">[INFO]                                                                         </div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] </div><div class="line">[INFO] --- activemq-perf-maven-plugin:5.11.0:producer (default-cli) @ amqp-perf-test ---</div><div class="line">[INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/tcp-producer.properties</div><div class="line">[INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI</div><div class="line">[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms</div><div class="line">[INFO] Creating queue: queue://TEST.FOO</div><div class="line">[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1</div><div class="line">[INFO] Creating  producer to: queue://TEST.FOO with non-persistent delivery.</div><div class="line">[INFO] Starting to publish 1024 byte(s) messages for 300000 ms</div><div class="line">[INFO] Finished sending</div><div class="line">[INFO] Client completed</div><div class="line">#########################################</div><div class="line">####    SYSTEM THROUGHPUT SUMMARY    ####</div><div class="line">#########################################</div><div class="line">System Total Throughput: 13347982</div><div class="line">System Total Clients: 1</div><div class="line">System Average Throughput: 44493.27333333333</div><div class="line">System Average Throughput Excluding Min/Max: 44274.73333333333</div><div class="line">System Average Client Throughput: 44493.27333333333</div><div class="line">System Average Client Throughput Excluding Min/Max: 44274.73333333333</div><div class="line">Min Client Throughput Per Sample: clientName=JmsProducer0, value=0</div><div class="line">Max Client Throughput Per Sample: clientName=JmsProducer0, value=65562</div><div class="line">Min Client Total Throughput: clientName=JmsProducer0, value=13347982</div><div class="line">Max Client Total Throughput: clientName=JmsProducer0, value=13347982</div><div class="line">Min Average Client Throughput: clientName=JmsProducer0, value=44493.27333333333</div><div class="line">Max Average Client Throughput: clientName=JmsProducer0, value=44493.27333333333</div><div class="line">Min Average Client Throughput Excluding Min/Max: clientName=JmsProducer0, value=44274.73333333333</div><div class="line">Max Average Client Throughput Excluding Min/Max: clientName=JmsProducer0, value=44274.73333333333</div><div class="line">[INFO] Created performance report: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/./target/JmsProducer_numClients1_numDests1_all.xml</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] BUILD SUCCESS</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Total time: 05:10 min</div><div class="line">[INFO] Finished at: 2016-02-02T11:46:30-07:00</div><div class="line">[INFO] Final Memory: 8M/235M</div><div class="line">[INFO] ------------------------------------------------------------------------</div></pre></td></tr></table></figure>
+<h3 id="Consumer-OpenWire"><a href="#Consumer-OpenWire" class="headerlink" title="Consumer OpenWire"></a>Consumer OpenWire</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">$&gt; mvn activemq-perf:consumer -DsysTest.propsConfigFile=src/main/resources/tcp-consumer.properties</div><div class="line">OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was removed in 8.0</div><div class="line">[INFO] Scanning for projects...</div><div class="line">[INFO]                                                                         </div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] </div><div class="line">[INFO] --- activemq-perf-maven-plugin:5.11.0:consumer (default-cli) @ amqp-perf-test ---</div><div class="line">[INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/tcp-consumer.properties</div><div class="line">[INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI</div><div class="line">[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms</div><div class="line">[INFO] Creating queue: queue://TEST.FOO</div><div class="line">[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1</div><div class="line">[INFO] Creating non-durable consumer to: queue://TEST.FOO</div><div class="line">[INFO] Starting to asynchronously receive messages for 300000 ms...</div><div class="line">[INFO] Client completed</div><div class="line">#########################################</div><div class="line">####    SYSTEM THROUGHPUT SUMMARY    ####</div><div class="line">#########################################</div><div class="line">System Total Throughput: 13287310</div><div class="line">System Total Clients: 1</div><div class="line">System Average Throughput: 44291.03333333333</div><div class="line">System Average Throughput Excluding Min/Max: 44074.76</div><div class="line">System Average Client Throughput: 44291.03333333333</div><div class="line">System Average Client Throughput Excluding Min/Max: 44074.76</div><div class="line">Min Client Throughput Per Sample: clientName=JmsConsumer0, value=0</div><div class="line">Max Client Throughput Per Sample: clientName=JmsConsumer0, value=64882</div><div class="line">Min Client Total Throughput: clientName=JmsConsumer0, value=13287310</div><div class="line">Max Client Total Throughput: clientName=JmsConsumer0, value=13287310</div><div class="line">Min Average Client Throughput: clientName=JmsConsumer0, value=44291.03333333333</div><div class="line">Max Average Client Throughput: clientName=JmsConsumer0, value=44291.03333333333</div><div class="line">Min Average Client Throughput Excluding Min/Max: clientName=JmsConsumer0, value=44074.76</div><div class="line">Max Average Client Throughput Excluding Min/Max: clientName=JmsConsumer0, value=44074.76</div><div class="line">[INFO] Created performance report: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/./target/JmsConsumer_numClients1_numDests1_equal.xml</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] BUILD SUCCESS</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Total time: 05:00 min</div><div class="line">[INFO] Finished at: 2016-02-02T11:46:19-07:00</div><div class="line">[INFO] Final Memory: 7M/220M</div><div class="line">[INFO] ------------------------------------------------------------------------</div></pre></td></tr></table></figure>
+<h3 id="Producer-AMQP"><a href="#Producer-AMQP" class="headerlink" title="Producer AMQP"></a>Producer AMQP</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">$&gt; mvn activemq-perf:producer -DsysTest.propsConfigFile=src/main/resources/amqp-producer.properties</div><div class="line">OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was removed in 8.0</div><div class="line">[INFO] Scanning for projects...</div><div class="line">[INFO]                                                                         </div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] </div><div class="line">[INFO] --- activemq-perf-maven-plugin:5.11.0:producer (default-cli) @ amqp-perf-test ---</div><div class="line">[INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/amqp-producer.properties</div><div class="line">[INFO] Created: org.apache.qpid.jms.JmsConnectionFactory using SPIConnectionFactory: org.jboss.examples.amqp.spi.AMQPReflectionSPIConnectionFactory</div><div class="line">[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms</div><div class="line">[INFO] Creating queue: queue://TEST.FOO</div><div class="line">[INFO] Best match for SASL auth was: SASL-PLAIN</div><div class="line">[INFO] Connection ID:bearkat-34938-1454439352850-0:2 connected to remote Broker: amqp://localhost:5672</div><div class="line">[INFO] Creating JMS Connection: Provider=QpidJMS-0.5.0, JMS Spec=1.1</div><div class="line">[INFO] Creating  producer to: TEST.FOO with non-persistent delivery.</div><div class="line">[INFO] Starting to publish 1024 byte(s) messages for 300000 ms</div><div class="line">[INFO] Finished sending</div><div class="line">[INFO] Client completed</div><div class="line">#########################################</div><div class="line">####    SYSTEM THROUGHPUT SUMMARY    ####</div><div class="line">#########################################</div><div class="line">System Total Throughput: 3600145</div><div class="line">System Total Clients: 1</div><div class="line">System Average Throughput: 12000.483333333334</div><div class="line">System Average Throughput Excluding Min/Max: 11947.51</div><div class="line">System Average Client Throughput: 12000.483333333334</div><div class="line">System Average Client Throughput Excluding Min/Max: 11947.51</div><div class="line">Min Client Throughput Per Sample: clientName=JmsProducer0, value=1800</div><div class="line">Max Client Throughput Per Sample: clientName=JmsProducer0, value=14092</div><div class="line">Min Client Total Throughput: clientName=JmsProducer0, value=3600145</div><div class="line">Max Client Total Throughput: clientName=JmsProducer0, value=3600145</div><div class="line">Min Average Client Throughput: clientName=JmsProducer0, value=12000.483333333334</div><div class="line">Max Average Client Throughput: clientName=JmsProducer0, value=12000.483333333334</div><div class="line">Min Average Client Throughput Excluding Min/Max: clientName=JmsProducer0, value=11947.51</div><div class="line">Max Average Client Throughput Excluding Min/Max: clientName=JmsProducer0, value=11947.51</div><div class="line">[INFO] Created performance report: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/./target/JmsProducer_numClients1_numDests1_all.xml</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] BUILD SUCCESS</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Total time: 05:00 min</div><div class="line">[INFO] Finished at: 2016-02-02T12:00:53-07:00</div><div class="line">[INFO] Final Memory: 10M/128M</div><div class="line">[INFO] ------------------------------------------------------------------------</div></pre></td></tr></table></figure>
+<h3 id="Consumer-AMQP"><a href="#Consumer-AMQP" class="headerlink" title="Consumer AMQP"></a>Consumer AMQP</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">$&gt; mvn activemq-perf:consumer -DsysTest.propsConfigFile=src/main/resources/amqp-consumer.properties</div><div class="line">OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was removed in 8.0</div><div class="line">[INFO] Scanning for projects...</div><div class="line">[INFO]                                                                         </div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] </div><div class="line">[INFO] --- activemq-perf-maven-plugin:5.11.0:consumer (default-cli) @ amqp-perf-test ---</div><div class="line">[INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/amqp-consumer.properties</div><div class="line">[INFO] Created: org.apache.qpid.jms.JmsConnectionFactory using SPIConnectionFactory: org.jboss.examples.amqp.spi.AMQPReflectionSPIConnectionFactory</div><div class="line">[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms</div><div class="line">[INFO] Creating queue: queue://TEST.FOO</div><div class="line">[INFO] Best match for SASL auth was: SASL-PLAIN</div><div class="line">[INFO] Connection ID:bearkat-51184-1454439351110-0:2 connected to remote Broker: amqp://localhost:5672</div><div class="line">[INFO] Creating JMS Connection: Provider=QpidJMS-0.5.0, JMS Spec=1.1</div><div class="line">[INFO] Creating non-durable consumer to: TEST.FOO</div><div class="line">[INFO] Starting to asynchronously receive messages for 300000 ms...</div><div class="line">[INFO] Client completed</div><div class="line">#########################################</div><div class="line">####    SYSTEM THROUGHPUT SUMMARY    ####</div><div class="line">#########################################</div><div class="line">System Total Throughput: 3583507</div><div class="line">System Total Clients: 1</div><div class="line">System Average Throughput: 11945.023333333333</div><div class="line">System Average Throughput Excluding Min/Max: 11899.69</div><div class="line">System Average Client Throughput: 11945.023333333333</div><div class="line">System Average Client Throughput Excluding Min/Max: 11899.69</div><div class="line">Min Client Throughput Per Sample: clientName=JmsConsumer0, value=0</div><div class="line">Max Client Throughput Per Sample: clientName=JmsConsumer0, value=13600</div><div class="line">Min Client Total Throughput: clientName=JmsConsumer0, value=3583507</div><div class="line">Max Client Total Throughput: clientName=JmsConsumer0, value=3583507</div><div class="line">Min Average Client Throughput: clientName=JmsConsumer0, value=11945.023333333333</div><div class="line">Max Average Client Throughput: clientName=JmsConsumer0, value=11945.023333333333</div><div class="line">Min Average Client Throughput Excluding Min/Max: clientName=JmsConsumer0, value=11899.69</div><div class="line">Max Average Client Throughput Excluding Min/Max: clientName=JmsConsumer0, value=11899.69</div><div class="line">[INFO] Created performance report: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/./target/JmsConsumer_numClients1_numDests1_equal.xml</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] BUILD SUCCESS</div><div class="line">[INFO] ------------------------------------------------------------------------</div><div class="line">[INFO] Total time: 05:01 min</div><div class="line">[INFO] Finished at: 2016-02-02T12:00:51-07:00</div><div class="line">[INFO] Final Memory: 12M/243M</div><div class="line">[INFO] ------------------------------------------------------------------------</div></pre></td></tr></table></figure>
+<p>That’s it! You can see that OpenWire is quite a bit faster in this case. But please don’t take my word for it… clone the project, tweak some configurations, try scaling the producers/consumers/brokers, and run the test yourself to see what results you’ll get.</p>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://joshdreagan.github.io/2016/02/02/amqp_performance_testing/" data-id="ciqwkjywj000ylolhr068lmyf" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    Ordered Messaging With ActiveMQ &amp; Camel
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2015/12/04/custom_camel_loadbalancer_with_infinispan/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Custom Camel LoadBalancer With Infinispan</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/05/27/ordered_messaging_with_activemq_and_camel//post-bg.jpg)" alt="Ordered Messaging With ActiveMQ &amp; Camel" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" class="title">Ordered Messaging With ActiveMQ &amp; Camel</a></p>
+                            <p class="item-date"><time datetime="2016-05-27T06:00:00.000Z" itemprop="datePublished">2016-05-27</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/02/02/amqp_performance_testing/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/02/02/amqp_performance_testing//post-bg.png)" alt="AMQP Performance Testing With JBoss A-MQ" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/02/02/amqp_performance_testing/" class="title">AMQP Performance Testing With JBoss A-MQ</a></p>
+                            <p class="item-date"><time datetime="2016-02-02T07:00:00.000Z" itemprop="datePublished">2016-02-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2015/12/04/custom_camel_loadbalancer_with_infinispan/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2015/12/04/custom_camel_loadbalancer_with_infinispan//post-bg.png)" alt="Custom Camel LoadBalancer With Infinispan" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2015/12/04/custom_camel_loadbalancer_with_infinispan/" class="title">Custom Camel LoadBalancer With Infinispan</a></p>
+                            <p class="item-date"><time datetime="2015-12-04T07:00:00.000Z" itemprop="datePublished">2015-12-04</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2015/10/30/correcting_data_with_fuse_and_bpms/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2015/10/30/correcting_data_with_fuse_and_bpms//post-bg.png)" alt="Correcting Malformed Data With Fuse+BPMS" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2015/10/30/correcting_data_with_fuse_and_bpms/" class="title">Correcting Malformed Data With Fuse+BPMS</a></p>
+                            <p class="item-date"><time datetime="2015-10-30T06:00:00.000Z" itemprop="datePublished">2015-10-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2015/08/04/fuse_fabric_offline_ci__cd/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2015/08/04/fuse_fabric_offline_ci__cd//post-bg.png)" alt="Fuse Fabric Offline CI/CD" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2015/08/04/fuse_fabric_offline_ci__cd/" class="title">Fuse Fabric Offline CI/CD</a></p>
+                            <p class="item-date"><time datetime="2015-08-04T06:00:00.000Z" itemprop="datePublished">2015-08-04</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activemq/">activemq</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/camel/">camel</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cxf/">cxf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eap/">eap</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuse/">fuse</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jboss/">jboss</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/karaf/">karaf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openshift/">openshift</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wildfly/">wildfly</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2016 Josh Reagan<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
