@@ -12,8 +12,8 @@ tags:
 - cxf
 ---
 
-
-This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a contract-first based web services java project. We'll then convert that project to a WAR file so that it can be deployed to JBoss EAP. Finally, we'll deploy the project and verify that it is running.<!-- more -->
+This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a contract-first based web services java project. We'll then convert that project to a WAR file so that it can be deployed to JBoss EAP. Finally, we'll deploy the project and verify that it is running.
+<!-- more -->
 
 Here are a few assumptions before you begin:
 

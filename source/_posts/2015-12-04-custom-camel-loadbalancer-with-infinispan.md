@@ -9,8 +9,8 @@ tags:
 - wildfly
 ---
 
-
-Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,... the list goes on and on. But being that it's a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.<!-- more -->
+Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,... the list goes on and on. But being that it's a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.
+<!-- more -->
 
 > The sample code for this post can be found at [https://github.com/joshdreagan/infinispan-discovery](https://github.com/joshdreagan/infinispan-discovery)
 

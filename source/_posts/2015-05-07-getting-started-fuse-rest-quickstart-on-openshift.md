@@ -13,8 +13,8 @@ tags:
 - jboss
 ---
 
-
-This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat's OpenShift Online infrastructure.<!-- more -->
+This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat's OpenShift Online infrastructure.
+<!-- more -->
 
 The first thing you'll do is open up a browser and navigate to [OpenShift Online](https://openshift.redhat.com/). If you don't already have an account, you can sign up for a free one. However, the free account is restricted to 3 _small_ gears which will not run JBoss Fuse instances. So you will need to upgrade to a paid account to complete this guide.
 

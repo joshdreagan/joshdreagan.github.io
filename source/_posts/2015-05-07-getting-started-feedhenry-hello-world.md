@@ -7,8 +7,8 @@ tags:
 - feedhenry
 ---
 
-
-This guide demonstrates step-by-step how to create and run your first FeedHenry Hello World project.<!-- more -->
+This guide demonstrates step-by-step how to create and run your first FeedHenry Hello World project.
+<!-- more -->
 
 # Step 1: Create A New FeedHenry Project
 

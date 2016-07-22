@@ -10,8 +10,8 @@ tags:
 - jboss
 ---
 
-
-This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We'll then deploy the project to a JBoss Fuse server and verify that it is running properly. <!-- more -->
+This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We'll then deploy the project to a JBoss Fuse server and verify that it is running properly.
+<!-- more -->
 
 Here are a few assumptions before you begin:
 

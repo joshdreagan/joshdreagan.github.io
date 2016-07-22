@@ -8,8 +8,8 @@ tags:
 - camel
 ---
 
-
-I've been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way... It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it's really not all that simple once you try to scale. In this blog post, we'll explore in a bit more detail and give some possible solutions.<!-- more -->
+I've been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way... It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it's really not all that simple once you try to scale. In this blog post, we'll explore in a bit more detail and give some possible solutions.
+<!-- more -->
 
 > The sample code for this blog can be found at [https://github.com/joshdreagan/ordered-activemq-consumer](https://github.com/joshdreagan/ordered-activemq-consumer).
 

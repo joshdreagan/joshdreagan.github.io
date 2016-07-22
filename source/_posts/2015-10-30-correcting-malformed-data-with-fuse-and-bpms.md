@@ -13,10 +13,10 @@ tags:
 - jboss
 ---
 
-
 ## The Problem
 
-In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can't parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can't just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.<!-- more -->
+In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can't parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can't just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.
+<!-- more -->
 
 ## The Solution
 

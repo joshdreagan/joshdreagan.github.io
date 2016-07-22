@@ -12,8 +12,8 @@ tags:
 - jboss
 ---
 
-
-This is a follow-on to the [excellent blog post](http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/) that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.<!-- more -->
+This is a follow-on to the [excellent blog post](http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/) that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.
+<!-- more -->
 
 > The sample code for this blog can be found at [https://github.com/joshdreagan/fuse-fabric-promotion-build](https://github.com/joshdreagan/fuse-fabric-promotion-build). This is just a forked version of [Christian's original sample code](/home/jreagan/Development/Projects/joshdreagan/joshdreagan.github.io/_posts/2015-08-04-fuse_fabric_offline_ci__cd.markdown) with the changes outlined below.
 

@@ -14,8 +14,8 @@ tags:
 - jboss
 ---
 
-
-This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat's OpenShift Online.<!-- more -->
+This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat's OpenShift Online.
+<!-- more -->
 
 Here are a few assumptions before you begin:
 

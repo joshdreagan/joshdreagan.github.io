@@ -9,8 +9,8 @@ tags:
 - a-mq
 ---
 
-
-I recently had a customer that wanted us to do some load testing of [Red Hat's JBoss A-MQ](http://www.jboss.org/products/amq/overview/) for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ's native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn't see any blogs or posts on the subject. More specifically, I didn't see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I'd write up some steps and post my results for future reference.<!-- more -->
+I recently had a customer that wanted us to do some load testing of [Red Hat's JBoss A-MQ](http://www.jboss.org/products/amq/overview/) for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ's native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn't see any blogs or posts on the subject. More specifically, I didn't see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I'd write up some steps and post my results for future reference.
+<!-- more -->
 
 > __Please note that the purpose of this blog post is not to give you a number of msg/s to expect or tell you the absolute best way to tune your broker. The purpose of this post is to show you how to run the tests yourself and give you some very rough idea of the performance difference between the two protocols. All of my testing was done on my laptop using the default configurations. You will probably get wildly different performance in your environment and will likely need to tune the broker specific to your use case to get the best performance possible.__
 
