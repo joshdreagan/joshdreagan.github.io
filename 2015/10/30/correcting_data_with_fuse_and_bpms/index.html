@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Reagan's Blog">
 <meta property="og:description" content="The ProblemIn many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a">
 <meta property="og:image" content="http://joshdreagan.github.io/post-bg.png">
-<meta property="og:updated_time" content="2016-07-21T16:51:59.433Z">
+<meta property="og:updated_time" content="2016-07-21T22:17:49.586Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Correcting Malformed Data With Fuse+BPMS">
 <meta name="twitter:description" content="The ProblemIn many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a">
@@ -158,7 +158,7 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                10
+                11
                 <span>posts</span>
             </div>
             <div class="article-info-block">
@@ -256,7 +256,7 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <h2 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h2><p>In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can’t parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can’t just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.<a id="more"></a></p>
+            <h2 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h2><p>In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can’t parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can’t just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.<br><a id="more"></a></p>
 <h2 id="The-Solution"><a href="#The-Solution" class="headerlink" title="The Solution"></a>The Solution</h2><p>So we need to manually correct the data. We could create our own state machine to walk through the steps for correction. But we’d need to create a task queue, handle locking/timeouts, and create some UIs to allow the users to pull up the data and fix it. Also, we’ll probably want to restrict access to some group (like “analyst”), and since the task will likely be long-running we’ll want to create a set of UIs that allow operators to view the current state. All of this requires a significant amount of effort to complete (and is quite difficult to get right).</p>
 <p>Or… we could just use BPMS which already does all of that for us.</p>
 <p>Take a look at the <a href="https://github.com/joshdreagan/mdfu" target="_blank" rel="external">Malformed Data Fixer-Upper</a> project on GitHub. Follow the instructions in the <a href="https://github.com/joshdreagan/mdfu/blob/master/README.md" target="_blank" rel="external">README.md</a> file to get it up and running.</p>
@@ -272,7 +272,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://joshdreagan.github.io/2015/10/30/correcting_data_with_fuse_and_bpms/" data-id="ciqwpdx2y000tu1lh4hdixoje" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://joshdreagan.github.io/2015/10/30/correcting_data_with_fuse_and_bpms/" data-id="cir773h3u00087alhg37eob7o" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -387,6 +387,25 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="/2016/07/28/ha_deployments_with_fuse/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/07/28/ha_deployments_with_fuse//post-bg.jpg)" alt="HA Deployments With Fuse" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/07/28/ha_deployments_with_fuse/" class="title">HA Deployments With Fuse</a></p>
+                            <p class="item-date"><time datetime="2016-07-29T03:34:04.000Z" itemprop="datePublished">2016-07-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" class="thumbnail">
     
     
@@ -460,25 +479,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="/2015/08/04/fuse_fabric_offline_ci__cd/" class="thumbnail">
-    
-    
-        <span style="background-image:url(/2015/08/04/fuse_fabric_offline_ci__cd//post-bg.png)" alt="Fuse Fabric Offline CI/CD" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="/2015/08/04/fuse_fabric_offline_ci__cd/" class="title">Fuse Fabric Offline CI/CD</a></p>
-                            <p class="item-date"><time datetime="2015-08-04T06:00:00.000Z" itemprop="datePublished">2015-08-04</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -488,7 +488,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -497,7 +497,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activemq/">activemq</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/camel/">camel</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cxf/">cxf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eap/">eap</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuse/">fuse</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jboss/">jboss</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/karaf/">karaf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openshift/">openshift</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wildfly/">wildfly</a><span class="tag-list-count">2</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/a-mq/">a-mq</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activemq/">activemq</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/camel/">camel</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eap/">eap</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuse/">fuse</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jboss/">jboss</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/karaf/">karaf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openshift/">openshift</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wildfly/">wildfly</a><span class="tag-list-count">2</span></li></ul>
         </div>
     </div>
 

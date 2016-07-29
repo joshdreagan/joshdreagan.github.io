@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://joshdreagan.github.io/"/>
-  <updated>2016-07-21T16:37:32.827Z</updated>
+  <updated>2016-07-29T03:34:04.167Z</updated>
   <id>http://joshdreagan.github.io/</id>
   
   <author>
@@ -16,13 +16,83 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>HA Deployments With Fuse</title>
+    <link href="http://joshdreagan.github.io/2016/07/28/ha_deployments_with_fuse/"/>
+    <id>http://joshdreagan.github.io/2016/07/28/ha_deployments_with_fuse/</id>
+    <published>2016-07-29T03:34:04.000Z</published>
+    <updated>2016-07-29T03:34:04.167Z</updated>
+    
+    <content type="html"><![CDATA[<p>When out and about, I often get the question: “How do I setup HA (high availability) with <a href="http://developers.redhat.com/products/fuse/overview/" target="_blank" rel="external">Red Hat’s JBoss Fuse</a>?”. People ask this question and they expect a simple, straightforward answer. And why shouldn’t they? The question is simple enough right? I could ask the same question about something like <a href="http://tomcat.apache.org/" target="_blank" rel="external">Tomcat</a> and get a well documented answer involving little more than a loadbalancer. Unfortunately, the answer for Fuse is a bit more involved and usually starts with the annoying response of “it depends”.<br><a id="more"></a></p>
+<p>So let’s expand on that a bit… Considering my previous example of Tomcat (which is just a Servlet container), what protocol does it speak? Easy! It only talks 1 protocol… HTTP. But what protocol does Fuse speak? Well… since it’s an integration framework, the answer is several. It may be consuming from a REST service and placing the contents in files. Or maybe it’s accepting HL7 messages over TCP and dumping them onto JMS queues. And the way that you’d make a REST service HA is very different from the way that you’d make a file consumer HA (which is very different from the way you’d make a JMS broker HA, …). So you can see that while the answer of “it depends” might be a bit annoying, it is actually the most accurate answer I could give.</p>
+<p>As of this writing, the <a href="http://camel.apache.org/components.html" target="_blank" rel="external">Camel Components</a> page lists 240 different components. And there’s no way I’m going to cover all of those in a blog post. So lets just focus on the one’s I run into most often.</p>
+<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><p>Many of the available Camel components speak HTTP. Among those would be <a href="http://camel.apache.org/cxfrs.html" target="_blank" rel="external">CXFRS</a> for REST services, <a href="http://camel.apache.org/cxf.html" target="_blank" rel="external">CXF</a> for SOAP services, and <a href="http://camel.apache.org/jetty.html" target="_blank" rel="external">Jetty</a> or <a href="http://camel.apache.org/servlet.html" target="_blank" rel="external">Servlet</a> for low level HTTP services. And because HTTP is so prolific, it is probably the most easily understood HA scenario we’ll cover. </p>
+<p>With HTTP, there are two modes that we need to talk about (stateless, &amp; stateful). </p>
+<p>Of the two, stateless is the most common and definitely the most recommended approach. It scales well, requires no coordination in a cluster, and is extremely easy to set up. You simply run however many instances you’d like of your service. The instances don’t have to know about eachother, and can be co-located or can be spread across datacenters. Once you have your services stood up, you simply place a loadbalancer (ie, <a href="https://httpd.apache.org/" target="_blank" rel="external">Apache HTTPd</a>, <a href="https://www.nginx.com/" target="_blank" rel="external">NGINX</a>, <a href="http://www.haproxy.org/" target="_blank" rel="external">HAProxy</a>, …) in front of them. There are even strategies that can be used to make the loadbalancers themselves HA (ie, hosting multiple instances with their own class A DNS records). So if any instance of your service goes down, the loadbalancer will simply redirect traffic to one of the other available instances. The client will send in his next request and have no idea that he isn’t talking to the same instance. Honestly, this topic has been covered so much that I don’t need to go into great detail about it. But here’s a very generic picture:</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/http_stateless.png" alt="HTTP Stateless" title="HTTP Stateless">
+<p>Stateful HTTP apps have fallen out of favor over the last decade or so. Which is a good thing in my opinion! They usually require some sort of session replication and/or coordination among the cluster. So now all of your instances need to know about eachother (limiting our ability to scale). And every time an object/value is placed in the session, it must be replicated to the other members (causing quite a bit of overhead that compounds as the cluster grows). We can mitigate some of these problems by being creative with our architecture. For instance, instead of having every member in the cluster connected in a mesh configuration we can split our servers into multiple meshes and do “sticky” loadbalancing to them. But it’s all a lot of hassle that you shouldn’t deal with if you can find a way to make your apps stateless instead. Once again, this is a topic that has been covered many times on the internet. The only thing specific to Fuse (and the only thing I’ll elaborate on in this blog) is setting up session replication for the Karaf container.</p>
+<p>For the most part, if you’re running Camel on any JavaEE app server (and tying to its Servlet container), it will have its own mechanism for session replication. Most of the time, this is completely hidden away from you, and you get it for “free” just by setting up your servers in a cluster configuration. For instance, <a href="http://developers.redhat.com/products/eap/overview/" target="_blank" rel="external">JBoss EAP</a> uses an internal <a href="http://infinispan.org/" target="_blank" rel="external">Infinispan</a> cache to store its session data. If you run your EAP instances in “domain” mode, they will automatically be clustered and will replicate sessions accordingly. While you can override the cache settings and tweak them to fit your needs, you usually don’t have to mess with it. However, if you are running on a Karaf container, you’ll have to do a bit more of the setup yourself. This is because Karaf doesn’t assume that you’re using sessions, or even that you’re using Servlets. And if you do decide to use Servlets, it doesn’t assume which Servlet container you’ll use (ie, Tomcat, Jetty, …). So when you use any of the HTTP based components that I listed above on Karaf, they will (by default) fire up an embedded Jetty container. Luckily, Jetty is pluggable enough that it allows you to swap out its session management implementation. So you could, for instance, setup and configure Jetty to use an Infinispan cluster. Take a look at the <a href="http://www.eclipse.org/jetty/documentation/9.4.x/session-management.html" target="_blank" rel="external">Jetty Docs</a> for more details. In any case, the mechanism by which a session is handled is transparent to your application. So it’s really more of a configuration detail. And just to stay consistent, here’s another generic picture:</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/http_stateful.png" alt="HTTP Stateful" title="HTTP Stateful">
+<h2 id="HL7-MLLP"><a href="#HL7-MLLP" class="headerlink" title="HL7/MLLP"></a>HL7/MLLP</h2><p>HL7/MLLP is a TCP based protocol for the healthcare industry. Digging in a bit more, HL7 (Health Level Seven) is the definition of the format of the message (which can be text or XML based), and MLLP (Minimal Lower Layer Protocol) just defines a couple of bytes that wrap the message so we know where to start/stop when reading it in. Support for HL7v2 is provided via the <a href="http://camel.apache.org/hl7.html" target="_blank" rel="external">HL7</a> component in conjunction with a TCP transport component for doing the actual socket handling (ie, <a href="http://camel.apache.org/mina2.html" target="_blank" rel="external">Mina</a>, or <a href="http://camel.apache.org/netty4.html" target="_blank" rel="external">Netty</a>). There is some work being done on an <a href="http://camel.apache.org/mllp.html" target="_blank" rel="external">MLLP</a> component that will make it a bit simpler to work with, but as of this writing it’s still a bit early. </p>
+<p>All of that said, regardless of the transport component that you choose, or whether you’re working with HL7v2 (text) or HL7v3 (XML), the interaction is stateless. That is to say that a client sends in a request message and synchronously receives an “ack/nack” response. That is the entire transaction. Any other interaction is a separate message/ack and is handled independently. So no server-side coordination is required by the message acceptors (see “<em>Note</em>“ below). And because no server-side coordination is required, you can just use any available TCP loadbalancer (similar to what we did with stateless HTTP above). </p>
+<p><em>Note: You may have a requirement to resequence the messages and process them in order. In which case, you can take a look at my previous blog: <a href="/2016/05/27/ordered_messaging_with_activemq_and_camel/" title="Ordered Messaging With ActiveMQ & Camel">Ordered Messaging With ActiveMQ & Camel</a>.</em> </p>
+<p>Here’s a sample NGINX loadbalancer configuration that I used for a recent engagement:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">events &#123;</div><div class="line">  worker_connections 1024;</div><div class="line">&#125;</div><div class="line">stream &#123;</div><div class="line">  server &#123;</div><div class="line">    listen 7000;</div><div class="line">    proxy_pass tcp_backend;</div><div class="line">  &#125;</div><div class="line">  upstream tcp_backend &#123;</div><div class="line">    server instance-1.local:7000;</div><div class="line">    server instance-2.local:7000;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>And here’s a (really simple) sample architecture:</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/hl7_mllp.png" alt="HL7/MLLP" title="HL7/MLLP">
+<h2 id="File-FTP"><a href="#File-FTP" class="headerlink" title="File/FTP"></a>File/FTP</h2><p>When consuming files using the <a href="http://camel.apache.org/file2.html" target="_blank" rel="external">File</a> or <a href="http://camel.apache.org/ftp.html" target="_blank" rel="external">FTP</a> components, there are a couple of different strategies that you can use for an HA setup: active/passive, and active/active.</p>
+<p>In an active/passive configuration, you will have a single (master) instance polling for files. All of the other instances (slaves) will be waiting on some kind of lock. The slave instances will not begin polling for files until they detect that the master is no longer alive and well. In this way, we make sure that multiple JVMs running the same file poller config aren’t stepping on eachother’s toes while trying to consume the files. So how do we setup this active/passive coordination? If you’re using <a href="http://fabric8.io/" target="_blank" rel="external">Fabric8</a> <strong>v1.x</strong> to cluster your <a href="http://karaf.apache.org/" target="_blank" rel="external">Karaf</a> instances, you can just use the <a href="http://fabric8.io/gitbook/camelEndpointMaster.html" target="_blank" rel="external">Master</a> component. It exploits the fact that a Fabric cluster uses a <a href="https://zookeeper.apache.org/" target="_blank" rel="external">ZooKeeper</a> ensemble internally and uses it as a locking mechanism. Nice and simple! But what if you’re not running in a Fabric cluster? You could stand up your own ZooKeeper ensemble… But that adds a bit of overhead that you might not be ok with if you’re not using it for anything else. Does that mean that you’re out of luck? Heck no! Camel rocks! We can just create our own custom <a href="http://camel.apache.org/routepolicy.html" target="_blank" rel="external">RoutePolicy</a> to do the same thing. Here’s an example that I threw together for a customer recently: <a href="https://github.com/joshdreagan/camel-singleton-policy" target="_blank" rel="external">https://github.com/joshdreagan/camel-singleton-policy</a>.</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/file_active-passive.png" alt="File Active/Passive" title="File Active/Passive">
+<p>Often times, you won’t need the highest possible performance when polling for files. That’s because the most common use case is that I receive a few files for batch processing <em>maybe</em> once a day. So I can probably handle the actual polling/processing on a single instance. And in that case, the active/passive configuration would be perfectly fine. But what if I’m not receiving batch files once a day? What if I’m processing satellite perturbation data (<strong>TONS</strong> of tiny files) coming in 24/7 in a neverending stream? Maybe now I want to take advantage of my entire cluster to poll/process in an active/active configuration. That way I can scale it up… Luckily, Camel makes this extremely easy. Because, again, Camel rocks! If you look at the available options for the file component, you’ll notice that it basically has an <a href="http://camel.apache.org/idempotent-consumer.html" target="_blank" rel="external">Idempotent Consumer</a> pattern baked right in (take a look at the <code>inProgressRepository</code> option). What’s more, it’s extremely flexible. It just needs any implementation of <code>org.apache.camel.spi.IdempotentRepository</code>. And there are already several implementations canned and ready to go. So you can use anything from Infinispan to a relational DB to coordinate your consumers. Here’s some sample code that uses Infinispan: <a href="https://github.com/joshdreagan/clustered-file-consumer" target="_blank" rel="external">https://github.com/joshdreagan/clustered-file-consumer</a>. Feel free to plagiarize!</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/file_active-active.png" alt="File Active/Active" title="File Active/Active">
+<h2 id="JMS-ActiveMQ"><a href="#JMS-ActiveMQ" class="headerlink" title="JMS (ActiveMQ)"></a>JMS (ActiveMQ)</h2><p>JMS (<a href="http://activemq.apache.org/" target="_blank" rel="external">ActiveMQ</a>) is definitely the most difficult HA scenario that I’ll cover. Which is why I procrastinated and saved it until the end. Well… sort of… When talking about JMS on Fuse, you have to specify whether you mean from a client’s perspective, or from the broker’s perspective. </p>
+<p>HA from the client’s perspective is actually quite simple. You just use the <a href="http://activemq.apache.org/failover-transport-reference.html" target="_blank" rel="external">Failover</a> transport when creating your <code>javax.jms.ConnectionFactory</code> and the failover is handled for you. If a broker goes down, the client libraries will transparently reconnect to the next broker (whether it’s a slave, or another master) and keep on chugging with little more than a blip in performance. But let’s spend a little time and talk about the more complex case of making the broker itself HA.</p>
+<p>When we say “make the broker HA”, what we really mean is “make the in-flight data that the broker is storing HA”. Because of the nature of messaging and it’s typical use case/requirements, this almost always ends up being a trade-off for performance vs reliability. So first let’s cover the easiest, best performing solution.</p>
+<p>In a <a href="http://activemq.apache.org/masterslave.html" target="_blank" rel="external">Master/Slave</a> (active/passive) architecture, two or more brokers point to the same physical data store (typically <a href="http://activemq.apache.org/kahadb.html" target="_blank" rel="external">KahaDB</a>). Because the store can only be written to by one instance at a time, we must use some form of locking (similar to what we talked about in the File/FTP section). The lock implementation that ActiveMQ uses is pluggable. So you can specify your own custom ones. But there are defaults for each of the <a href="http://activemq.apache.org/persistence.html" target="_blank" rel="external">persistence adapters</a> and I rarely see customers override them. </p>
+<p>Let me give a concrete example… When setting up ActiveMQ as a master/slave pair (<em>non-Fabric managed</em>) and using KahaDB, you would likely place the KahaDB storage directory on a shared filesystem (ie, NFSv4). Unless you customized the configuration, ActiveMQ would default to using an actual “lock” file. When the instances came up, they would both attempt to acquire a filesystem-level lock on that file. Whoever got there first would become master, would open up the KahaDB for read/write, and would open up any listeners to begin accepting client connections. Any other instances would fail to get the lock and would begin try-polling until they got it. And until then, they would not read/write the KahaDB, or accept client connections. So they’re passive…</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/activemq_master-slave.png" alt="ActiveMQ Master/Slave" title="ActiveMQ Master/Slave">
+<p>This is the simplest setup, but does have some caveats. First, we’ll need to setup a shared filesystem that both instances can see. This will likely be something like an NFSv4 share. And because we need an actual filesystem-level lock, we must use a filesystem that supports them (<em>which is why I used the example of NFSv4 above and not NFSv3</em>). You’ll probably also want to make the storage that hosts your NFS shares HA as well. So you’ll likely use a SAN or some hardware appliance that provides this functionality. <em>If you do so, make sure that any data duplication/backup that occurs is <strong>fully synchronous</strong> and that filesystem-level locks are preserved during a failover!</em> Looking at you EMC… Next, because of the shared storage, high throughput, and file locking requirements, the master/slave instances must live in the same datacenter. I’ve seen many clients try to skirt this requirement and it always ends badly. However, if set up correctly this provides nearly immediate failover of in-flight messages within a datacenter as well as high message throughput. So if this satisfies your requirements, stop here.</p>
+<p>So what if I have a requirement for HA across datacenters? Ok… let’s negotiate a little more. The simplest &amp; fastest solution is to use the master/slave setup outlined above, but also have a warm site setup in another DC. If you experience a full DC outage, you can manually migrate the storage hosting your KahaDB to the backup DC, configure an ActiveMQ instance to point to it, and bring it online. It doesn’t care where the KahaDB came from, or if it was previously owned by another instance. It will simply read in any messages that are currently stored and begin processing/delivering them to consumers. <em>If you do this, make sure to remember not to mount the storage up to the primary again when it comes back online or you will end up with duplicate messages.</em> Alternately, you can just wait until the downed DC comes back online. As long as there is no storage loss, all of your messages are safe and will be processed. So it really comes down to the SLA (Service-Level Agreement) that you must support, how likely you think a full DC outage is to occur, and how much manual interaction you’re ok with if it does.</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/activemq_cross-dc.png" alt="ActiveMQ Cross-DC" title="ActiveMQ Cross-DC">
+<p>Well, what if I have to protect against a <em>real</em> DC outage? This is affectionately known in the defense industry as “the smoking-hole scenario”. That is to say, what if I can’t be guaranteed that I’ll be able to migrate storage during an outage because my DC is not simply <em>down</em>, but rather <em>destroyed</em>? Well first things first… Prepare to make some serious performance tradeoffs. <em>I cannot stress this enough! You will not be processing large sets of data while synchronously replicating across a WAN.</em> </p>
+<p>One solution that I’ve seen customers use is to replicate the storage using some sort of block-level disk replication software. <a href="https://www.drbd.org/" target="_blank" rel="external">DRBD</a> works well enough in this situation because it gives you a little bit of flexibility over performance vs absolute reliability (look at modes B or C in their docs (<strong>not A</strong>)). Basically, every write at the filesystem level is a blocking call. That call usually returns as soon as the data has been physically written to the disk. In the case of a block-level replication solution, that blocking call will not return until the data has been written to both the primary and the backup disks. Because this all occurs at the filesystem level, it is completely out of ActiveMQ’s hands. It just thinks it’s been given really slow storage. One thing to note here is that you would not set up an ActiveMQ Master/Slave pair using this technology because the filesystem-level locks would not replicate. So you would do the manual failover to the warm site as described above. The difference is that you won’t have to migrate the storage as it’s already been replicated safely to the backup DC.</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/activemq_cross-dc_drbd.png" alt="ActiveMQ Cross-DC DRBD" title="ActiveMQ Cross-DC DRBD">
+<p>The second set of solutions that I’ve seen are a decent tick faster (still not blazing though), but add a bit complication to the clients. They’re both based on some variation of fanout/multicast. The basic gist of it is that the producer clients will send a copy of every message to a broker on both DCs. This isn’t that bad for the producers since the <a href="http://activemq.apache.org/fanout-transport-reference.html" target="_blank" rel="external">Fanout</a> transport handles all of the work for them. In fact, you can even toss in ActiveMQ’s <a href="http://activemq.apache.org/the-proxy-connector.html" target="_blank" rel="external">Proxy Connector</a> and the producer clients won’t have to change a bit.</p>
+<img src="/2016/07/28/ha_deployments_with_fuse/activemq_cross-dc_fanout.png" alt="ActiveMQ Cross-DC Fanout" title="ActiveMQ Cross-DC Fanout">
+<p>I know what you’re thinking… That doesn’t sound too bad. Where’s all this “complication” you were rambling on about? Don’t get too excited. We just haven’t gotten there yet. The added complication comes on the consumer/processing side. Basically, I now have duplicate messages that I’m processing. And I either have to prevent them using something like <a href="http://camel.apache.org/idempotent-consumer.html" target="_blank" rel="external">Idempotent Consumers</a> or embrace them by adding complication to my code.</p>
+<p>The idempotent consumer strategy looks attractive because Camel makes it extremely easy. I just have to set up some sort of shared <code>org.apache.camel.spi.IdempotentRepository</code> and add a few lines of Camel routing to my <a href="http://camel.apache.org/jms.html" target="_blank" rel="external">JMS</a> consumers. Take a look at the <a href="https://github.com/joshdreagan/clustered-amq-examples" target="_blank" rel="external">https://github.com/joshdreagan/clustered-amq-examples</a> example <em>(specifically the “clustered-amq-examples-idempotent” module)</em> for more details. The problem is that I have to set up a repository that synchronously replicates its data across a WAN. So aren’t I back to the same exact problem I had before? Well… not quite. Definitely similar though. I’ll get a small performance boost since the producers are multicasting the message to both brokers in parallel (but blocking until they get back the configured minimum number of “acks”). And the synchronous replication that I mentioned is only an idempotent key (ie, the <code>JMSMessageID</code>) and not the entire message itself. Also, all instances are active. So I’m getting a bit more loadbalancing for my consumer clients. And they can failover faster than if I had a warm site setup (since I don’t have to perform a manual failover). That being said, don’t expect the performance to be stellar.</p>
+<p>But what if I want my performance to be stellar? I told you you can’t have it! But we can possibly get a tiny bit better. The second option that I mentioned is to embrace the duplicates. Let’s expand on that. If I multicast/fanout a copy of every message to both brokers, I’m going to take that hit. If I want a fully synchronous, total data backup, there’s just no getting around it. But I don’t necessarily have to have my consumers coordinate. What if I just went ahead and processed the duplicates? Would the world end? Let’s use a concrete example. Let’s pretend that my consumers were accepting messages and placing each one into a relational DB. And let’s say that I might have some REST service that, when invoked with some ID, returns a record for that ID from that relational DB. If I inserted both copies of the message, my REST service would return two records. That’s not ideal! But what if it didn’t? What if I just had my REST service run a ever-so-slightly more complicated query that just returned the first record it found? I don’t care which one. They’re both the same. Now I’m back to the result that I wanted. And I have a pretty robust system that can handle duplicate records (both intentional and unintentional). Not too shabby! Now since you’re never satisfied, you might be asking about all of that duplicated data taking up extra space. Well that’s easy enough to fix… Simply have a “cleanup” job that runs at some predifined interval and removes any duplicates that it finds. I don’t care when it runs, or which record it ends up removing. My application will always return the correct result. Take a look at the <a href="https://github.com/joshdreagan/clustered-amq-examples" target="_blank" rel="external">https://github.com/joshdreagan/clustered-amq-examples</a> example <em>(specifically the “clustered-amq-examples-dupsok” module)</em> for more details.</p>
+<p>So now you see why I saved JMS (ActiveMQ) HA to the very end. It’s a complicated subject with lots of possible solutions. Hopefully, one of them meets your needs. If not, there is just no pleasing you… Either way, this blog post has become way too wordy. So I’m calling it a day. :)</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;When out and about, I often get the question: “How do I setup HA (high availability) with &lt;a href=&quot;http://developers.redhat.com/products/fuse/overview/&quot;&gt;Red Hat’s JBoss Fuse&lt;/a&gt;?”. People ask this question and they expect a simple, straightforward answer. And why shouldn’t they? The question is simple enough right? I could ask the same question about something like &lt;a href=&quot;http://tomcat.apache.org/&quot;&gt;Tomcat&lt;/a&gt; and get a well documented answer involving little more than a loadbalancer. Unfortunately, the answer for Fuse is a bit more involved and usually starts with the annoying response of “it depends”.&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+    
+      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+    
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+    
+      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+    
+      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Ordered Messaging With ActiveMQ &amp; Camel</title>
     <link href="http://joshdreagan.github.io/2016/05/27/ordered_messaging_with_activemq_and_camel/"/>
     <id>http://joshdreagan.github.io/2016/05/27/ordered_messaging_with_activemq_and_camel/</id>
     <published>2016-05-27T06:00:00.000Z</published>
-    <updated>2016-07-21T16:37:32.827Z</updated>
+    <updated>2016-07-21T22:17:28.226Z</updated>
     
-    <content type="html"><![CDATA[<p>I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it’s really not all that simple once you try to scale. In this blog post, we’ll explore in a bit more detail and give some possible solutions.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it’s really not all that simple once you try to scale. In this blog post, we’ll explore in a bit more detail and give some possible solutions.<br><a id="more"></a></p>
 <blockquote>
 <p>The sample code for this blog can be found at <a href="https://github.com/joshdreagan/ordered-activemq-consumer" target="_blank" rel="external">https://github.com/joshdreagan/ordered-activemq-consumer</a>.</p>
 </blockquote>
@@ -51,7 +121,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it’s really not all that simple once you try to scale. In this blog post, we’ll explore in a bit more detail and give some possible solutions.
+      &lt;p&gt;I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it’s really not all that simple once you try to scale. In this blog post, we’ll explore in a bit more detail and give some possible solutions.&lt;br&gt;
     
     </summary>
     
@@ -67,9 +137,9 @@
     <link href="http://joshdreagan.github.io/2016/02/02/amqp_performance_testing/"/>
     <id>http://joshdreagan.github.io/2016/02/02/amqp_performance_testing/</id>
     <published>2016-02-02T07:00:00.000Z</published>
-    <updated>2016-07-21T16:53:53.732Z</updated>
+    <updated>2016-07-21T22:17:33.886Z</updated>
     
-    <content type="html"><![CDATA[<p>I recently had a customer that wanted us to do some load testing of <a href="http://www.jboss.org/products/amq/overview/" target="_blank" rel="external">Red Hat’s JBoss A-MQ</a> for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn’t see any blogs or posts on the subject. More specifically, I didn’t see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I’d write up some steps and post my results for future reference.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>I recently had a customer that wanted us to do some load testing of <a href="http://www.jboss.org/products/amq/overview/" target="_blank" rel="external">Red Hat’s JBoss A-MQ</a> for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn’t see any blogs or posts on the subject. More specifically, I didn’t see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I’d write up some steps and post my results for future reference.<br><a id="more"></a></p>
 <blockquote>
 <p><strong>Please note that the purpose of this blog post is not to give you a number of msg/s to expect or tell you the absolute best way to tune your broker. The purpose of this post is to show you how to run the tests yourself and give you some very rough idea of the performance difference between the two protocols. All of my testing was done on my laptop using the default configurations. You will probably get wildly different performance in your environment and will likely need to tune the broker specific to your use case to get the best performance possible.</strong></p>
 </blockquote>
@@ -90,7 +160,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;I recently had a customer that wanted us to do some load testing of &lt;a href=&quot;http://www.jboss.org/products/amq/overview/&quot;&gt;Red Hat’s JBoss A-MQ&lt;/a&gt; for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn’t see any blogs or posts on the subject. More specifically, I didn’t see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I’d write up some steps and post my results for future reference.
+      &lt;p&gt;I recently had a customer that wanted us to do some load testing of &lt;a href=&quot;http://www.jboss.org/products/amq/overview/&quot;&gt;Red Hat’s JBoss A-MQ&lt;/a&gt; for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ’s native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn’t see any blogs or posts on the subject. More specifically, I didn’t see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I’d write up some steps and post my results for future reference.&lt;br&gt;
     
     </summary>
     
@@ -108,9 +178,9 @@
     <link href="http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/"/>
     <id>http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/</id>
     <published>2015-12-04T07:00:00.000Z</published>
-    <updated>2016-07-21T16:53:31.622Z</updated>
+    <updated>2016-07-21T22:17:43.626Z</updated>
     
-    <content type="html"><![CDATA[<p>Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,… the list goes on and on. But being that it’s a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,… the list goes on and on. But being that it’s a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.<br><a id="more"></a></p>
 <blockquote>
 <p>The sample code for this post can be found at <a href="https://github.com/joshdreagan/infinispan-discovery" target="_blank" rel="external">https://github.com/joshdreagan/infinispan-discovery</a></p>
 </blockquote>
@@ -143,7 +213,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,… the list goes on and on. But being that it’s a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.
+      &lt;p&gt;Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,… the list goes on and on. But being that it’s a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.&lt;br&gt;
     
     </summary>
     
@@ -161,9 +231,9 @@
     <link href="http://joshdreagan.github.io/2015/10/30/correcting_data_with_fuse_and_bpms/"/>
     <id>http://joshdreagan.github.io/2015/10/30/correcting_data_with_fuse_and_bpms/</id>
     <published>2015-10-30T06:00:00.000Z</published>
-    <updated>2016-07-21T16:51:59.433Z</updated>
+    <updated>2016-07-21T22:17:49.586Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h2><p>In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can’t parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can’t just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.<a id="more"></a></p>
+    <content type="html"><![CDATA[<h2 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h2><p>In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can’t parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can’t just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.<br><a id="more"></a></p>
 <h2 id="The-Solution"><a href="#The-Solution" class="headerlink" title="The Solution"></a>The Solution</h2><p>So we need to manually correct the data. We could create our own state machine to walk through the steps for correction. But we’d need to create a task queue, handle locking/timeouts, and create some UIs to allow the users to pull up the data and fix it. Also, we’ll probably want to restrict access to some group (like “analyst”), and since the task will likely be long-running we’ll want to create a set of UIs that allow operators to view the current state. All of this requires a significant amount of effort to complete (and is quite difficult to get right).</p>
 <p>Or… we could just use BPMS which already does all of that for us.</p>
 <p>Take a look at the <a href="https://github.com/joshdreagan/mdfu" target="_blank" rel="external">Malformed Data Fixer-Upper</a> project on GitHub. Follow the instructions in the <a href="https://github.com/joshdreagan/mdfu/blob/master/README.md" target="_blank" rel="external">README.md</a> file to get it up and running.</p>
@@ -173,7 +243,7 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;The-Problem&quot;&gt;&lt;a href=&quot;#The-Problem&quot; class=&quot;headerlink&quot; title=&quot;The Problem&quot;&gt;&lt;/a&gt;The Problem&lt;/h2&gt;&lt;p&gt;In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can’t parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can’t just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.
+      &lt;h2 id=&quot;The-Problem&quot;&gt;&lt;a href=&quot;#The-Problem&quot; class=&quot;headerlink&quot; title=&quot;The Problem&quot;&gt;&lt;/a&gt;The Problem&lt;/h2&gt;&lt;p&gt;In many environments, it is common to ingest data as a batch process. This is usually accomplished by polling a directory (or FTP server) for files. The issue is that polling for files is a one-way communication. So if you get a file that you can’t parse (or one that is invalid for any other reason), you have no way of communicating that back to the original sender. How do you handle the error? You likely can’t just drop the data on the floor. That really only leaves one option and that is to correct the data and re-ingest it.&lt;br&gt;
     
     </summary>
     
@@ -199,9 +269,9 @@
     <link href="http://joshdreagan.github.io/2015/08/04/fuse_fabric_offline_ci__cd/"/>
     <id>http://joshdreagan.github.io/2015/08/04/fuse_fabric_offline_ci__cd/</id>
     <published>2015-08-04T06:00:00.000Z</published>
-    <updated>2016-07-21T16:53:14.952Z</updated>
+    <updated>2016-07-21T22:17:55.126Z</updated>
     
-    <content type="html"><![CDATA[<p>This is a follow-on to the <a href="http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/" target="_blank" rel="external">excellent blog post</a> that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>This is a follow-on to the <a href="http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/" target="_blank" rel="external">excellent blog post</a> that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.<br><a id="more"></a></p>
 <blockquote>
 <p>The sample code for this blog can be found at <a href="https://github.com/joshdreagan/fuse-fabric-promotion-build" target="_blank" rel="external">https://github.com/joshdreagan/fuse-fabric-promotion-build</a>. This is just a forked version of <a href="/home/jreagan/Development/Projects/joshdreagan/joshdreagan.github.io/_posts/2015-08-04-fuse_fabric_offline_ci__cd.markdown">Christian’s original sample code</a> with the changes outlined below.</p>
 </blockquote>
@@ -225,7 +295,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;This is a follow-on to the &lt;a href=&quot;http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/&quot;&gt;excellent blog post&lt;/a&gt; that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.
+      &lt;p&gt;This is a follow-on to the &lt;a href=&quot;http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/&quot;&gt;excellent blog post&lt;/a&gt; that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.&lt;br&gt;
     
     </summary>
     
@@ -238,9 +308,9 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
-    
       <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
+    
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
   </entry>
   
@@ -249,9 +319,9 @@
     <link href="http://joshdreagan.github.io/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/"/>
     <id>http://joshdreagan.github.io/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/</id>
     <published>2015-05-08T06:00:00.000Z</published>
-    <updated>2016-07-21T16:52:54.633Z</updated>
+    <updated>2016-07-21T22:18:03.146Z</updated>
     
-    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.<br><a id="more"></a></p>
 <p>Here are a few assumptions before you begin:</p>
 <ul>
 <li><a href="/2015/05/07/getting_started__feedhenry_hello_world/" title="You've already completed the guide in my previous blog about creating a FeedHenry Hello World project">You've already completed the guide in my previous blog about creating a FeedHenry Hello World project</a></li>
@@ -304,7 +374,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.
+      &lt;p&gt;This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat’s OpenShift Online.&lt;br&gt;
     
     </summary>
     
@@ -317,69 +387,11 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
-    
-      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
-    
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
     
       <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
-  </entry>
-  
-  <entry>
-    <title>Getting Started - FeedHenry Hello World</title>
-    <link href="http://joshdreagan.github.io/2015/05/07/getting_started__feedhenry_hello_world/"/>
-    <id>http://joshdreagan.github.io/2015/05/07/getting_started__feedhenry_hello_world/</id>
-    <published>2015-05-07T06:00:00.000Z</published>
-    <updated>2016-07-21T16:42:35.232Z</updated>
-    
-    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create and run your first FeedHenry Hello World project.<a id="more"></a></p>
-<h1 id="Step-1-Create-A-New-FeedHenry-Project"><a href="#Step-1-Create-A-New-FeedHenry-Project" class="headerlink" title="Step 1: Create A New FeedHenry Project"></a>Step 1: Create A New FeedHenry Project</h1><p>When you log into your FeedHenry domain, you should end up at a landing page like the one pictured below.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/landing_page.png" alt="[Landing Page]" title="[Landing Page]">
-<p>Click on the “<strong>Projects</strong>“ panel to go to the projects page.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/projects_panel.png" alt="[Projects Panel]" title="[Projects Panel]">
-<p>You should see all of your existing projects (if you have any). Click on the “<strong>New Project</strong>“ button to create a new project.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/new_project_button.png" alt="[New Project Button]" title="[New Project Button]">
-<p>You should see the “<strong>Hello World Project</strong>“ template toward the top of the list. If you don’t, use the search box to find it.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project.png" alt="[Hello World Project]" title="[Hello World Project]">
-<p>Click the “<strong>Choose</strong>“ button to the right to select the template.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_choose_button.png" alt="[Hello World Project]" title="[Hello World Project]">
-<p>Fill in the project name and click the “<strong>Create</strong>“ button.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_options.png" alt="[Hello World Project]" title="[Hello World Project]">
-<p>Your project should begin the creation process. This can take a few minutes and you will be presented with a progress bar and status text box.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_status_in_progress.png" alt="[Hello World Project]" title="[Hello World Project]">
-<p>When your project has been successfully created, you will see the following <em>successful</em> status messages.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_status_complete.png" alt="[Hello World Project]" title="[Hello World Project]">
-<p>Your project is now created and ready to use.</p>
-<h1 id="Step-2-Explore-Your-Project"><a href="#Step-2-Explore-Your-Project" class="headerlink" title="Step 2: Explore Your Project"></a>Step 2: Explore Your Project</h1><p>Now that you have a project, let’s explore the structure a bit. You should see a project landing page similar to the one below.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project.png" alt="[Explore Project]" title="[Explore Project]">
-<p>Click on the “<strong>Cloud App</strong>“ panel to explore the backend Hello World cloud app.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code.png" alt="[Explore Project]" title="[Explore Project]">
-<p>You should see the “<strong>Details</strong>“ page for the cloud app. From here you can stop/start the cloud app as well as see other various bits of information such as the host it’s currently running on and which environment it’s running in.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code_details.png" alt="[Explore Project]" title="[Explore Project]">
-<p>On the left column, click on the “<strong>Editor</strong>“ button.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code_editor_button.png" alt="[Explore Project]" title="[Explore Project]">
-<p>You should now see the directory structure of the source code for the cloud app. Open up the “<code>/lib/hello.js</code>“ file to view the source that actually does the work for this Hello World project. While you’re at it, click around on some of the other files and take a look at their contents to get an idea of how everything is glued together.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code_editor.png" alt="[Explore Project]" title="[Explore Project]">
-<p>Now go back to the project’s landing page and click on the “<strong>Cordova Light App</strong>“ panel to explore the mobile app.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_apps.png" alt="[Explore Project]" title="[Explore Project]">
-<p>You should see the “<strong>Details</strong>“ page for the mobile app.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_apps_details.png" alt="[Explore Project]" title="[Explore Project]">
-<p>From there, you can test the mobile app directly from the web browser. If you’d like to test directly from your phone, you can go to the “<strong>Export</strong>“ page and export/download a copy of the app for your desired platform.</p>
-<h1 id="Step-3-Test-Your-Project"><a href="#Step-3-Test-Your-Project" class="headerlink" title="Step 3: Test Your Project"></a>Step 3: Test Your Project</h1><p>Now that you have a project, and you’ve explored the structure a bit, let’s run a quick test using the browser based device simulator. Enter your name into the input box and click “<strong>Say Hello From The Cloud</strong>“.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/test_project.png" alt="[Test Project]" title="[Test Project]">
-<p>You should see results similar to those pictured below.</p>
-<img src="/2015/05/07/getting_started__feedhenry_hello_world/test_project_result.png" alt="[Test Project]" title="[Test Project]">
-<p>That’s it! You’ve successfully created and tested a Hello World app in FeedHenry.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;This guide demonstrates step-by-step how to create and run your first FeedHenry Hello World project.
-    
-    </summary>
-    
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
     
@@ -390,9 +402,9 @@
     <link href="http://joshdreagan.github.io/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/"/>
     <id>http://joshdreagan.github.io/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/</id>
     <published>2015-05-07T06:00:00.000Z</published>
-    <updated>2016-07-21T16:52:45.033Z</updated>
+    <updated>2016-07-21T22:18:09.726Z</updated>
     
-    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.<br><a id="more"></a></p>
 <p>The first thing you’ll do is open up a browser and navigate to <a href="https://openshift.redhat.com/" target="_blank" rel="external">OpenShift Online</a>. If you don’t already have an account, you can sign up for a free one. However, the free account is restricted to 3 <em>small</em> gears which will not run JBoss Fuse instances. So you will need to upgrade to a paid account to complete this guide.</p>
 <h1 id="Step-1-Create-A-Domain-Namespace"><a href="#Step-1-Create-A-Domain-Namespace" class="headerlink" title="Step 1: Create A Domain/Namespace"></a>Step 1: Create A Domain/Namespace</h1><p>After you’ve created an OpenShift Online account and logged in, you will end up at the landing page.</p>
 <img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/landing_page.png" alt="[Landing Page]" title="[Landing Page]">
@@ -446,7 +458,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.
+      &lt;p&gt;This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.&lt;br&gt;
     
     </summary>
     
@@ -459,11 +471,69 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
-    
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
     
       <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
+    
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Getting Started - FeedHenry Hello World</title>
+    <link href="http://joshdreagan.github.io/2015/05/07/getting_started__feedhenry_hello_world/"/>
+    <id>http://joshdreagan.github.io/2015/05/07/getting_started__feedhenry_hello_world/</id>
+    <published>2015-05-07T06:00:00.000Z</published>
+    <updated>2016-07-21T22:18:18.286Z</updated>
+    
+    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create and run your first FeedHenry Hello World project.<br><a id="more"></a></p>
+<h1 id="Step-1-Create-A-New-FeedHenry-Project"><a href="#Step-1-Create-A-New-FeedHenry-Project" class="headerlink" title="Step 1: Create A New FeedHenry Project"></a>Step 1: Create A New FeedHenry Project</h1><p>When you log into your FeedHenry domain, you should end up at a landing page like the one pictured below.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/landing_page.png" alt="[Landing Page]" title="[Landing Page]">
+<p>Click on the “<strong>Projects</strong>“ panel to go to the projects page.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/projects_panel.png" alt="[Projects Panel]" title="[Projects Panel]">
+<p>You should see all of your existing projects (if you have any). Click on the “<strong>New Project</strong>“ button to create a new project.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/new_project_button.png" alt="[New Project Button]" title="[New Project Button]">
+<p>You should see the “<strong>Hello World Project</strong>“ template toward the top of the list. If you don’t, use the search box to find it.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project.png" alt="[Hello World Project]" title="[Hello World Project]">
+<p>Click the “<strong>Choose</strong>“ button to the right to select the template.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_choose_button.png" alt="[Hello World Project]" title="[Hello World Project]">
+<p>Fill in the project name and click the “<strong>Create</strong>“ button.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_options.png" alt="[Hello World Project]" title="[Hello World Project]">
+<p>Your project should begin the creation process. This can take a few minutes and you will be presented with a progress bar and status text box.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_status_in_progress.png" alt="[Hello World Project]" title="[Hello World Project]">
+<p>When your project has been successfully created, you will see the following <em>successful</em> status messages.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/hello_world_project_status_complete.png" alt="[Hello World Project]" title="[Hello World Project]">
+<p>Your project is now created and ready to use.</p>
+<h1 id="Step-2-Explore-Your-Project"><a href="#Step-2-Explore-Your-Project" class="headerlink" title="Step 2: Explore Your Project"></a>Step 2: Explore Your Project</h1><p>Now that you have a project, let’s explore the structure a bit. You should see a project landing page similar to the one below.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project.png" alt="[Explore Project]" title="[Explore Project]">
+<p>Click on the “<strong>Cloud App</strong>“ panel to explore the backend Hello World cloud app.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code.png" alt="[Explore Project]" title="[Explore Project]">
+<p>You should see the “<strong>Details</strong>“ page for the cloud app. From here you can stop/start the cloud app as well as see other various bits of information such as the host it’s currently running on and which environment it’s running in.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code_details.png" alt="[Explore Project]" title="[Explore Project]">
+<p>On the left column, click on the “<strong>Editor</strong>“ button.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code_editor_button.png" alt="[Explore Project]" title="[Explore Project]">
+<p>You should now see the directory structure of the source code for the cloud app. Open up the “<code>/lib/hello.js</code>“ file to view the source that actually does the work for this Hello World project. While you’re at it, click around on some of the other files and take a look at their contents to get an idea of how everything is glued together.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_cloud_code_editor.png" alt="[Explore Project]" title="[Explore Project]">
+<p>Now go back to the project’s landing page and click on the “<strong>Cordova Light App</strong>“ panel to explore the mobile app.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_apps.png" alt="[Explore Project]" title="[Explore Project]">
+<p>You should see the “<strong>Details</strong>“ page for the mobile app.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/explore_project_apps_details.png" alt="[Explore Project]" title="[Explore Project]">
+<p>From there, you can test the mobile app directly from the web browser. If you’d like to test directly from your phone, you can go to the “<strong>Export</strong>“ page and export/download a copy of the app for your desired platform.</p>
+<h1 id="Step-3-Test-Your-Project"><a href="#Step-3-Test-Your-Project" class="headerlink" title="Step 3: Test Your Project"></a>Step 3: Test Your Project</h1><p>Now that you have a project, and you’ve explored the structure a bit, let’s run a quick test using the browser based device simulator. Enter your name into the input box and click “<strong>Say Hello From The Cloud</strong>“.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/test_project.png" alt="[Test Project]" title="[Test Project]">
+<p>You should see results similar to those pictured below.</p>
+<img src="/2015/05/07/getting_started__feedhenry_hello_world/test_project_result.png" alt="[Test Project]" title="[Test Project]">
+<p>That’s it! You’ve successfully created and tested a Hello World app in FeedHenry.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;This guide demonstrates step-by-step how to create and run your first FeedHenry Hello World project.&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
     
   </entry>
   
@@ -472,9 +542,9 @@
     <link href="http://joshdreagan.github.io/2015/04/10/getting_started__camel_on_eap/"/>
     <id>http://joshdreagan.github.io/2015/04/10/getting_started__camel_on_eap/</id>
     <published>2015-04-10T06:00:00.000Z</published>
-    <updated>2016-07-21T16:48:24.907Z</updated>
+    <updated>2016-07-21T22:18:24.546Z</updated>
     
-    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a contract-first based web services java project. We’ll then convert that project to a WAR file so that it can be deployed to JBoss EAP. Finally, we’ll deploy the project and verify that it is running.<a id="more"></a></p>
+    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a contract-first based web services java project. We’ll then convert that project to a WAR file so that it can be deployed to JBoss EAP. Finally, we’ll deploy the project and verify that it is running.<br><a id="more"></a></p>
 <p>Here are a few assumptions before you begin:</p>
 <ul>
 <li>You already have a supported JDK installed (ie, Oracle’s JDK version 6 or 7)</li>
@@ -556,7 +626,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a contract-first based web services java project. We’ll then convert that project to a WAR file so that it can be deployed to JBoss EAP. Finally, we’ll deploy the project and verify that it is running.
+      &lt;p&gt;This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a contract-first based web services java project. We’ll then convert that project to a WAR file so that it can be deployed to JBoss EAP. Finally, we’ll deploy the project and verify that it is running.&lt;br&gt;
     
     </summary>
     
@@ -567,11 +637,11 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+    
       <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
     
       <category term="eap" scheme="http://joshdreagan.github.io/tags/eap/"/>
-    
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
   </entry>
   
@@ -580,9 +650,9 @@
     <link href="http://joshdreagan.github.io/2015/04/09/getting_started__first_fuse_project/"/>
     <id>http://joshdreagan.github.io/2015/04/09/getting_started__first_fuse_project/</id>
     <published>2015-04-09T06:00:00.000Z</published>
-    <updated>2016-07-21T16:52:21.153Z</updated>
+    <updated>2016-07-21T22:18:32.155Z</updated>
     
-    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We’ll then deploy the project to a JBoss Fuse server and verify that it is running properly. <a id="more"></a></p>
+    <content type="html"><![CDATA[<p>This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We’ll then deploy the project to a JBoss Fuse server and verify that it is running properly.<br><a id="more"></a></p>
 <p>Here are a few assumptions before you begin:</p>
 <ul>
 <li>You already have a supported JDK installed (ie, Oracle’s JDK version 6 or 7)</li>
@@ -643,7 +713,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We’ll then deploy the project to a JBoss Fuse server and verify that it is running properly.
+      &lt;p&gt;This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We’ll then deploy the project to a JBoss Fuse server and verify that it is running properly.&lt;br&gt;
     
     </summary>
     
