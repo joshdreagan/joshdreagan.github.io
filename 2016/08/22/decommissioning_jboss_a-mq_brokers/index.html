@@ -3,17 +3,20 @@
 <head>
     <meta charset="utf-8">
     
-    <title>Archive: 2015/10 | Reagan&#39;s Blog</title>
+    <title>Decommissioning JBoss A-MQ Brokers | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="A Blog About Software and Various Other Things I Find Interesting">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Reagan's Blog">
-<meta property="og:url" content="http://joshdreagan.github.io/archives/2015/10/index.html">
+    <meta name="description" content="There are many reasons why someone might need to decommision a JBoss A-MQ broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Decommissioning JBoss A-MQ Brokers">
+<meta property="og:url" content="http://joshdreagan.github.io/2016/08/22/decommissioning_jboss_a-mq_brokers/index.html">
 <meta property="og:site_name" content="Reagan's Blog">
-<meta property="og:description" content="A Blog About Software and Various Other Things I Find Interesting">
+<meta property="og:description" content="There are many reasons why someone might need to decommision a JBoss A-MQ broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up">
+<meta property="og:image" content="http://joshdreagan.github.io/post-bg.jpg">
+<meta property="og:updated_time" content="2016-08-22T19:04:26.657Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Reagan's Blog">
-<meta name="twitter:description" content="A Blog About Software and Various Other Things I Find Interesting">
+<meta name="twitter:title" content="Decommissioning JBoss A-MQ Brokers">
+<meta name="twitter:description" content="There are many reasons why someone might need to decommision a JBoss A-MQ broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up">
+<meta name="twitter:image" content="http://joshdreagan.github.io/post-bg.jpg">
     
 
     
@@ -207,46 +210,161 @@ ga('send', 'pageview');
 </aside>
 
             
-            <section id="main"><div class="timeline timeline-wrap">
-    
-            <div class="timeline-row timeline-row-major">
-                <span class="node"><i class="fa fa-calendar"></i></span>
-                <h1 class="title">2015</h1>
-            </div>
+            <section id="main"><article id="post-decommissioning_jboss_a-mq_brokers" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
         
-        <div class="timeline-row">
-            <span class="node"></span>
-            <div class="content">
+            
+	
+		<img src="post-bg.jpg" class="article-banner" />
+	
+
+
+
+        
+        
+        
+            <header class="article-header">
                 
     
-        <h1 itemprop="name">
-            <a class="timeline-article-title" href="/2015/10/30/correcting_data_with_fuse_and_bpms/">Correcting Malformed Data With Fuse+BPMS</a>
+        <h1 class="article-title" itemprop="name">
+            Decommissioning JBoss A-MQ Brokers
         </h1>
     
 
-                <div class="article-meta">
-                    
+                
+                    <div class="article-meta">
+                        
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/2015/10/30/correcting_data_with_fuse_and_bpms/">
-            <time datetime="2015-10-30T06:00:00.000Z" itemprop="datePublished">2015-10-30</time>
+        <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/">
+            <time datetime="2016-08-22T19:04:26.000Z" itemprop="datePublished">2016-08-22</time>
         </a>
     </div>
 
 
-                    
-                    
+                        
+                        
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/bpms/">bpms</a>, <a class="tag-link" href="/tags/camel/">camel</a>, <a class="tag-link" href="/tags/cxf/">cxf</a>, <a class="tag-link" href="/tags/fuse/">fuse</a>, <a class="tag-link" href="/tags/jboss/">jboss</a>, <a class="tag-link" href="/tags/jbpm/">jbpm</a>, <a class="tag-link" href="/tags/karaf/">karaf</a>
+        <a class="tag-link" href="/tags/a-mq/">a-mq</a>, <a class="tag-link" href="/tags/activemq/">activemq</a>, <a class="tag-link" href="/tags/jboss/">jboss</a>
     </div>
 
-                </div>
-            </div>
+                    </div>
+                
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>There are many reasons why someone might need to decommision a <a href="https://www.redhat.com/en/technologies/jboss-middleware/amq" target="_blank" rel="external">JBoss A-MQ</a> broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up during a peak period and now need to scale back down. In any case, you likely don’t want the messages that are persisted in that store to be stuck until you bring things back online. And in the case that you don’t plan to bring things back online, you certainly don’t want them to be lost. So what do you do?<br><a id="more"></a></p>
+<p>One strategy that I see a lot of people employ is to stop all the producers, and then wait until all the messages get processed by the consumers. This works fine for a lot of customers. And if you’re currently doing it this way (and it’s working), don’t worry. You’re certainly not doing anything wrong. However, this requires a lot of coordination and planning. </p>
+<p>It requires coordination and planning because A-MQ (at the broker level) doesn’t really have the ability to stop the production of messages without also stopping the consumption of messages. This is due to the fact that the default configuration (which is what most people will use) only opens one transport connector (listener) that will service both producers and consumers. You can disconnect individual clients, but if they decide to reconnect there’s nothing that’s going to stop them. Most people control this on the application side. They just shut down all of their producer applications (or at least the initial ingress ones) and wait for the consumers to fully process the existing messages. Like I said, there’s nothing wrong with this approach if it’s working for you. But I’ve effectively shut my entire system down even if I’m only decommissioning a single broker. What if I can’t have that much downtime? </p>
+<p>Maybe I could get creative with my clustering and partition my load (ie, multiple network of brokers that are separated from eachother). Then I’d only affect a single partition of my cluster at a time. My producer clients could failover and reconnect to another partition during this downtime so it would seem as if I’m still operational. Then I could swap them back if desired when I’m done. Definitely a step in the right direction, but I’m still taking down a whole partition of brokers just to decommision one.</p>
+<p>Another option would be to open two separate transport connectors (listeners) and have producers connect to one and consumers to the other. I’ve complicated my client code a bit, but maybe that’s ok. It’s not <em>too</em> bad after all… And now I have the ability to shut down the producer transport connector separately from the consumer transport connector at a single broker level, thus ensuring that no more messages will be produced to my broker while still allowing them to be consumed. But what if I have a <a href="http://activemq.apache.org/networks-of-brokers.html" target="_blank" rel="external">network of brokers</a> setup? I’ll need to also disable my network connector so that messages don’t get forwarded to me. Ok… we’re getting better… One outstanding problem is that I now have to rely on the locally connected consumers to successfully process all of my messages. How long will I need to wait? How many consumers are even connected to my broker?</p>
+<p>This brings us to the final solution (and best in my opinion). I can take advantage of the fact that ActiveMQ is really just a very flexible set of libraries and I can create a “message drainer” application to purge my persistent store. What do I mean? Well, first I would create a simple Java app that will spin up an embedded broker. I can point that embedded broker at a KahaDB persistent store. Then I can start consuming messages from it (like I would from any broker) and send them off to another broker. And since my embedded broker is local (ie., inside my JVM), I can just connect to it using the <a href="http://activemq.apache.org/vm-transport-reference.html" target="_blank" rel="external">VM transport</a>. So I don’t even have to worry about remote clients. They can’t even see my broker. They will simply <a href="http://activemq.apache.org/failover-transport-reference.html" target="_blank" rel="external">failover</a> to another active broker as soon as I take mine down and have no knowledge that I’m even connected and draining the messages.</p>
+<p>Neat! Now I don’t have to worry about coordinating my applications, separating my transport connectors, bringing down brokers unnecessarily, … I can simply bring down the broker that I wish to decommission. Then just run my “message drainer” application, point it to the KahaDB of my downed broker, and give it the url of an active broker that I’d like to send my messages off to. Once I’ve finished draining the messages, I can can get rid of my broker and it’s persistent store. Or if I was just doing maintenance, I can bring the broker back online and it will see its store with no messages. So no need to worry about dupicates. This solution is simple, requires no unnecessary downtime, and can be used in any situation from performing maintenance to down-scaling. Here’s some sample source code to get you started: <a href="https://github.com/joshdreagan/activemq-drainer" target="_blank" rel="external">https://github.com/joshdreagan/activemq-drainer</a>. Enjoy!</p>
+
+        
         </div>
-    
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
 </div>
 
+    <a data-url="http://joshdreagan.github.io/2016/08/22/decommissioning_jboss_a-mq_brokers/" data-id="cis6ew289002ifjlhrhhos6jh" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2016/07/28/ha_deployments_with_fuse/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">HA Deployments With Fuse</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+    </section>
 
 </section>
             
