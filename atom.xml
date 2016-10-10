@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://joshdreagan.github.io/"/>
-  <updated>2016-08-27T18:31:19.231Z</updated>
+  <updated>2016-10-10T21:29:41.825Z</updated>
   <id>http://joshdreagan.github.io/</id>
   
   <author>
@@ -14,6 +14,40 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Smart LoadBalancing With Camel</title>
+    <link href="http://joshdreagan.github.io/2016/10/10/smart_loadbalancing_with_camel/"/>
+    <id>http://joshdreagan.github.io/2016/10/10/smart_loadbalancing_with_camel/</id>
+    <published>2016-10-10T21:29:41.000Z</published>
+    <updated>2016-10-10T21:29:41.825Z</updated>
+    
+    <content type="html"><![CDATA[<p>LoadBalancing is a fairly well-known concept these days. There are a ton of existing strategies out there (ie, RoundRobin, Random, Sticky, Weighted, …), and there a ton of existing implementations that have been built using both hardware and software (ie, Apache HTTPD, HAProxy, f5, Layer7, …). So why create another one? Well… although it’s not likely to be very useful, I thought it might be neat to see if I could make one that utilized CPU load (or any metric) to do more intelligent routing.<a id="more"></a></p>
+<p>Luckily, like many things in <a href="http://camel.apache.org/" target="_blank" rel="external">Camel</a>, this is a fairly simple task. I just have to create my own <code>org.apache.camel.processor.loadbalancer.LoadBalancer</code> implementation, and I can make it do pretty much anything I want. For instance, <a href="http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/">I might implement one to do dynamic discovery using Infinispan</a> (shameless self-promotion :)). But I digress…</p>
+<p>So let’s break down the wish list: I want to be able to use the strategy for more than just HTTP. I’d like to be able to use any available metric. And I need the collection of said metric to occur asynchronously in the background (so I don’t slow down my routing).</p>
+<img src="/2016/10/10/smart_loadbalancing_with_camel/smart-lb.png" alt="Smart LoadBalancer" title="Smart LoadBalancer">
+<p>Take a look at the source code <a href="https://github.com/joshdreagan/camel-smart-loadbalancer" target="_blank" rel="external">https://github.com/joshdreagan/camel-smart-loadbalancer</a> to see how I did it. In my example, I load balanced HTTP calls and used JMX to collect CPU utilization. But you could just as easily use the exact same implementation to monitor <a href="http://activemq.apache.org/" target="_blank" rel="external">ActiveMQ</a> queue depth (or queue % full) and load balance between brokers. Or maybe monitor filesystem space and load balance FTP endpoints.</p>
+<p>Like I said in the intro, this is probably not terribly useful in a real-world environment since the metrics will likely change at a faster rate than you would reasonably poll. But at the very least, hopefully someone will find it interesting. And maybe… just maybe… it will get Christian Posta to read my blog. :)</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;LoadBalancing is a fairly well-known concept these days. There are a ton of existing strategies out there (ie, RoundRobin, Random, Sticky, Weighted, …), and there a ton of existing implementations that have been built using both hardware and software (ie, Apache HTTPD, HAProxy, f5, Layer7, …). So why create another one? Well… although it’s not likely to be very useful, I thought it might be neat to see if I could make one that utilized CPU load (or any metric) to do more intelligent routing.
+    
+    </summary>
+    
+    
+      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+    
+      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+    
+      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+    
+      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+    
+  </entry>
   
   <entry>
     <title>Decommissioning JBoss A-MQ Brokers</title>
@@ -339,9 +373,9 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
-    
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+    
+      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
   </entry>
   
@@ -418,13 +452,13 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
-    
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
-    
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
+      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
+    
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+    
+      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
   </entry>
   
@@ -502,11 +536,11 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
-    
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+    
+      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
   </entry>
   
@@ -668,11 +702,11 @@
     
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
-    
       <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
     
       <category term="eap" scheme="http://joshdreagan.github.io/tags/eap/"/>
+    
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
   </entry>
   
