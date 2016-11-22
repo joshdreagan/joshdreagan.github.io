@@ -12,7 +12,6 @@ permalink: ha_deployments_with_fuse
 date: 2016-07-28 21:34:04
 ---
 
-
 When out and about, I often get the question: "How do I setup HA (high availability) with [Red Hat's JBoss Fuse](http://developers.redhat.com/products/fuse/overview/)?". People ask this question and they expect a simple, straightforward answer. And why shouldn't they? The question is simple enough right? I could ask the same question about something like [Tomcat](http://tomcat.apache.org/) and get a well documented answer involving little more than a loadbalancer. Unfortunately, the answer for Fuse is a bit more involved and usually starts with the annoying response of "it depends". 
 <!-- more -->
 

@@ -11,7 +11,6 @@ permalink: smart_loadbalancing_with_camel
 date: 2016-10-10 15:29:41
 ---
 
-
 LoadBalancing is a fairly well-known concept these days. There are a ton of existing strategies out there (ie, RoundRobin, Random, Sticky, Weighted, ...), and there a ton of existing implementations that have been built using both hardware and software (ie, Apache HTTPD, HAProxy, f5, Layer7, ...). So why create another one? Well... although it's not likely to be very useful, I thought it might be neat to see if I could make one that utilized CPU load (or any metric) to do more intelligent routing.<!--more-->
 
 Luckily, like many things in [Camel](http://camel.apache.org/), this is a fairly simple task. I just have to create my own `org.apache.camel.processor.loadbalancer.LoadBalancer` implementation, and I can make it do pretty much anything I want. For instance, [I might implement one to do dynamic discovery using Infinispan](http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/) (shameless self-promotion :)). But I digress...

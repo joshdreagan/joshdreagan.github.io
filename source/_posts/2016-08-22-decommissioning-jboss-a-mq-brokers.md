@@ -9,7 +9,6 @@ permalink: decommissioning_jboss_a-mq_brokers
 date: 2016-08-22 13:04:26
 ---
 
-
 There are many reasons why someone might need to decommision a [JBoss A-MQ](https://www.redhat.com/en/technologies/jboss-middleware/amq) broker. Perhaps you are taking a server down for maintenance. Maybe you're trying to do an upgrade. Or maybe you've scaled up during a peak period and now need to scale back down. In any case, you likely don't want the messages that are persisted in that store to be stuck until you bring things back online. And in the case that you don't plan to bring things back online, you certainly don't want them to be lost. So what do you do?
 <!-- more -->
 
