@@ -3,19 +3,19 @@
 <head>
     <meta charset="utf-8">
     
-    <title>Calling Native Code With Camel | Reagan&#39;s Blog</title>
+    <title>Faster File Consumption With Camel | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="Usually when a customer has some legacy/native code that they need to invoke from Camel (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote">
+    <meta name="description" content="One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, Apache Ca">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Calling Native Code With Camel">
-<meta property="og:url" content="http://joshdreagan.github.io/2016/11/21/calling_native_code_with_camel/index.html">
+<meta property="og:title" content="Faster File Consumption With Camel">
+<meta property="og:url" content="http://joshdreagan.github.io/2017/01/05/faster_file_consumption_with_camel/index.html">
 <meta property="og:site_name" content="Reagan's Blog">
-<meta property="og:description" content="Usually when a customer has some legacy/native code that they need to invoke from Camel (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote">
+<meta property="og:description" content="One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, Apache Ca">
 <meta property="og:image" content="http://joshdreagan.github.io/post-bg.jpg">
-<meta property="og:updated_time" content="2016-11-22T02:06:03.659Z">
+<meta property="og:updated_time" content="2017-01-05T20:38:21.782Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Calling Native Code With Camel">
-<meta name="twitter:description" content="Usually when a customer has some legacy/native code that they need to invoke from Camel (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote">
+<meta name="twitter:title" content="Faster File Consumption With Camel">
+<meta name="twitter:description" content="One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, Apache Ca">
 <meta name="twitter:image" content="http://joshdreagan.github.io/post-bg.jpg">
     
 
@@ -210,7 +210,7 @@ ga('send', 'pageview');
 </aside>
 
             
-            <section id="main"><article id="post-calling_native_code_with_camel" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-faster_file_consumption_with_camel" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
             
@@ -227,7 +227,7 @@ ga('send', 'pageview');
                 
     
         <h1 class="article-title" itemprop="name">
-            Calling Native Code With Camel
+            Faster File Consumption With Camel
         </h1>
     
 
@@ -236,8 +236,8 @@ ga('send', 'pageview');
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/2016/11/21/calling_native_code_with_camel/">
-            <time datetime="2016-11-22T02:06:03.000Z" itemprop="datePublished">2016-11-21</time>
+        <a href="/2017/01/05/faster_file_consumption_with_camel/">
+            <time datetime="2017-01-05T20:38:21.000Z" itemprop="datePublished">2017-01-05</time>
         </a>
     </div>
 
@@ -256,30 +256,14 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>Usually when a customer has some legacy/native code that they need to invoke from <a href="http://camel.apache.org/" target="_blank" rel="external">Camel</a> (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote invocation mechanism. Then they can just call it with the appropriate <a href="http://camel.apache.org/cxf.html" target="_blank" rel="external">Camel Component</a>. While I still think that this is best option, I recently had a customer ask if Camel had the ability to call native code directly. So I figured what the heck… might as well blog about it…<a id="more"></a></p>
-<p>Native code can be written in many languages (obviously…). And unfortunately, the mechanisms that you would use to invoke the compiled binaries (<code>.dll</code>‘s or <code>.so</code>‘s) are not always the same. In this blog post, I’m going to cover what I think are the most common (or at least the most commonly requested) native languages and how to invoke them.</p>
-<h2 id="C"><a href="#C" class="headerlink" title="C"></a>C</h2><p>Of the languages that I’ll cover in this post, calling C libaries is definitely the easiest. Once I have my compiled library (<code>.dll</code> or <code>.so</code>), I can just call it using <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/jni/" target="_blank" rel="external">JNI</a> or <a href="https://github.com/java-native-access/jna" target="_blank" rel="external">JNA</a>. </p>
-<p>Of the two, I prefer JNA since it doesn’t require me to generate any code using <code>javah</code> or really have much knowledge of the C code itself. All I need to do is create a Java interface that extends <code>com.sun.jna.Library</code> and that matches the signature of the C library (or more specifically its methods). Then I can create a proxy instance automatically using the <code>com.sun.jna.Native#loadLibrary(java.lang.String, java.lang.Class)</code> method (passing the name of your library and the interface class). </p>
-<p><em>Note: You don’t give the full path or name of the library. The name is automatically wrapped with the platform-specific parts and the path is looked up via a <a href="https://github.com/java-native-access/jna/blob/master/www/GettingStarted.md" target="_blank" rel="external">variety of mechanisms</a> (ie, the <code>jna.library.path</code> system property).</em> </p>
-<p>Once I have a proxy object, I can invoke methods on it like I would with any Java Bean in Camel using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="external">Bean Component</a>. </p>
-<p>Fairly straighforward right? Take a look at this project (specifically the “camel-native-c” module) if you’d like to see it all working: <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="external">https://github.com/joshdreagan/camel-native</a>.</p>
-<h2 id="C-1"><a href="#C-1" class="headerlink" title="C++"></a>C++</h2><p>Invoking C++ code is slightly more involved than C code, but is still pretty simple. The options (ie, JNI or JNA) are the same, and for the most part the code is the same. </p>
-<p>If you choose to use JNA (which I did), you still need to define an interface that matches the method signatures of the C++ library (and implements <code>com.sun.jna.Library</code>). And you still need to load the library and create the proxy object using the <code>com.sun.jna.Native</code> class. The differences/complications come from this thing called <a href="https://en.wikipedia.org/wiki/Name_mangling" target="_blank" rel="external">Name Mangling</a>.</p>
-<p>Name mangling is something that C++ compilers do to account for namespaces and overloaded methods and such. Most compilers do specify exactly how they perform the mangling, but unfortunately none of them do it the same. That is, the Windows C++ compiler will mangle the names differently than the GNU C++ compiler. At any rate, the end result is that my C++ method will not have the same name in its compiled form as it did in its source form. For example, if I had a method called <code>add</code> in my source, the GNU compiler might turn it into something like <code>_ZN10Calculator3addEii</code> (depending on the namespace and method signature of course) <em>(see note below)</em>. That means that when I try to invoke the method on my <code>com.sun.jna.Library</code> interface, I won’t have the right name (and will get an exception). </p>
-<p>So how do I get around all this name mangling tomfoolery? Well, luckily, JNA allows us to provide a custom <code>com.sun.jna.FunctionMapper</code>. That means I can tell JNA that, when I call a function named <code>add</code>, it really needs to call a funtion named <code>_ZN10Calculator3addEii</code> in the underlying native library. Neat! </p>
-<p>One more oddity to handle… For whatever reason, the name mangling also adds an extra argument to the method signature. But once again, JNA has a mechanism to fix it. We can create a custom <code>com.sun.jna.InvocationMapper</code> to intercept the invocation and add a <code>null</code> argument to the beginning of the arg list. </p>
-<p>That’s it! Now I can invoke it using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="external">Bean Component</a> just like I did in the C example. </p>
-<p>Like I said… slightly more involved, but still pretty simple. To see it all in action, take a look at this project (specifically the “camel-native-cpp” module): <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="external">https://github.com/joshdreagan/camel-native</a>.</p>
-<p><em>Note: You can use the <code>nm</code> tool on Linux to find the mangled names (ie, <code>nm -D libc-calculator.so</code>).</em></p>
-<h2 id="C-35"><a href="#C-35" class="headerlink" title="C&#35;"></a>C&#35;</h2><p>C# (or any .NET code) is probably the most complicated case. On Windows, .NET DLLs are not the same format as a truely native DLL. This is because they aren’t really native code. They’re what Microsoft calls <a href="https://en.wikipedia.org/wiki/Managed_code" target="_blank" rel="external">Managed Code</a>. Managed code is code that must be run in a virtual machine. Think Java and its JVM, but more Microsofty… So it can’t be invoked directly (or at least not without loading a virtual machine). That means that using JNI or JNA directly are out. So what do I do? Well, there are a few options. </p>
-<p>If my .NET DLL exposed a <a href="https://en.wikipedia.org/wiki/Component_Object_Model" target="_blank" rel="external">COM</a> interface, I could write a C++ wrapper that calls the .NET DLL through COM. Then I could follow the above instructions for invoking C++ code. But what if my library didn’t expose a COM interface? In my experience, most don’t. And even if it did, that seems like a lot of effort, and I’m quite lazy… </p>
-<p>I could perhaps use a paid tool like <a href="https://www.javonet.com/" target="_blank" rel="external">javOnet</a> or <a href="http://jnbridge.com/" target="_blank" rel="external">JNBridge</a>. Both seem simple enough to use and are probaly pretty stable. But they both cost a lot of money, and I’m quite cheap… </p>
-<p>So what’s left? I went with a project called <a href="http://jni4net.com/" target="_blank" rel="external">jni4net</a>. It does all the work for me (no writing wrapper code), and the price is right (free!). Plus, it’s the only one of the options I found that was open source (and I like open source! :)). Now for the bad news… It’s not the most full-featured or simplest tool in the world. That’s ok though. My cheapness typically wins out over my laziness. So here goes…</p>
-<p>First we need to generate and build the wrapper code. Sadly, the tool has a few steps to its build (making scripting a little complex), but it’s not too bad. You have to run the <code>proxygen.exe</code> command line tool (located in the <code>bin</code> directory of the distribution) and point it at your .NET DLL to generate the Java and C# wrapper code. This process also generates a <code>build.cmd</code> file that must then be used to actually build the code into a DLL library and its respective JAR file. This obviously doesn’t really mesh well with the way most Java builds are written. But with a bit of cleverness/ugliness, we can make it work.</p>
-<p>Now that we have some generated/compiled wrapper code, we need to initialize what jni4net calls the “bridge” and register the assemblies. <strong>This must be done at startup before any of the generated code/methods are used.</strong> A simple “initializer” class that calls the <code>net.sf.jni4net.Bridge#init()</code> and <code>net.sf.jni4net.Bridge#LoadAndRegisterAssemblyFrom(java.io.File)</code> methods will do the trick. </p>
-<p>Once this is done, we can invoke the generated wrapper class methods using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="external">Bean Component</a> just like in the previous examples.</p>
-<p>All done right? Not quite… If you tried to this yourself, you probably noticed that there are all kinds of exceptions that occur when you actually try to run your project. This stems from a bit of quirkiness with the way that jni4net finds and loads the DLLs and JARs. As it turns out, the tool is quite opinionated about where its libraries live (making running in production potentially tricky). What do I mean? In order to run, the location of the jni4net JAR files (both generated and the ones that come with the distribution) must live in the same directory as your DLL files (both generated and the .NET one you’re trying to make use of). A quick look at <a href="https://github.com/jni4net/jni4net/blob/master/jni4net.j/src/main/java/net/sf/jni4net/CLRLoader.java" target="_blank" rel="external">the code</a> showed that this is because it uses a combination of path and naming conventions to figure out the locations of the supporting libs. Unfortunately, this is currently hard-coded. :( Fortunately, this is an open source project! So anyone with a bit of free time could fix this and submit a pull request. :)</p>
-<p>All in all it’s a bit cumbersome, but works. And that’s what really matters right? For an actual running example, take a look at this project (specifically the “camel-native-csharp” module): <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="external">https://github.com/joshdreagan/camel-native</a>.</p>
+            <p>One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, <a href="http://camel.apache.org/" target="_blank" rel="external">Apache Camel’s</a> <a href="http://camel.apache.org/file2.html" target="_blank" rel="external">File</a> and <a href="http://camel.apache.org/ftp.html" target="_blank" rel="external">FTP</a> components make this extremely easy. So much so, that it requires very little thought to get up and running. And if you’re consuming small numbers of larger batch files, perhaps the defaults are good enough and you don’t need to put much though into it. If, however, you’re consuming large numbers of smaller files and you want to get the highest possible performance, there are a few configurations that you might want to consider.<a id="more"></a></p>
+<p>When writing a file poller, one of the most commonly overlooked requirements is that you need some sort of mechanism to determine when the writer is done writing. If you grab a file before it’s complete, you’ll end up truncating it and ending up with garbage data. Unfortunately, how you would make that determination on one filesystem does not necessarily work on all filesystems. In addition, the different strategies will have different performance characteristics and usually end up being your biggest bottleneck (outside of the actual processing of the data). Luckily, Camel provides you with several strategies out-of-the-box and even allows you to create your own if none of them meet your needs. So how to choose…</p>
+<p>First, let’s cover the absolute fastest, most generic solution. If you control the process writing the file as well as the process reading the file, you can use a “temp file” strategy. That is, I can have my writer write a file with some sort of temporary name (ie, appending an “.inprogress” extension), and then atomically move it to its final name when the write is complete (ie, remove the “.inprogress” extension). I can then easily have my consumer filter out the temporary files and only consume files that are complete. Camel can do all of this work for you. So no need to panic over writing a bunch of extra code. Simply set the appropriate options on the producer (ie, <code>tempFileName</code>) and the consumer (ie, <code>exclude</code> or <code>antExclude</code>) and call it a day. :)</p>
+<p>Another similar solution is to use the “done file” strategy. In this strategy, you will write the file, and when it is complete you will write out an additional file with the same name and some “marker” extension (ie, “.done”). You will then instruct your consumer to only pick up files if it finds their corresponding “done” file. Again, Camel makes this a simple matter of configuration. Just set the <code>doneFileName</code> option on the producer and the <code>doneFileName</code> option on the consumer. To me, this seems a bit more clunky than the previous solution, but the end result is the same.</p>
+<p>Both of the previous strategies are extremely fast and will work on pretty much any filesystem. However, as previously stated, they require you to have control over the producer and consumer sides. So what if you only control the consumer? Well… you could use one of the <code>readLock</code> options. Unfortunately, most of the available <code>readLock</code> options are more concerned with making sure no other consumers pick up the same file than they are with making sure the writer is done writing. And since we have <a href="https://github.com/joshdreagan/clustered-file-consumer" target="_blank" rel="external">other ways to make sure other consumers don’t step on our toes</a>, we’ll just concentrate on the options that help us with the latter issue.</p>
+<p>The most robust option that’s available out-of-the-box is the “changed” strategy. Basically, the way it works is that the consumer will grab a file and check its last-modified timestamp. It will then continue to check the last-modified timestamp (at the configured <code>readLockCheckInterval</code>) until it determines that the file has stopped changing (ie, the previous poll’s last-modified matches the current one). Once it has determined that the file is no longer changing, it will consume it and pass it to the rest of the route for processing. This strategy is an excellent option because it works pretty much anywhere (ie, local filesystem, FTP, SFTP, …), and is configurable enough to handle the case of “slow writers” (by tweaking/increasing the <code>readLockCheckInterval</code> option). And if you’re getting small numbers of larger files, it’s probably fast enough. But if you’re trying to consume large numbers of smaller files, you will quickly see the bottleneck… The current implementation will loop through each file and (for each file) check the timestamp. It will continue to loop and check the timestamp on that one file until it either detects that it has stopped changing, or it hits its timeout (configured via the <code>readLockTimeout</code> option). It will not move on to the next file until one of those conditions is satisified. Which means that, if I have lots of producers writing files, those files could all be stuck waiting to be consumed because of a single slow producer. In practice, I’ve actually seen this happen and it’s leads to a very bad situation where the polling itself starts to take too long (<em>at the filesystem level and outside of the control of Camel</em>) because of the sheer number of files in a directory. Once this starts to happen, it really just starts a snowball effect. So it’s difficult to recover from and usually requires manual intervention. So what do we do?</p>
+<p>Well… Luckily, Camel is awesome enough that it allows us to extend it whenever it’s out-of-the-box options don’t meet our needs. Suck on <strong>that</strong> competition! :) Specifically, in the previous scenario, we actually solved the problem by creating our own custom version of the “changed” strategy. Only, in our version, we didn’t pause and repeat checks on a single file. Instead, we looped through the files and (for each file) checked its stats. We then added those stats to a cache and moved on to the next file. On each subsequent poll, we would check the file’s stats against the cached ones to determine if it had stopped changing (for at least the <code>readLockCheckInterval</code> amount of time). This allowed us to continue processing any files that were ready without having to wait behind a single one that wasn’t. In practice, we were able to use this strategy to consume very large numbers of files with only a single server. Take a look at the sample source code if you’d like to give it a try: <a href="https://github.com/joshdreagan/camel-fastfile" target="_blank" rel="external">https://github.com/joshdreagan/camel-fastfile</a>.</p>
+<p><em>Worth noting that this is a recreation of the original work (as best as I could remember) that I did with my awesome colleague <a href="https://www.linkedin.com/in/scottvancamp" target="_blank" rel="external">Scott Van Camp</a> whose awesome coding skills are only rivaled by his awesome beard growing skills. So he gets to share in the credit/blame… :)</em></p>
 
         
         </div>
@@ -290,7 +274,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://joshdreagan.github.io/2016/11/21/calling_native_code_with_camel/" data-id="cixku6ar3000i2plhpxenxr0q" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://joshdreagan.github.io/2017/01/05/faster_file_consumption_with_camel/" data-id="cixku6at8003g2plhpf4ue5vb" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -365,19 +349,10 @@ ga('send', 'pageview');
         
 <nav id="article-nav">
     
-        <a href="/2017/01/05/faster_file_consumption_with_camel/" id="article-nav-newer" class="article-nav-link-wrap">
-            <strong class="article-nav-caption">Newer</strong>
-            <div class="article-nav-title">
-                
-                    Faster File Consumption With Camel
-                
-            </div>
-        </a>
     
-    
-        <a href="/2016/10/10/smart_loadbalancing_with_camel/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/2016/11/21/calling_native_code_with_camel/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">Older</strong>
-            <div class="article-nav-title">Smart LoadBalancing With Camel</div>
+            <div class="article-nav-title">Calling Native Code With Camel</div>
         </a>
     
 </nav>
