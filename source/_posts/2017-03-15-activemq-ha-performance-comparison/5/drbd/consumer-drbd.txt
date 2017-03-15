@@ -1,0 +1,61 @@
+# mvn activemq-perf:consumer -DsysTest.propsConfigFile=src/main/resources/tcp-consumer.properties -Dfactory.brokerURL=tcp://172.30.0.116:61616 -DsysTest.numClients=5
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- activemq-perf-maven-plugin:5.11.0:consumer (default-cli) @ amqp-perf-test ---
+[INFO] Loading properties file: /root/amqp-perf-test/src/main/resources/tcp-consumer.properties
+[INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI
+[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+#########################################
+####    SYSTEM THROUGHPUT SUMMARY    ####
+#########################################
+System Total Throughput: 490818
+System Total Clients: 5
+System Average Throughput: 1636.06
+System Average Throughput Excluding Min/Max: 1628.47
+System Average Client Throughput: 327.212
+System Average Client Throughput Excluding Min/Max: 325.694
+Min Client Throughput Per Sample: clientName=JmsConsumer1, value=0
+Max Client Throughput Per Sample: clientName=JmsConsumer1, value=380
+Min Client Total Throughput: clientName=JmsConsumer4, value=98124
+Max Client Total Throughput: clientName=JmsConsumer1, value=98175
+Min Average Client Throughput: clientName=JmsConsumer4, value=327.08
+Max Average Client Throughput: clientName=JmsConsumer1, value=327.25
+Min Average Client Throughput Excluding Min/Max: clientName=JmsConsumer0, value=324.71
+Max Average Client Throughput Excluding Min/Max: clientName=JmsConsumer1, value=325.98333333333335
+[INFO] Created performance report: /root/amqp-perf-test/./target/JmsConsumer_numClients5_numDests1_equal.xml
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 05:00 min
+[INFO] Finished at: 2017-03-02T07:14:09+00:00
+[INFO] Final Memory: 7M/209M
+[INFO] ------------------------------------------------------------------------
