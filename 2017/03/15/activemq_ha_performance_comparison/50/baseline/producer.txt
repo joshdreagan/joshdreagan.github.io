@@ -1,0 +1,336 @@
+# mvn activemq-perf:producer -DsysTest.propsConfigFile=src/main/resources/tcp-producer.properties -Dfactory.brokerURL=tcp://172.30.0.116:61616 -Dproducer.deliveryMode=persistent -DsysTest.numClients=50
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- activemq-perf-maven-plugin:5.11.0:producer (default-cli) @ amqp-perf-test ---
+[INFO] Loading properties file: /root/amqp-perf-test/src/main/resources/tcp-producer.properties
+[INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+#########################################
+####    SYSTEM THROUGHPUT SUMMARY    ####
+#########################################
+System Total Throughput: 3757417
+System Total Clients: 50
+System Average Throughput: 12524.723333333339
+System Average Throughput Excluding Min/Max: 12442.240000000002
+System Average Client Throughput: 250.49446666666677
+System Average Client Throughput Excluding Min/Max: 248.84480000000002
+Min Client Throughput Per Sample: clientName=JmsProducer25, value=41
+Max Client Throughput Per Sample: clientName=JmsProducer31, value=464
+Min Client Total Throughput: clientName=JmsProducer35, value=72508
+Max Client Total Throughput: clientName=JmsProducer20, value=78184
+Min Average Client Throughput: clientName=JmsProducer35, value=241.69333333333333
+Max Average Client Throughput: clientName=JmsProducer20, value=260.61333333333334
+Min Average Client Throughput Excluding Min/Max: clientName=JmsProducer35, value=240.14666666666668
+Max Average Client Throughput Excluding Min/Max: clientName=JmsProducer20, value=258.8933333333333
+[INFO] Created performance report: /root/amqp-perf-test/./target/JmsProducer_numClients50_numDests1_all.xml
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 05:01 min
+[INFO] Finished at: 2017-03-02T06:31:53+00:00
+[INFO] Final Memory: 9M/205M
+[INFO] ------------------------------------------------------------------------

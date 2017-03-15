@@ -1,0 +1,161 @@
+# mvn activemq-perf:consumer -DsysTest.propsConfigFile=src/main/resources/tcp-consumer.properties -Dfactory.brokerURL=tcp://172.30.0.116:61616 -DsysTest.numClients=25
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- activemq-perf-maven-plugin:5.11.0:consumer (default-cli) @ amqp-perf-test ---
+[INFO] Loading properties file: /root/amqp-perf-test/src/main/resources/tcp-consumer.properties
+[INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating non-durable consumer to: queue://TEST.FOO
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Starting to asynchronously receive messages for 300000 ms...
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+#########################################
+####    SYSTEM THROUGHPUT SUMMARY    ####
+#########################################
+System Total Throughput: 2120543
+System Total Clients: 25
+System Average Throughput: 7068.476666666665
+System Average Throughput Excluding Min/Max: 7041.606666666666
+System Average Client Throughput: 282.7390666666666
+System Average Client Throughput Excluding Min/Max: 281.6642666666666
+Min Client Throughput Per Sample: clientName=JmsConsumer13, value=0
+Max Client Throughput Per Sample: clientName=JmsConsumer16, value=323
+Min Client Total Throughput: clientName=JmsConsumer8, value=84812
+Max Client Total Throughput: clientName=JmsConsumer15, value=84914
+Min Average Client Throughput: clientName=JmsConsumer8, value=282.70666666666665
+Max Average Client Throughput: clientName=JmsConsumer15, value=283.0466666666667
+Min Average Client Throughput Excluding Min/Max: clientName=JmsConsumer2, value=281.63
+Max Average Client Throughput Excluding Min/Max: clientName=JmsConsumer15, value=281.97333333333336
+[INFO] Created performance report: /root/amqp-perf-test/./target/JmsConsumer_numClients25_numDests1_equal.xml
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 05:01 min
+[INFO] Finished at: 2017-03-02T07:21:04+00:00
+[INFO] Final Memory: 8M/199M
+[INFO] ------------------------------------------------------------------------

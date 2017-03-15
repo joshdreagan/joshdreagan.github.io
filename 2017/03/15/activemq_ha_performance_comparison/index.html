@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    
+    <title>ActiveMQ HA Performance Comparison | Reagan&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="A while back, I wrote a blog post on HA Deployments With Fuse. Surprisingly, it received a lot of interest. In particular, the JMS section. Apparently, there are tons of people trying to solve the cro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ActiveMQ HA Performance Comparison">
+<meta property="og:url" content="http://joshdreagan.github.io/2017/03/15/activemq_ha_performance_comparison/index.html">
+<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:description" content="A while back, I wrote a blog post on HA Deployments With Fuse. Surprisingly, it received a lot of interest. In particular, the JMS section. Apparently, there are tons of people trying to solve the cro">
+<meta property="og:image" content="http://joshdreagan.github.io/post-bg.jpg">
+<meta property="og:updated_time" content="2017-03-15T20:07:01.182Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ActiveMQ HA Performance Comparison">
+<meta name="twitter:description" content="A while back, I wrote a blog post on HA Deployments With Fuse. Surprisingly, it received a lot of interest. In particular, the JMS section. Apparently, there are tons of people trying to solve the cro">
+<meta name="twitter:image" content="http://joshdreagan.github.io/post-bg.jpg">
+    
+
+    
+        <link rel="alternate" href="atom.xml" title="Reagan&#39;s Blog" type="application/atom+xml" />
+    
+
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-81075900-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                
+                <span class="site-title">Reagan&#39;s Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="https://www.gravatar.com/avatar/29313b56e332976a2383b911a27c15b2" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="https://www.gravatar.com/avatar/29313b56e332976a2383b911a27c15b2?s=128" />
+            <h2 id="name">Josh Reagan</h2>
+            <h3 id="title">Software Engineer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Colorado, USA</span>
+            <a id="follow" target="_blank" href="https://github.com/joshdreagan/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                16
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                15
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://twitter.com/joshdreagan" target="_blank" title="twitter" class=tooltip>
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://plus.google.com/+JoshReagan" target="_blank" title="google-plus" class=tooltip>
+                            <i class="fa fa-google-plus"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://www.linkedin.com/in/joshdreagan" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://github.com/joshdreagan" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-activemq_ha_performance_comparison" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            
+	
+		<img src="post-bg.jpg" class="article-banner" />
+	
+
+
+
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            ActiveMQ HA Performance Comparison
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2017/03/15/activemq_ha_performance_comparison/">
+            <time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time>
+        </a>
+    </div>
+
+
+                        
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/a-mq/">a-mq</a>, <a class="tag-link" href="/tags/activemq/">activemq</a>, <a class="tag-link" href="/tags/jboss/">jboss</a>
+    </div>
+
+                    </div>
+                
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>A while back, I wrote a blog post on <a href="/2016/07/28/ha_deployments_with_fuse/" title="HA Deployments With Fuse">HA Deployments With Fuse</a>. Surprisingly, it received a lot of interest. In particular, the JMS section. Apparently, there are tons of people trying to solve the cross-dc HA problem… Not surprisingly, everyone claims to have the highest possible failure requirements and asked me what I meant by “prepare to make some serious performance tradeoffs”. So I figured I’d give some concrete numbers for comparison.<a id="more"></a></p>
+<p><em>Before we get started though, here are some very important disclaimers: First, I did absolutely no tweaking of options or performance tuning. I just unzipped the <a href="https://developers.redhat.com/products/amq" target="_blank" rel="external">Red Hat JBoss A-MQ</a> distro, uncommented a user, and started it up. For the DRBD tests, I only changed the path where it stores the KahaDB to point to the replicated filesystem mount. Similarly, I just did a standard <a href="http://drbd.org" target="_blank" rel="external">DRBD</a> installation by following their getting started docs. I did not tweak or otherwise optimize the synchronization protocols in any way. Second, I used an ‘m4.xlarge’ <a href="https://aws.amazon.com/ec2/instance-types/" target="_blank" rel="external">EC2 instance type</a> and attached a standard SSD <a href="https://aws.amazon.com/ebs/details/" target="_blank" rel="external">EBS volume type</a>. So more of a mid-level machine with average (or below) networking and storage performance.</em></p>
+<p><strong>Given the above conditions, you should not take these numbers as a performance metric. You could likely get much greater performance if you tweaked some of the network settings and used more performant machine. These numbers are only meant to serve as a comparison of local storage vs replicated storage.</strong></p>
+<p>Now that I’ve got the “disclaimers” out of the way, let me run down what I actually did…</p>
+<p>First, I wanted to run a baseline (since this is not about performance numbers directly, but rather comparison). So I created an ‘m4.xlarge’ instance used to host my broker. We’ll call it “broker 1”. I also created a second ‘m4.xlarge’ instance in the same availability zone and region to host my client (both producer and consumer). We’ll call it “client”. Next, I installed <a href="https://developers.redhat.com/products/amq" target="_blank" rel="external">Red Hat JBoss A-MQ 6.3</a> on “broker 1”. I also created a Maven project for my <a href="http://activemq.apache.org/activemq-performance-module-users-manual.html" target="_blank" rel="external">ActiveMQ Perf Maven Plugin</a> on “client”. I then ran a client instance with 5 threads for the producer, and another instance with 5 threads for the consumer. <em>Note: Both clients were run from the same “client” EC2 machine.</em> I then repeated the test using 25 threads, and again using 50 threads. I tried to go above 50 threads, but the performance started to degrade. Likely due to a network or storage bottleneck for the machine/storage types I chose. All the numbers for these runs can be found in the table below in the “Baseline” row.</p>
+<p>Once I had my baseline, I spun up another ‘m4.xlarge’ instance in the same region, but on another availability zone. We’ll call this one “broker 2” I also created and attached an EBS volume (using a standard SSD) to both of my “broker” instances (“broker 1” and “broker 2”). I installed DRBD on the instances and configured it to replicate synchronously (using <a href="https://docs.linbit.com/doc/users-guide-84/s-replication-protocols/" target="_blank" rel="external">Protocol C</a>) from “broker 1” to “broker 2”. Once I brought them online and the initial sync was done, I ran the same tests as above and captured the numbers. The numbers can be found in the table below in the “DRBD (across availability zones)” row. As you can see from the results, we do get a performance drop (because we have to write the data twice), but it’s not too bad since we’re not having to replicate across a WAN yet.</p>
+<p>Finally, I terminated the “broker 2” instance and recreated it in another region. So now, the “broker 1” and “client” instances were in the “US West (Oregon)” region. And the “broker 2” instance was in the “US East (N. Virginia)” region. I reconnected DRBD to replicate from “broker 1” to “broker 2” and waited for the initial sync to complete (this took a while). Once that was done, I re-ran the same tests and captured the output again. It can be found in the table below in the “DRBD (across regions)” row. </p>
+<p>Now we see the “performance tradeoffs” I was talking about… In my tests, it was between 1-2 orders of magnitude slower than local storage. So I will repeat my statement from my previous blog… “You will not be processing large sets of data while synchronously replicating across a WAN.”</p>
+<hr>
+
+<p><strong>Performance Results</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align:right">5 Threads</th>
+<th style="text-align:right">25 Threads</th>
+<th style="text-align:right">50 Threads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline</td>
+<td style="text-align:right">2229 tps</td>
+<td style="text-align:right">9456 tps</td>
+<td style="text-align:right">12524 tps</td>
+</tr>
+<tr>
+<td>DRBD (across availability zones)</td>
+<td style="text-align:right">1636 tps</td>
+<td style="text-align:right">7068 tps</td>
+<td style="text-align:right">9133 tps</td>
+</tr>
+<tr>
+<td>DRBD (across regions)</td>
+<td style="text-align:right">26 tps</td>
+<td style="text-align:right">129 tps</td>
+<td style="text-align:right">256 tps</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+<p>For reference, here are the links to the actual <a href="http://activemq.apache.org/activemq-performance-module-users-manual.html" target="_blank" rel="external">ActiveMQ Perf Maven Plugin</a> run outputs:</p>
+<p><strong>5 Threads</strong></p>
+<ul>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/5/baseline/producer.txt" title="Baseline Producer">Baseline Producer</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/5/baseline/consumer.txt" title="Baseline Consumer">Baseline Consumer</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/5/drbd/producer-drbd.txt" title="DRBD Producer (across availability zones)">DRBD Producer (across availability zones)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/5/drbd/consumer-drbd.txt" title="DRBD Consumer (across availability zones)">DRBD Consumer (across availability zones)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/5/drbd/producer-drbd-x-region.txt" title="DRBD Producer (across regions)">DRBD Producer (across regions)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/5/drbd/consumer-drbd-x-region.txt" title="DRBD Consumer (across regions)">DRBD Consumer (across regions)</a>
+</li>
+</ul>
+<p><strong>25 Threads</strong></p>
+<ul>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/25/baseline/producer.txt" title="Baseline Producer">Baseline Producer</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/25/baseline/consumer.txt" title="Baseline Consumer">Baseline Consumer</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/25/drbd/producer-drbd.txt" title="DRBD Producer (across availability zones)">DRBD Producer (across availability zones)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/25/drbd/consumer-drbd.txt" title="DRBD Consumer (across availability zones)">DRBD Consumer (across availability zones)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/25/drbd/producer-drbd-x-region.txt" title="DRBD Producer (across regions)">DRBD Producer (across regions)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/25/drbd/consumer-drbd-x-region.txt" title="DRBD Consumer (across regions)">DRBD Consumer (across regions)</a>
+</li>
+</ul>
+<p><strong>50 Threads</strong></p>
+<ul>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/50/baseline/producer.txt" title="Baseline Producer">Baseline Producer</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/50/baseline/consumer.txt" title="Baseline Consumer">Baseline Consumer</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/50/drbd/producer-drbd.txt" title="DRBD Producer (across availability zones)">DRBD Producer (across availability zones)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/50/drbd/consumer-drbd.txt" title="DRBD Consumer (across availability zones)">DRBD Consumer (across availability zones)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/50/drbd/producer-drbd-x-region.txt" title="DRBD Producer (across regions)">DRBD Producer (across regions)</a></li>
+<li><a href="/2017/03/15/activemq_ha_performance_comparison/50/drbd/consumer-drbd-x-region.txt" title="DRBD Consumer (across regions)">DRBD Consumer (across regions)</a>
+</li>
+</ul>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://joshdreagan.github.io/2017/03/15/activemq_ha_performance_comparison/" data-id="cj0beec82001t96lhg1vclyhq" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2017/01/05/faster_file_consumption_with_camel/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Faster File Consumption With Camel</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/03/15/activemq_ha_performance_comparison/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2017/03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
+                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/01/05/faster_file_consumption_with_camel/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/01/05/faster_file_consumption_with_camel//post-bg.jpg)" alt="Faster File Consumption With Camel" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2017/01/05/faster_file_consumption_with_camel/" class="title">Faster File Consumption With Camel</a></p>
+                            <p class="item-date"><time datetime="2017-01-05T20:38:21.000Z" itemprop="datePublished">2017-01-05</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/11/21/calling_native_code_with_camel/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/11/21/calling_native_code_with_camel//post-bg.jpg)" alt="Calling Native Code With Camel" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/11/21/calling_native_code_with_camel/" class="title">Calling Native Code With Camel</a></p>
+                            <p class="item-date"><time datetime="2016-11-22T02:06:03.000Z" itemprop="datePublished">2016-11-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/10/10/smart_loadbalancing_with_camel/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/10/10/smart_loadbalancing_with_camel//post-bg.jpg)" alt="Smart LoadBalancing With Camel" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/10/10/smart_loadbalancing_with_camel/" class="title">Smart LoadBalancing With Camel</a></p>
+                            <p class="item-date"><time datetime="2016-10-10T21:29:41.000Z" itemprop="datePublished">2016-10-10</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/08/22/decommissioning_jboss_a-mq_brokers//post-bg.jpg)" alt="Decommissioning JBoss A-MQ Brokers" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" class="title">Decommissioning JBoss A-MQ Brokers</a></p>
+                            <p class="item-date"><time datetime="2016-08-22T19:04:26.000Z" itemprop="datePublished">2016-08-22</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/a-mq/">a-mq</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activemq/">activemq</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/camel/">camel</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eap/">eap</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fuse/">fuse</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jboss/">jboss</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/karaf/">karaf</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openshift/">openshift</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wildfly/">wildfly</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Josh Reagan<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+# mvn activemq-perf:producer -DsysTest.propsConfigFile=src/main/resources/tcp-producer.properties -Dfactory.brokerURL=tcp://172.30.0.116:61616 -Dproducer.deliveryMode=persistent -DsysTest.numClients=5
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- activemq-perf-maven-plugin:5.11.0:producer (default-cli) @ amqp-perf-test ---
+[INFO] Loading properties file: /root/amqp-perf-test/src/main/resources/tcp-producer.properties
+[INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Creating queue: queue://TEST.FOO
+[INFO] Sampling duration: 300000 ms, ramp up: 0 ms, ramp down: 0 ms
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating JMS Connection: Provider=ActiveMQ-5.11.0, JMS Spec=1.1
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Creating producer to: queue://TEST.FOO with persistent delivery.
+[INFO] Starting to publish 1024 byte(s) messages for 300000 ms
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Finished sending
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+[INFO] Client completed
+#########################################
+####    SYSTEM THROUGHPUT SUMMARY    ####
+#########################################
+System Total Throughput: 668957
+System Total Clients: 5
+System Average Throughput: 2229.8566666666666
+System Average Throughput Excluding Min/Max: 2220.9066666666668
+System Average Client Throughput: 445.9713333333333
+System Average Client Throughput Excluding Min/Max: 444.1813333333333
+Min Client Throughput Per Sample: clientName=JmsProducer2, value=30
+Max Client Throughput Per Sample: clientName=JmsProducer1, value=508
+Min Client Total Throughput: clientName=JmsProducer3, value=133571
+Max Client Total Throughput: clientName=JmsProducer0, value=133902
+Min Average Client Throughput: clientName=JmsProducer3, value=445.2366666666667
+Max Average Client Throughput: clientName=JmsProducer0, value=446.34
+Min Average Client Throughput Excluding Min/Max: clientName=JmsProducer3, value=443.43666666666667
+Max Average Client Throughput Excluding Min/Max: clientName=JmsProducer0, value=444.55333333333334
+[INFO] Created performance report: /root/amqp-perf-test/./target/JmsProducer_numClients5_numDests1_all.xml
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 05:00 min
+[INFO] Finished at: 2017-03-02T05:53:59+00:00
+[INFO] Final Memory: 7M/199M
+[INFO] ------------------------------------------------------------------------
