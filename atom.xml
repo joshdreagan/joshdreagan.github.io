@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://joshdreagan.github.io/"/>
-  <updated>2017-03-25T22:56:02.437Z</updated>
+  <updated>2017-03-26T05:10:16.552Z</updated>
   <id>http://joshdreagan.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://joshdreagan.github.io/2017/03/25/scaling_jboss_a-mq_on_openshift/"/>
     <id>http://joshdreagan.github.io/2017/03/25/scaling_jboss_a-mq_on_openshift/</id>
     <published>2017-03-25T22:56:02.000Z</published>
-    <updated>2017-03-25T22:56:02.437Z</updated>
+    <updated>2017-03-26T05:10:16.552Z</updated>
     
     <content type="html"><![CDATA[<p>I frequently get asked by customers if it’s possible to run <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="external">Red Hat JBoss A-MQ</a> on <a href="https://developers.redhat.com/products/openshift/overview/" target="_blank" rel="external">Red Hat OpenShift</a>, and while the answer has been “yes” for quite a while now, it has always been followed by a few caveats. In particular, the issue of scaling…<a id="more"></a></p>
 <p>But before we get into the issue of scaling, let’s talk a little about how the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_a-mq_for_openshift/" target="_blank" rel="external">official image template</a> works. Basically, it can operate in three different modes (as of this blog date). </p>
@@ -29,8 +29,8 @@
 <p>In that case, we would use the third mode. Which is persistent with scaling. In this mode, all of the brokers are networked together (using the same Kubernetes Service discovery mechanism as above), but they all also mount the same PersistentVolumeClaim. So how do they have separate KahaDB’s (and prevent all trying to lock the same one)? It’s actually quite simple… In this mode, they will all mount the same volume, but will use subdirectories inside that mount. So within the mount, you will get a bunch of directories called “split-1”, “split-2”, … and so on. If you want to see exactly how this works, you can open up a remote shell to one of the pods (ie, <code>oc rsh &lt;POD_NAME&gt;</code>) and take a look at the A-MQ start script. It just loops through (starting at 1) each of the directories until it finds one that it can get a file-lock on. Once it does, it starts up a broker instance and uses that sub-directory to store its KahaDB. It’s worth noting here that, since all of the instances will share the same actual PersistentVolume (and it’s underlying filesystem), you will need to use a distributed filesystem (ie, <a href="https://www.gluster.org/" target="_blank" rel="external">GlusterFS</a>) with ReadWriteMany access so you don’t hit a storage performance bottleneck. Now I can run A-MQ on OpenShift and scale-up as much as I want (or as much as I have resources for anyway). </p>
 <p>So what’s the “scaling problem” I mentioned earlier? Well… if I want to scale-up, I’ll probably also want to scale-down at some point. And if I scale down, I now have KahaDB’s sitting in “split-x” folders that could potentially have in-flight messages. And those messages likely can’t wait until I scale back up and happen to get an instance that mounts that particular “split” directory. So really, I need to drain those messages out of that stale KahaDB and push them to one of my remaining active brokers. So how might I go about that?</p>
 <p>One solution might be to use a broker plugin that (on shutdown) will automatically drain messages off to other brokers. This could work, but would probably be problematic. First, you would have to make sure that all of your <a href="http://activemq.apache.org/configuring-version-5-transports.html" target="_blank" rel="external">ActiveMQ TransportConnectors</a> are shutdown before you start draining the messages. If you fail to do this, you could potentially be accepting new messages from clients and might never finish actually draining. The second (and probably more important problem) is that you don’t have an infinite amount of time to finish your work. When Kubernetes schedules a pod for shutdown, it does give a max time for it to complete its graceful shutdown. But if you exceed this timeout, it will forcefully shut down. So exactly how much time do you need to drain off all of your messages? It depends… It depends on how many in-flight messages you have stored in that KahaDB. It depends on how fast you can send those messages (maybe they’re large messages). It depends on how much space you have available on the other brokers (because of <a href="http://activemq.apache.org/producer-flow-control.html" target="_blank" rel="external">Producer Flow Control</a>). The point is, there is no valid number for “shutdown timeout”. You need as much time as it takes. So what do we do?</p>
-<p>Luckily for you, I’m sure you’ve already read my previous blog on <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. And in there, you’ve already seen my final proposed solution (and code example) for draining those messages. So really, all we have to do is make that code work on OpenShift. Here’s a first cut at it [<a href="https://github.com/joshdreagan/activemq-pv-monitor" target="_blank" rel="external">https://github.com/joshdreagan/activemq-pv-monitor</a>]. In this example, I use the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_fuse_integration_services_2.0_for_openshift/" target="_blank" rel="external">FIS 2.0</a> tools to create a simple <a href="https://developers.redhat.com/products/fuse/overview/" target="_blank" rel="external">Red Hat JBoss Fuse</a> app that will monitor the A-MQ “split-x” directories. If it finds a KahaDB that it’s able to get a file-lock on, it will drain its messages to another available broker (which it discovers using the same Kubernetes Service discover mechanism described above). And since it’s a separate Pod, it can run for as long as it needs to. So no need to worry about pesky timeouts. The example could use some more error handling and various other QA, but it should be a good starting point.</p>
-<p>So now we can scale-up, we can scale-down, and if we’re feeling lazy, we can even auto-scale. Cool beans! As always, hopefully you find this useful. And if so, buy my a beer this year at <a href="https://www.redhat.com/en/summit/2017" target="_blank" rel="external">Red Hat Summit</a>. :)</p>
+<p>Luckily for you, I’m sure you’ve already read my previous blog on <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. And in there, you’ve already seen my final proposed solution (and code example) for draining those messages. So really, all we have to do is make that code work on OpenShift. Here’s a first cut at it [<a href="https://github.com/joshdreagan/activemq-pv-monitor" target="_blank" rel="external">https://github.com/joshdreagan/activemq-pv-monitor</a>]. In this example, I use the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_fuse_integration_services_2.0_for_openshift/" target="_blank" rel="external">FIS 2.0</a> tools to create a simple <a href="https://developers.redhat.com/products/fuse/overview/" target="_blank" rel="external">Red Hat JBoss Fuse</a> app that will monitor the A-MQ “split-x” directories. If it finds a KahaDB that it’s able to get a file-lock on, it will drain its messages to another available broker (which it discovers using the same Kubernetes Service discovery mechanism described above). And since it’s a separate Pod, it can run for as long as it needs to. So no need to worry about pesky timeouts. The example could use some more error handling and various other QA, but it should be a good starting point.</p>
+<p>So now we can scale-up, we can scale-down, and if we’re feeling lazy, we can even auto-scale. Cool beans! As always, hopefully you find this useful. And if so, buy me a beer this year at <a href="https://www.redhat.com/en/summit/2017" target="_blank" rel="external">Red Hat Summit</a>. :)</p>
 ]]></content>
     
     <summary type="html">
@@ -42,9 +42,9 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
-    
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
     
@@ -180,9 +180,9 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
-    
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
   </entry>
   
@@ -228,9 +228,9 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
-    
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
   </entry>
   
@@ -258,9 +258,9 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
-    
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
       <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
     
@@ -357,9 +357,9 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
-    
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
@@ -502,9 +502,9 @@
     </summary>
     
     
-      <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
-    
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
+      <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
     
       <category term="infinispan" scheme="http://joshdreagan.github.io/tags/infinispan/"/>
     
@@ -534,13 +534,13 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
     
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="jbpm" scheme="http://joshdreagan.github.io/tags/jbpm/"/>
     
@@ -586,13 +586,13 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
     
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
     
@@ -665,15 +665,15 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
     
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
       <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
     
@@ -807,13 +807,13 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
     
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
       <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
     
@@ -917,13 +917,13 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
+      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+    
       <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
       <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
     
       <category term="eap" scheme="http://joshdreagan.github.io/tags/eap/"/>
-    
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
     
       <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
     
@@ -1004,11 +1004,11 @@
     
       <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
     
       <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
     
   </entry>
   
