@@ -12,7 +12,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://joshdreagan.github.io/
+url: http://blog.joshdreagan.com/
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -35,7 +35,7 @@ external_link: true # Open external links in new tab
 filename_case: 1
 render_drafts: true
 post_asset_folder: true
-relative_link: false
+relative_link: true
 future: true
 highlight:
   enable: true
@@ -72,6 +72,8 @@ feed:
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: git
+- type: git
   repo: git@github.com:joshdreagan/joshdreagan.github.io.git
   branch: master
+- type: shell
+  command: ./hexo-deployer-ipfs
