@@ -4,9 +4,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://joshdreagan.github.io/"/>
+  <link href="http://blog.joshdreagan.com/"/>
   <updated>2017-03-26T05:10:16.552Z</updated>
-  <id>http://joshdreagan.github.io/</id>
+  <id>http://blog.joshdreagan.com/</id>
   
   <author>
     <name>Josh Reagan</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Scaling JBoss A-MQ on OpenShift</title>
-    <link href="http://joshdreagan.github.io/2017/03/25/scaling_jboss_a-mq_on_openshift/"/>
-    <id>http://joshdreagan.github.io/2017/03/25/scaling_jboss_a-mq_on_openshift/</id>
+    <link href="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/"/>
+    <id>http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/</id>
     <published>2017-03-25T22:56:02.000Z</published>
     <updated>2017-03-26T05:10:16.552Z</updated>
     
@@ -40,26 +40,26 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
     
-      <category term="spring-boot" scheme="http://joshdreagan.github.io/tags/spring-boot/"/>
+      <category term="spring-boot" scheme="http://blog.joshdreagan.com/tags/spring-boot/"/>
     
   </entry>
   
   <entry>
     <title>ActiveMQ HA Performance Comparison</title>
-    <link href="http://joshdreagan.github.io/2017/03/15/activemq_ha_performance_comparison/"/>
-    <id>http://joshdreagan.github.io/2017/03/15/activemq_ha_performance_comparison/</id>
+    <link href="http://blog.joshdreagan.com/2017/03/15/activemq_ha_performance_comparison/"/>
+    <id>http://blog.joshdreagan.com/2017/03/15/activemq_ha_performance_comparison/</id>
     <published>2017-03-15T20:07:01.000Z</published>
     <updated>2017-03-15T20:07:01.182Z</updated>
     
@@ -146,18 +146,18 @@
     </summary>
     
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
     
   </entry>
   
   <entry>
     <title>Faster File Consumption With Camel</title>
-    <link href="http://joshdreagan.github.io/2017/01/05/faster_file_consumption_with_camel/"/>
-    <id>http://joshdreagan.github.io/2017/01/05/faster_file_consumption_with_camel/</id>
+    <link href="http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/"/>
+    <id>http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/</id>
     <published>2017-01-05T20:38:21.000Z</published>
     <updated>2017-01-05T20:38:21.782Z</updated>
     
@@ -178,18 +178,18 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
   </entry>
   
   <entry>
     <title>Calling Native Code With Camel</title>
-    <link href="http://joshdreagan.github.io/2016/11/21/calling_native_code_with_camel/"/>
-    <id>http://joshdreagan.github.io/2016/11/21/calling_native_code_with_camel/</id>
+    <link href="http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/"/>
+    <id>http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/</id>
     <published>2016-11-22T02:06:03.000Z</published>
     <updated>2016-11-22T02:06:03.659Z</updated>
     
@@ -226,23 +226,23 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
   </entry>
   
   <entry>
     <title>Smart LoadBalancing With Camel</title>
-    <link href="http://joshdreagan.github.io/2016/10/10/smart_loadbalancing_with_camel/"/>
-    <id>http://joshdreagan.github.io/2016/10/10/smart_loadbalancing_with_camel/</id>
+    <link href="http://blog.joshdreagan.com/2016/10/10/smart_loadbalancing_with_camel/"/>
+    <id>http://blog.joshdreagan.com/2016/10/10/smart_loadbalancing_with_camel/</id>
     <published>2016-10-10T21:29:41.000Z</published>
     <updated>2016-11-21T16:05:01.572Z</updated>
     
     <content type="html"><![CDATA[<p>LoadBalancing is a fairly well-known concept these days. There are a ton of existing strategies out there (ie, RoundRobin, Random, Sticky, Weighted, …), and there a ton of existing implementations that have been built using both hardware and software (ie, Apache HTTPD, HAProxy, f5, Layer7, …). So why create another one? Well… although it’s not likely to be very useful, I thought it might be neat to see if I could make one that utilized CPU load (or any metric) to do more intelligent routing.<a id="more"></a></p>
-<p>Luckily, like many things in <a href="http://camel.apache.org/" target="_blank" rel="external">Camel</a>, this is a fairly simple task. I just have to create my own <code>org.apache.camel.processor.loadbalancer.LoadBalancer</code> implementation, and I can make it do pretty much anything I want. For instance, <a href="http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/">I might implement one to do dynamic discovery using Infinispan</a> (shameless self-promotion :)). But I digress…</p>
+<p>Luckily, like many things in <a href="http://camel.apache.org/" target="_blank" rel="external">Camel</a>, this is a fairly simple task. I just have to create my own <code>org.apache.camel.processor.loadbalancer.LoadBalancer</code> implementation, and I can make it do pretty much anything I want. For instance, <a href="http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/" target="_blank" rel="external">I might implement one to do dynamic discovery using Infinispan</a> (shameless self-promotion :)). But I digress…</p>
 <p>So let’s break down the wish list: I want to be able to use the strategy for more than just HTTP. I’d like to be able to use any available metric. And I need the collection of said metric to occur asynchronously in the background (so I don’t slow down my routing).</p>
 <img src="/2016/10/10/smart_loadbalancing_with_camel/smart-lb.png" alt="Smart LoadBalancer" title="Smart LoadBalancer">
 <p>Take a look at the source code <a href="https://github.com/joshdreagan/camel-smart-loadbalancer" target="_blank" rel="external">https://github.com/joshdreagan/camel-smart-loadbalancer</a> to see how I did it. In my example, I load balanced HTTP calls and used JMX to collect CPU utilization. But you could just as easily use the exact same implementation to monitor <a href="http://activemq.apache.org/" target="_blank" rel="external">ActiveMQ</a> queue depth (or queue % full) and load balance between brokers. Or maybe monitor filesystem space and load balance FTP endpoints.</p>
@@ -256,22 +256,22 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
     
   </entry>
   
   <entry>
     <title>Decommissioning JBoss A-MQ Brokers</title>
-    <link href="http://joshdreagan.github.io/2016/08/22/decommissioning_jboss_a-mq_brokers/"/>
-    <id>http://joshdreagan.github.io/2016/08/22/decommissioning_jboss_a-mq_brokers/</id>
+    <link href="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/"/>
+    <id>http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/</id>
     <published>2016-08-22T19:04:26.000Z</published>
     <updated>2016-11-21T18:27:54.222Z</updated>
     
@@ -291,18 +291,18 @@
     </summary>
     
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
     
   </entry>
   
   <entry>
     <title>HA Deployments With Fuse</title>
-    <link href="http://joshdreagan.github.io/2016/07/28/ha_deployments_with_fuse/"/>
-    <id>http://joshdreagan.github.io/2016/07/28/ha_deployments_with_fuse/</id>
+    <link href="http://blog.joshdreagan.com/2016/07/28/ha_deployments_with_fuse/"/>
+    <id>http://blog.joshdreagan.com/2016/07/28/ha_deployments_with_fuse/</id>
     <published>2016-07-29T03:34:04.000Z</published>
     <updated>2016-11-21T18:27:46.342Z</updated>
     
@@ -355,24 +355,24 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
     
   </entry>
   
   <entry>
     <title>Ordered Messaging With ActiveMQ &amp; Camel</title>
-    <link href="http://joshdreagan.github.io/2016/05/27/ordered_messaging_with_activemq_and_camel/"/>
-    <id>http://joshdreagan.github.io/2016/05/27/ordered_messaging_with_activemq_and_camel/</id>
+    <link href="http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/"/>
+    <id>http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/</id>
     <published>2016-05-27T06:00:00.000Z</published>
     <updated>2016-07-21T22:17:28.226Z</updated>
     
@@ -410,16 +410,16 @@
     </summary>
     
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
   </entry>
   
   <entry>
     <title>AMQP Performance Testing With JBoss A-MQ</title>
-    <link href="http://joshdreagan.github.io/2016/02/02/amqp_performance_testing/"/>
-    <id>http://joshdreagan.github.io/2016/02/02/amqp_performance_testing/</id>
+    <link href="http://blog.joshdreagan.com/2016/02/02/amqp_performance_testing/"/>
+    <id>http://blog.joshdreagan.com/2016/02/02/amqp_performance_testing/</id>
     <published>2016-02-02T07:00:00.000Z</published>
     <updated>2016-07-21T22:17:33.886Z</updated>
     
@@ -449,18 +449,18 @@
     </summary>
     
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="activemq" scheme="http://joshdreagan.github.io/tags/activemq/"/>
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://joshdreagan.github.io/tags/a-mq/"/>
+      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
     
   </entry>
   
   <entry>
     <title>Custom Camel LoadBalancer With Infinispan</title>
-    <link href="http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/"/>
-    <id>http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/</id>
+    <link href="http://blog.joshdreagan.com/2015/12/04/custom_camel_loadbalancer_with_infinispan/"/>
+    <id>http://blog.joshdreagan.com/2015/12/04/custom_camel_loadbalancer_with_infinispan/</id>
     <published>2015-12-04T07:00:00.000Z</published>
     <updated>2016-07-21T22:17:43.626Z</updated>
     
@@ -502,18 +502,18 @@
     </summary>
     
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
+      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
     
-      <category term="infinispan" scheme="http://joshdreagan.github.io/tags/infinispan/"/>
+      <category term="infinispan" scheme="http://blog.joshdreagan.com/tags/infinispan/"/>
     
   </entry>
   
   <entry>
     <title>Correcting Malformed Data With Fuse+BPMS</title>
-    <link href="http://joshdreagan.github.io/2015/10/30/correcting_data_with_fuse_and_bpms/"/>
-    <id>http://joshdreagan.github.io/2015/10/30/correcting_data_with_fuse_and_bpms/</id>
+    <link href="http://blog.joshdreagan.com/2015/10/30/correcting_data_with_fuse_and_bpms/"/>
+    <id>http://blog.joshdreagan.com/2015/10/30/correcting_data_with_fuse_and_bpms/</id>
     <published>2015-10-30T06:00:00.000Z</published>
     <updated>2016-07-21T22:17:49.586Z</updated>
     
@@ -532,26 +532,26 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
-      <category term="jbpm" scheme="http://joshdreagan.github.io/tags/jbpm/"/>
+      <category term="jbpm" scheme="http://blog.joshdreagan.com/tags/jbpm/"/>
     
-      <category term="bpms" scheme="http://joshdreagan.github.io/tags/bpms/"/>
+      <category term="bpms" scheme="http://blog.joshdreagan.com/tags/bpms/"/>
     
   </entry>
   
   <entry>
     <title>Fuse Fabric Offline CI/CD</title>
-    <link href="http://joshdreagan.github.io/2015/08/04/fuse_fabric_offline_ci__cd/"/>
-    <id>http://joshdreagan.github.io/2015/08/04/fuse_fabric_offline_ci__cd/</id>
+    <link href="http://blog.joshdreagan.com/2015/08/04/fuse_fabric_offline_ci__cd/"/>
+    <id>http://blog.joshdreagan.com/2015/08/04/fuse_fabric_offline_ci__cd/</id>
     <published>2015-08-04T06:00:00.000Z</published>
     <updated>2016-07-21T22:17:55.126Z</updated>
     
@@ -584,24 +584,24 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
+      <category term="fabric8" scheme="http://blog.joshdreagan.com/tags/fabric8/"/>
     
   </entry>
   
   <entry>
     <title>Connecting FeedHenry to Fuse REST Quickstart</title>
-    <link href="http://joshdreagan.github.io/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/"/>
-    <id>http://joshdreagan.github.io/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/</id>
+    <link href="http://blog.joshdreagan.com/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/"/>
+    <id>http://blog.joshdreagan.com/2015/05/08/connecting_feedhenry_to_fuse_rest_quickstart/</id>
     <published>2015-05-08T06:00:00.000Z</published>
     <updated>2016-07-21T22:18:03.146Z</updated>
     
@@ -622,7 +622,7 @@
 <p>Edit the <code>/package.json</code> file and add a dependency for “<em>xml2js</em>“ version “<em>~0.4.8</em>“ to the end of the <em>dependencies</em> section. If you’d like, you can copy/paste the entire contents from the text below.</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"name"</span>: <span class="string">"fh-app"</span>,</div><div class="line">  <span class="attr">"version"</span>: <span class="string">"0.2.0"</span>,</div><div class="line">  <span class="attr">"dependencies"</span>: &#123;</div><div class="line">    <span class="attr">"body-parser"</span>: <span class="string">"~1.0.2"</span>,</div><div class="line">    <span class="attr">"cors"</span>: <span class="string">"~2.2.0"</span>,</div><div class="line">    <span class="attr">"express"</span>: <span class="string">"~4.0.0"</span>,</div><div class="line">    <span class="attr">"fh-mbaas-api"</span>: <span class="string">"~4.9.0"</span>,</div><div class="line">    <span class="attr">"mocha"</span>: <span class="string">"^2.1.0"</span>,</div><div class="line">    <span class="attr">"request"</span>: <span class="string">"~2.40.0"</span>,</div><div class="line">    <span class="attr">"xml2js"</span>: <span class="string">"~0.4.8"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"devDependencies"</span>: &#123;</div><div class="line">    <span class="attr">"grunt-contrib-watch"</span>: <span class="string">"latest"</span>,</div><div class="line">    <span class="attr">"grunt-nodemon"</span>: <span class="string">"0.2.0"</span>,</div><div class="line">    <span class="attr">"grunt-concurrent"</span>: <span class="string">"latest"</span>,</div><div class="line">    <span class="attr">"supertest"</span>: <span class="string">"0.8.2"</span>,</div><div class="line">    <span class="attr">"should"</span>: <span class="string">"2.1.1"</span>,</div><div class="line">    <span class="attr">"proxyquire"</span>: <span class="string">"0.5.3"</span>,</div><div class="line">    <span class="attr">"grunt-shell"</span>: <span class="string">"0.6.4"</span>,</div><div class="line">    <span class="attr">"istanbul"</span>: <span class="string">"0.2.7"</span>,</div><div class="line">    <span class="attr">"grunt-env"</span>: <span class="string">"~0.4.1"</span>,</div><div class="line">    <span class="attr">"load-grunt-tasks"</span>: <span class="string">"~0.4.0"</span>,</div><div class="line">    <span class="attr">"time-grunt"</span>: <span class="string">"~0.3.1"</span>,</div><div class="line">    <span class="attr">"grunt-node-inspector"</span>: <span class="string">"~0.1.5"</span>,</div><div class="line">    <span class="attr">"grunt-open"</span>: <span class="string">"~0.2.3"</span>,</div><div class="line">    <span class="attr">"grunt-plato"</span>: <span class="string">"~1.0.0"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"main"</span>: <span class="string">"application.js"</span>,</div><div class="line">  <span class="attr">"scripts"</span>: &#123;</div><div class="line">    <span class="attr">"test"</span>: <span class="string">"grunt test"</span>,</div><div class="line">    <span class="attr">"debug"</span>: <span class="string">"grunt serve"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"license"</span>: <span class="string">"mit"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>Next, edit the <code>/lib/hello.js</code> file and replace its contents with the text below. <strong>Make sure to replace the <em>uri</em> field in both the <em>get</em> and <em>post</em> methods with the URI to your Fuse REST quickstart that you created in the previous guide.</strong></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</div><div class="line"><span class="keyword">var</span> bodyParser = <span class="built_in">require</span>(<span class="string">'body-parser'</span>);</div><div class="line"><span class="keyword">var</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>);</div><div class="line"><span class="keyword">var</span> request = <span class="built_in">require</span>(<span class="string">'request'</span>);</div><div class="line"><span class="keyword">var</span> xml2js = <span class="built_in">require</span>(<span class="string">'xml2js'</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">helloRoute</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> hello = <span class="keyword">new</span> express.Router();</div><div class="line">  hello.use(cors());</div><div class="line">  hello.use(bodyParser());</div><div class="line"></div><div class="line">  hello.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">'In hello route GET / req.query='</span>, req.query);</div><div class="line">    <span class="keyword">var</span> id = req.query &amp;&amp; req.query.hello ? req.query.hello : <span class="string">'000'</span>;</div><div class="line">    request(&#123;uri: <span class="string">'http://restchild-joshdreagan.rhcloud.com/cxf/crm/customerservice/customers/'</span> + id,</div><div class="line">             method: <span class="string">"GET"</span>&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error, response, body</span>) </span>&#123;</div><div class="line">        xml2js.parseString(body, <span class="function"><span class="keyword">function</span> (<span class="params">err, result</span>) </span>&#123;</div><div class="line">          <span class="keyword">var</span> name = result.Customer.name[<span class="number">0</span>];</div><div class="line">          res.json(&#123;msg: <span class="string">'Hello '</span> + name&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  hello.post(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">'In hello route POST / req.body='</span>, req.body);</div><div class="line">    <span class="keyword">var</span> id = req.body &amp;&amp; req.body.hello ? req.body.hello : <span class="string">'000'</span>;</div><div class="line">    request(&#123;uri: <span class="string">'http://restchild-joshdreagan.rhcloud.com/cxf/crm/customerservice/customers/'</span> + id,</div><div class="line">             method: <span class="string">"GET"</span>&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error, response, body</span>) </span>&#123;</div><div class="line">        xml2js.parseString(body, <span class="function"><span class="keyword">function</span> (<span class="params">err, result</span>) </span>&#123;</div><div class="line">          <span class="keyword">var</span> name = result.Customer.name[<span class="number">0</span>];</div><div class="line">          res.json(&#123;msg: <span class="string">'Hello '</span> + name&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  <span class="keyword">return</span> hello;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = helloRoute;</div></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</div><div class="line"><span class="keyword">var</span> bodyParser = <span class="built_in">require</span>(<span class="string">'body-parser'</span>);</div><div class="line"><span class="keyword">var</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>);</div><div class="line"><span class="keyword">var</span> request = <span class="built_in">require</span>(<span class="string">'request'</span>);</div><div class="line"><span class="keyword">var</span> xml2js = <span class="built_in">require</span>(<span class="string">'xml2js'</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">helloRoute</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> hello = <span class="keyword">new</span> express.Router();</div><div class="line">  hello.use(cors());</div><div class="line">  hello.use(bodyParser());</div><div class="line"></div><div class="line">  hello.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">'In hello route GET / req.query='</span>, req.query);</div><div class="line">    <span class="keyword">var</span> id = req.query &amp;&amp; req.query.hello ? req.query.hello : <span class="string">'000'</span>;</div><div class="line">    request(&#123;<span class="attr">uri</span>: <span class="string">'http://restchild-joshdreagan.rhcloud.com/cxf/crm/customerservice/customers/'</span> + id,</div><div class="line">             <span class="attr">method</span>: <span class="string">"GET"</span>&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error, response, body</span>) </span>&#123;</div><div class="line">        xml2js.parseString(body, <span class="function"><span class="keyword">function</span> (<span class="params">err, result</span>) </span>&#123;</div><div class="line">          <span class="keyword">var</span> name = result.Customer.name[<span class="number">0</span>];</div><div class="line">          res.json(&#123;<span class="attr">msg</span>: <span class="string">'Hello '</span> + name&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  hello.post(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">'In hello route POST / req.body='</span>, req.body);</div><div class="line">    <span class="keyword">var</span> id = req.body &amp;&amp; req.body.hello ? req.body.hello : <span class="string">'000'</span>;</div><div class="line">    request(&#123;<span class="attr">uri</span>: <span class="string">'http://restchild-joshdreagan.rhcloud.com/cxf/crm/customerservice/customers/'</span> + id,</div><div class="line">             <span class="attr">method</span>: <span class="string">"GET"</span>&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error, response, body</span>) </span>&#123;</div><div class="line">        xml2js.parseString(body, <span class="function"><span class="keyword">function</span> (<span class="params">err, result</span>) </span>&#123;</div><div class="line">          <span class="keyword">var</span> name = result.Customer.name[<span class="number">0</span>];</div><div class="line">          res.json(&#123;<span class="attr">msg</span>: <span class="string">'Hello '</span> + name&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  <span class="keyword">return</span> hello;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = helloRoute;</div></pre></td></tr></table></figure>
 <p>Finally, edit the <code>/README.md</code> file and change the sample request body to “<em>123</em>“ instead of “<em>world</em>“. If you’d like, you can copy/paste the entire contents from the text below. <em>This step is optional, but is nice to do since it will allow you to test directly from the “<strong>Docs</strong>“ page.</em></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"># FeedHenry Hello World MBaaS Server</div><div class="line"></div><div class="line">This is a blank &apos;hello world&apos; FeedHenry MBaaS. Use it as a starting point for building your APIs. </div><div class="line"></div><div class="line"># Group Hello World API</div><div class="line"></div><div class="line"># hello [/hello]</div><div class="line"></div><div class="line">&apos;Hello world&apos; endpoint.</div><div class="line"></div><div class="line">## hello [POST] </div><div class="line"></div><div class="line">&apos;Hello world&apos; endpoint.</div><div class="line"></div><div class="line">+ Request (application/json)</div><div class="line">    + Body</div><div class="line">            &#123;</div><div class="line">              &quot;hello&quot;: &quot;123&quot;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">+ Response 200 (application/json)</div><div class="line">    + Body</div><div class="line">            &#123;</div><div class="line">              &quot;msg&quot;: &quot;Hello world&quot;</div><div class="line">            &#125;</div></pre></td></tr></table></figure>
 <p>Now, save all of the files and click on the “<strong>Deploy</strong>“ button in the column on the left.</p>
@@ -663,28 +663,28 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
+      <category term="feedhenry" scheme="http://blog.joshdreagan.com/tags/feedhenry/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
-      <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
+      <category term="fabric8" scheme="http://blog.joshdreagan.com/tags/fabric8/"/>
     
   </entry>
   
   <entry>
     <title>Getting Started - FeedHenry Hello World</title>
-    <link href="http://joshdreagan.github.io/2015/05/07/getting_started__feedhenry_hello_world/"/>
-    <id>http://joshdreagan.github.io/2015/05/07/getting_started__feedhenry_hello_world/</id>
+    <link href="http://blog.joshdreagan.com/2015/05/07/getting_started__feedhenry_hello_world/"/>
+    <id>http://blog.joshdreagan.com/2015/05/07/getting_started__feedhenry_hello_world/</id>
     <published>2015-05-07T06:00:00.000Z</published>
     <updated>2016-07-21T22:18:18.286Z</updated>
     
@@ -735,14 +735,14 @@
     </summary>
     
     
-      <category term="feedhenry" scheme="http://joshdreagan.github.io/tags/feedhenry/"/>
+      <category term="feedhenry" scheme="http://blog.joshdreagan.com/tags/feedhenry/"/>
     
   </entry>
   
   <entry>
     <title>Getting Started - Fuse REST Quickstart on OpenShift</title>
-    <link href="http://joshdreagan.github.io/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/"/>
-    <id>http://joshdreagan.github.io/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/</id>
+    <link href="http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/"/>
+    <id>http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/</id>
     <published>2015-05-07T06:00:00.000Z</published>
     <updated>2016-07-21T22:18:09.726Z</updated>
     
@@ -805,26 +805,26 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
-      <category term="openshift" scheme="http://joshdreagan.github.io/tags/openshift/"/>
+      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
-      <category term="fabric8" scheme="http://joshdreagan.github.io/tags/fabric8/"/>
+      <category term="fabric8" scheme="http://blog.joshdreagan.com/tags/fabric8/"/>
     
   </entry>
   
   <entry>
     <title>Getting Started - Camel on EAP</title>
-    <link href="http://joshdreagan.github.io/2015/04/10/getting_started__camel_on_eap/"/>
-    <id>http://joshdreagan.github.io/2015/04/10/getting_started__camel_on_eap/</id>
+    <link href="http://blog.joshdreagan.com/2015/04/10/getting_started__camel_on_eap/"/>
+    <id>http://blog.joshdreagan.com/2015/04/10/getting_started__camel_on_eap/</id>
     <published>2015-04-10T06:00:00.000Z</published>
     <updated>2016-07-21T22:18:24.546Z</updated>
     
@@ -915,24 +915,24 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
-      <category term="wildfly" scheme="http://joshdreagan.github.io/tags/wildfly/"/>
+      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
     
-      <category term="eap" scheme="http://joshdreagan.github.io/tags/eap/"/>
+      <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
     
-      <category term="cxf" scheme="http://joshdreagan.github.io/tags/cxf/"/>
+      <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
   </entry>
   
   <entry>
     <title>Getting Started - First Fuse Project</title>
-    <link href="http://joshdreagan.github.io/2015/04/09/getting_started__first_fuse_project/"/>
-    <id>http://joshdreagan.github.io/2015/04/09/getting_started__first_fuse_project/</id>
+    <link href="http://blog.joshdreagan.com/2015/04/09/getting_started__first_fuse_project/"/>
+    <id>http://blog.joshdreagan.com/2015/04/09/getting_started__first_fuse_project/</id>
     <published>2015-04-09T06:00:00.000Z</published>
     <updated>2016-07-21T22:18:32.155Z</updated>
     
@@ -1002,13 +1002,13 @@
     </summary>
     
     
-      <category term="fuse" scheme="http://joshdreagan.github.io/tags/fuse/"/>
+      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="karaf" scheme="http://joshdreagan.github.io/tags/karaf/"/>
+      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
-      <category term="camel" scheme="http://joshdreagan.github.io/tags/camel/"/>
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
-      <category term="jboss" scheme="http://joshdreagan.github.io/tags/jboss/"/>
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
   </entry>
   
