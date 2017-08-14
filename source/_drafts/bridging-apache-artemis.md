@@ -7,6 +7,8 @@ tags:
   - a-mq
   - camel
   - fuse
+  - eap
+  - wildfly
 banner: post-bg.jpg
 permalink: bridging_apache_artemis
 ---

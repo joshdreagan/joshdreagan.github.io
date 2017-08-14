@@ -10,9 +10,14 @@ tags:
   - openshift
   - spring-boot
   - narayana
+  - karaf
+  - eap
+  - wildfly
 banner: post-bg.jpg
 permalink: transactions_and_alternatives_with_camel
+date: 2017-08-14 09:54:38
 ---
+
 
 There are loads of use cases which require "all or nothing" processing. And there are a bunch of different strategies for accomplishing said result. Luckily for me, they've already been covered many times in tons of different blogs/books/articles. So for this post I'm just going to concentrate on a few of the strategies, and more specifically, how to do them with [Apache Camel](http://camel.apache.org/).<!-- more -->
 
@@ -32,7 +37,7 @@ Second, due to the requirement of a 2-phase commit, it will be significantly slo
 
 The third, and often overlooked, requirement is that you will need some sort of persistence. This is because, in the case of a crash, the recovery manager will attempt to pick up where things left off. And in order to survive a crash, we need persistence...
 
-It's worth noting that this third requirement (persistence) makes HA a bit of a pain. As mentioned above, transaction managers will run some sort of recovery thread in the background so that they can (as the name would suggest) recover transactions that were not yet complete at the time of a crash. But they all (or at least all of the implementations I know of) can only have a single instance of the tx and recovery manager per object store (or more specifically, per tx manager id). So that means that, if I wanted to scale out my application (to make up for the added slowness of XA), each server would need its own persistent store. Most people don't even notice when they're using a server like [JBoss WildFly](http://wildfly.org/) because each instance will (by default) write its logs to a subfolder of its installation. This is (in my opinion) __very__ dangerous because people are unaware that that directory should be sitting on some sort of resilient storage. If, however, you're running on a platform like [OpenShift](https://www.openshift.com/), you will be immediately aware because all instances will share the same storage mount and will simply fail to work properly. You _could_ use subfolders for each pod instance, and then create a separate recovery pod that would run independent of your application and would spin up recovery managers for each downed instance. In fact, I actually had an implementation working at one point. But it was quite clunky, and after a quick conversation with Hiram Chirino at one of our meetups, I concluded that he was working on a __way__ more elegant solution using [Stateful Sets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/). So for now, if you want to run XA transactions on OpenShift, I would wait a bit for his version.
+It's worth noting that this third requirement (persistence) makes HA a bit of a pain. As mentioned above, transaction managers will run some sort of recovery thread in the background so that they can (as the name would suggest) recover transactions that were not yet complete at the time of a crash. But they all (or at least all of the implementations I know of) can only have a single instance of the tx and recovery manager per object store (or more specifically, per tx manager id). So that means that, if I wanted to scale out my application (to make up for the added slowness of XA), each server would likely have its own persistent store. Most people don't even notice when they're using a server like [JBoss WildFly](http://wildfly.org/) because each instance will (by default) write its logs to a subfolder of its installation. This can be (in my opinion) __very__ dangerous because most people are unaware that that directory should be sitting on some sort of resilient storage. If, however, you're running on a platform like [OpenShift](https://www.openshift.com/), you will be immediately aware because all instances will share the same storage mount and configuration, and will simply fail to work properly. You _could_ use subfolders for each pod instance, and then create a separate recovery pod that would run independent of your application and would spin up recovery managers for each downed instance. In fact, I actually had an implementation working at one point. But it was quite clunky, and after a quick conversation with Hiram Chirino at one of our meetups, I concluded that he was working on a __way__ more elegant solution using [Stateful Sets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/). So for now, if you want to run XA transactions on OpenShift, I would either limit my app to a single instance (ie, no scaling), or wait a bit for Hiram's version.
 
 ## Idempotent Consumer
 
