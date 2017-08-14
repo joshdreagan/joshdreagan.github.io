@@ -59,52 +59,17 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
+      <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
+    
+      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
+    
+      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
+    
       <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
       <category term="spring-boot" scheme="http://blog.joshdreagan.com/tags/spring-boot/"/>
     
       <category term="narayana" scheme="http://blog.joshdreagan.com/tags/narayana/"/>
-    
-      <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
-    
-      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
-    
-      <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Bridging Apache Artemis</title>
-    <link href="http://blog.joshdreagan.com/2017/08/14/bridging_apache_artemis/"/>
-    <id>http://blog.joshdreagan.com/2017/08/14/bridging_apache_artemis/</id>
-    <published>2017-08-14T15:41:39.887Z</published>
-    <updated>2017-08-14T15:41:39.837Z</updated>
-    
-    <content type="html"><![CDATA[<p>foo<a id="more"></a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;foo
-    
-    </summary>
-    
-    
-      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
-    
-      <category term="artemis" scheme="http://blog.joshdreagan.com/tags/artemis/"/>
-    
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
-    
-      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
-    
-      <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
-    
-      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
-    
-      <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
     
   </entry>
   
@@ -762,15 +727,15 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
-    
       <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
-    
-      <category term="feedhenry" scheme="http://blog.joshdreagan.com/tags/feedhenry/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
+      <category term="feedhenry" scheme="http://blog.joshdreagan.com/tags/feedhenry/"/>
+    
       <category term="fabric8" scheme="http://blog.joshdreagan.com/tags/fabric8/"/>
+    
+      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
   </entry>
   
@@ -846,13 +811,13 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
-    
       <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
       <category term="fabric8" scheme="http://blog.joshdreagan.com/tags/fabric8/"/>
+    
+      <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
   </entry>
   
@@ -1014,9 +979,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
-    
       <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
+    
+      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
