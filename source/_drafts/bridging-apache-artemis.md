@@ -36,7 +36,7 @@ Finally, you'll add a definition to the `$ARTEMIS_INSTANCE/etc/bootstrap.xml` fi
 </broker>
 {% endcodeblock %}
 
-*Notice the use of `$ARTEMIS_HOME` and `$ARTEMIS_INSTANCE` in the second and third steps... `$ARTEMIS_HOME` refers to the location that you unzipped the Artemis distribution. `$ARTEMIS_INSTANCE` refers to the directory of your broker instance (created with the `artemis create ...` command.*
+*Notice the use of `$ARTEMIS_HOME` and `$ARTEMIS_INSTANCE` in the second and third steps... `$ARTEMIS_HOME` refers to the location that you unzipped the Artemis distribution. `$ARTEMIS_INSTANCE` refers to the directory of your broker instance (created with the "`artemis create ...`" command.*
 
 Now when you start the broker instance, it will load up and start the Camel routes and begin bridging. Pretty cool! But we bundled up all of our dependencies inside our WAR file (ie, all of the IBM MQ JMS client libs). And we also bundled our Camel routes definition inside the WAR as well. And since the WAR file sits in the `$ARTEMIS_HOME/web` directory, its configurations apply to any and all of the instances that we create/run on that machine. Not to mention the fact that every change to my Camel routes will require a build/deploy/restart. All of this kind of sucks and we can do better... 
 
