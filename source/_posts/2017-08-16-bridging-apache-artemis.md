@@ -9,7 +9,9 @@ tags:
   - fuse
 banner: post-bg.jpg
 permalink: bridging_apache_artemis
+date: 2017-08-16 14:18:37
 ---
+
 
 
 In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you'd pick [Apache Artemis](https://activemq.apache.org/artemis/)... ;) But in the real world, it is much more common that customers will have a very large existing codebase and will have to transition to the latest/greatest over some much longer period of time. And during that period, it's helpful to be able to set up some sort of bridge between your brokers so that your old and new code can still communicate.<!-- more -->
