@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.joshdreagan.com/"/>
-  <updated>2017-08-16T20:18:37.865Z</updated>
+  <updated>2017-12-01T22:30:03.108Z</updated>
   <id>http://blog.joshdreagan.com/</id>
   
   <author>
@@ -16,11 +16,54 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Upgrading AMQ 6 to AMQ 7</title>
+    <link href="http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/"/>
+    <id>http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/</id>
+    <published>2017-12-01T22:30:03.000Z</published>
+    <updated>2017-12-01T22:30:03.108Z</updated>
+    
+    <content type="html"><![CDATA[<p>So <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="external">Red Hat AMQ 7</a> has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reaching out and asking for help/instructions on how to migrate. So far I’ve been replying that I already blogged about that here: <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. But that reply has been met with some confusion. So I figured I’d write up a more concrete set of instructions.<a id="more"></a></p>
+<p>Let’s start by stating the problem: “I have a current, production system that is utilizing AMQ 6 and I’d like to upgrade it to AMQ 7 with as little downtime as possible”. Well… such things do require a bit of planning, but it’s not as difficult as it might seem. The easiest way to upgrade any app is <em>usually</em> to do a rolling upgrade. I emphasize “<em>usually</em>“ because every customer has a slightly different case, architecture, requirements, or other wrenches that can make things more difficult. But for the purpose of this blog, let’s focus on the most typical case.</p>
+<p>For the first step, let’s walk through upgrading the brokers. First, we’ll need to install AMQ 7 and create a broker instance. No need to enumerate the steps here since that’s already been covered in the docs: [<a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_amq/7.0/html/using_amq_broker/" target="_blank" rel="external">https://access.redhat.com/documentation/en-us/red_hat_jboss_amq/7.0/html/using_amq_broker/</a>]. For the purpose of this post, we’ll assume that you plan to match your existing setup (ie, if you currently have a master/slave pair, you will install a new AMQ 7 master/slave pair). If you’re installing to new hardware, you can go ahead and start the newly created broker instance(s). Otherwise, we’ll have to shut down the existing AMQ 6 broker before starting the AMQ 7 broker. Yes… you could modify the ports and bring it up alongside your AMQ 6 broker, but you risk causing a contention for resources if you do so. So best not to tempt fate…</p>
+<p>Next, let’s talk about the clients. One of the awesome features in AMQ 7 is that is supports all of the same protocols that AMQ 6 did (in addition to a couple more). This means that your existing clients (with their existing client libraries) can seamlessly connect to the new AMQ 7 brokers. All you’ll need to do is give the clients the new broker URL and they can immediately begin producing/consuming. And you don’t even need to do that if you installed to the same hardware and bound to the same port. In fact, if your clients are using the “failover” protocol (and you didn’t update the host/port), they will automatically switch over as soon as you take down the AMQ 6 broker and bring the AMQ 7 broker online. Neat! <img style="display: inline; height: 15px;" src="/2017/12/01/upgrading_amq_6_to_amq_7/banana_dance.gif"> It’s worth noting that this will not be the case forever. Eventually, the OpenWire format (and potentially other formats) will be deprecated and removed from support. But that is a long ways away. So you’ll have plenty of time to go back through and update all of your client applications with the newer client libraries as time/budget permits.</p>
+<p>But what about those in-flight messages? The messages that had been accepted by the old AMQ 6 instance, but had not yet been delivered to a consumer client. Well, that is exactly what I wrote <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="my previous blog post">my previous blog post</a> about. Those messages cannot be lost. So we need to “drain” them from the old AMQ 6 KahaDB store and send them to the new AMQ 7 broker. Luckily, due to the fact that the AMQ 7 broker can still speak OpenWire, you can use the exact same drainer code that I provided in that blog: [<a href="https://github.com/joshdreagan/activemq-drainer" target="_blank" rel="external">https://github.com/joshdreagan/activemq-drainer</a>]. Super neat! <img style="display: inline; height: 15px;" src="/2017/12/01/upgrading_amq_6_to_amq_7/carlton_dance.gif"></p>
+<p>That’s it! Rinse and repeat for each broker instance/pair. You can do it all at once, or in a “rolling” fashion. Up to you…</p>
+<p>So to summarize, here are the high-level steps that you will perform:</p>
+<ul>
+<li>Install the new AMQ 7 broker/instance.</li>
+<li>Stop the AMQ 6 broker.</li>
+<li>Start the AMQ 7 broker.</li>
+<li>Update your clients with the new broker URL (only necessary if you installed to new hardware or otherwise changed the host/port).</li>
+<li>Drain the messages from the AMQ 6 KahaDB to the new AMQ 7 broker.</li>
+<li>Eventually plan on upgrading your client libraries.</li>
+<li>Optionally delete the old AMQ 6 installation once you’re satisfied that the upgrade has completed successfully.</li>
+</ul>
+<p>Did I cover every possible use case, permutation, and complication? No… But this should be a good starting point. And if you need more guidance, well… that’s what we have <a href="https://www.redhat.com/en/services/consulting" target="_blank" rel="external">Red Hat Consulting</a> for.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;So &lt;a href=&quot;https://developers.redhat.com/products/amq/overview/&quot;&gt;Red Hat AMQ 7&lt;/a&gt; has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reaching out and asking for help/instructions on how to migrate. So far I’ve been replying that I already blogged about that here: &lt;a href=&quot;/2016/08/22/decommissioning_jboss_a-mq_brokers/&quot; title=&quot;Decommissioning JBoss A-MQ brokers&quot;&gt;Decommissioning JBoss A-MQ brokers&lt;/a&gt;. But that reply has been met with some confusion. So I figured I’d write up a more concrete set of instructions.
+    
+    </summary>
+    
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
+    
+      <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
+    
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
+    
+      <category term="artemis" scheme="http://blog.joshdreagan.com/tags/artemis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Bridging Apache Artemis</title>
     <link href="http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/"/>
     <id>http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/</id>
     <published>2017-08-16T20:18:37.000Z</published>
-    <updated>2017-08-16T20:18:37.865Z</updated>
+    <updated>2017-12-01T18:55:57.562Z</updated>
     
     <content type="html"><![CDATA[<p>In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you’d pick <a href="https://activemq.apache.org/artemis/" target="_blank" rel="external">Apache Artemis</a>… ;) But in the real world, it is much more common that customers will have a very large existing codebase and will have to transition to the latest/greatest over some much longer period of time. And during that period, it’s helpful to be able to set up some sort of bridge between your brokers so that your old and new code can still communicate.<a id="more"></a></p>
 <p>Before we get started though, there are a few things to clear up… The term “bridge” can mean may things. Artemis has something called a “<a href="https://activemq.apache.org/artemis/docs/latest/core-bridges.html" target="_blank" rel="external">Core Bridge</a>“. Core bridges do <strong>not</strong> use the JMS API, and are used only for bridging Artemis instances together (either explicitly, or implicitly when using cluster connections). While useful, Core bridges are not the focus of this post. Instead, we’re going to talk about how you might bridge Artemis to another JMS broker (ie, <a href="https://www.ibm.com/software/products/en/ibm-mq" target="_blank" rel="external">IBM MQ</a>).</p>
@@ -44,13 +87,13 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
       <category term="artemis" scheme="http://blog.joshdreagan.com/tags/artemis/"/>
     
@@ -61,7 +104,7 @@
     <link href="http://blog.joshdreagan.com/2017/08/14/transactions_and_alternatives_with_camel/"/>
     <id>http://blog.joshdreagan.com/2017/08/14/transactions_and_alternatives_with_camel/</id>
     <published>2017-08-14T15:54:38.000Z</published>
-    <updated>2017-08-14T15:54:38.236Z</updated>
+    <updated>2017-12-01T18:54:32.773Z</updated>
     
     <content type="html"><![CDATA[<p>There are loads of use cases which require “all or nothing” processing. And there are a bunch of different strategies for accomplishing said result. Luckily for me, they’ve already been covered many times in tons of different blogs/books/articles. So for this post I’m just going to concentrate on a few of the strategies, and more specifically, how to do them with <a href="http://camel.apache.org/" target="_blank" rel="external">Apache Camel</a>.<a id="more"></a></p>
 <h2 id="Transactions"><a href="#Transactions" class="headerlink" title="Transactions"></a>Transactions</h2><p>The first (and most obvious) solution that I’d like to cover, is transactions. Usually, when people need to do a bunch of tasks in an atomic fashion, they simply use a transaction. This can be either a local transaction, or an XA one. Basically, you get to pawn off all of the complication onto a transaction manager and keep your application code clean. So it’s a great option if you’re using resources that can be transacted (ie, a relational database, or a JMS broker).</p>
@@ -90,13 +133,13 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
       <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
     
       <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
-    
-      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
       <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
@@ -104,11 +147,11 @@
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
-    
-      <category term="spring-boot" scheme="http://blog.joshdreagan.com/tags/spring-boot/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
       <category term="artemis" scheme="http://blog.joshdreagan.com/tags/artemis/"/>
+    
+      <category term="spring-boot" scheme="http://blog.joshdreagan.com/tags/spring-boot/"/>
     
       <category term="narayana" scheme="http://blog.joshdreagan.com/tags/narayana/"/>
     
@@ -119,7 +162,7 @@
     <link href="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/"/>
     <id>http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/</id>
     <published>2017-03-25T22:56:02.000Z</published>
-    <updated>2017-03-26T05:10:16.552Z</updated>
+    <updated>2017-12-01T18:55:53.182Z</updated>
     
     <content type="html"><![CDATA[<p>I frequently get asked by customers if it’s possible to run <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="external">Red Hat JBoss A-MQ</a> on <a href="https://developers.redhat.com/products/openshift/overview/" target="_blank" rel="external">Red Hat OpenShift</a>, and while the answer has been “yes” for quite a while now, it has always been followed by a few caveats. In particular, the issue of scaling…<a id="more"></a></p>
 <p>But before we get into the issue of scaling, let’s talk a little about how the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_a-mq_for_openshift/" target="_blank" rel="external">official image template</a> works. Basically, it can operate in three different modes (as of this blog date). </p>
@@ -141,15 +184,15 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="openshift" scheme="http://blog.joshdreagan.com/tags/openshift/"/>
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
       <category term="spring-boot" scheme="http://blog.joshdreagan.com/tags/spring-boot/"/>
     
@@ -160,7 +203,7 @@
     <link href="http://blog.joshdreagan.com/2017/03/15/activemq_ha_performance_comparison/"/>
     <id>http://blog.joshdreagan.com/2017/03/15/activemq_ha_performance_comparison/</id>
     <published>2017-03-15T20:07:01.000Z</published>
-    <updated>2017-03-15T20:07:01.182Z</updated>
+    <updated>2017-12-01T18:56:06.192Z</updated>
     
     <content type="html"><![CDATA[<p>A while back, I wrote a blog post on <a href="/2016/07/28/ha_deployments_with_fuse/" title="HA Deployments With Fuse">HA Deployments With Fuse</a>. Surprisingly, it received a lot of interest. In particular, the JMS section. Apparently, there are tons of people trying to solve the cross-dc HA problem… Not surprisingly, everyone claims to have the highest possible failure requirements and asked me what I meant by “prepare to make some serious performance tradeoffs”. So I figured I’d give some concrete numbers for comparison.<a id="more"></a></p>
 <p><em>Before we get started though, here are some very important disclaimers: First, I did absolutely no tweaking of options or performance tuning. I just unzipped the <a href="https://developers.redhat.com/products/amq" target="_blank" rel="external">Red Hat JBoss A-MQ</a> distro, uncommented a user, and started it up. For the DRBD tests, I only changed the path where it stores the KahaDB to point to the replicated filesystem mount. Similarly, I just did a standard <a href="http://drbd.org" target="_blank" rel="external">DRBD</a> installation by following their getting started docs. I did not tweak or otherwise optimize the synchronization protocols in any way. Second, I used an ‘m4.xlarge’ <a href="https://aws.amazon.com/ec2/instance-types/" target="_blank" rel="external">EC2 instance type</a> and attached a standard SSD <a href="https://aws.amazon.com/ebs/details/" target="_blank" rel="external">EBS volume type</a>. So more of a mid-level machine with average (or below) networking and storage performance.</em></p>
@@ -249,7 +292,7 @@
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
   </entry>
   
@@ -279,9 +322,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
   </entry>
   
@@ -327,9 +370,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
   </entry>
   
@@ -338,7 +381,7 @@
     <link href="http://blog.joshdreagan.com/2016/10/10/smart_loadbalancing_with_camel/"/>
     <id>http://blog.joshdreagan.com/2016/10/10/smart_loadbalancing_with_camel/</id>
     <published>2016-10-10T21:29:41.000Z</published>
-    <updated>2016-11-21T16:05:01.572Z</updated>
+    <updated>2017-12-01T18:56:10.602Z</updated>
     
     <content type="html"><![CDATA[<p>LoadBalancing is a fairly well-known concept these days. There are a ton of existing strategies out there (ie, RoundRobin, Random, Sticky, Weighted, …), and there a ton of existing implementations that have been built using both hardware and software (ie, Apache HTTPD, HAProxy, f5, Layer7, …). So why create another one? Well… although it’s not likely to be very useful, I thought it might be neat to see if I could make one that utilized CPU load (or any metric) to do more intelligent routing.<a id="more"></a></p>
 <p>Luckily, like many things in <a href="http://camel.apache.org/" target="_blank" rel="external">Camel</a>, this is a fairly simple task. I just have to create my own <code>org.apache.camel.processor.loadbalancer.LoadBalancer</code> implementation, and I can make it do pretty much anything I want. For instance, <a href="http://joshdreagan.github.io/2015/12/04/custom_camel_loadbalancer_with_infinispan/" target="_blank" rel="external">I might implement one to do dynamic discovery using Infinispan</a> (shameless self-promotion :)). But I digress…</p>
@@ -357,13 +400,13 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
   </entry>
   
@@ -372,7 +415,7 @@
     <link href="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/"/>
     <id>http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/</id>
     <published>2016-08-22T19:04:26.000Z</published>
-    <updated>2016-11-21T18:27:54.222Z</updated>
+    <updated>2017-12-01T18:56:01.662Z</updated>
     
     <content type="html"><![CDATA[<p>There are many reasons why someone might need to decommision a <a href="https://www.redhat.com/en/technologies/jboss-middleware/amq" target="_blank" rel="external">JBoss A-MQ</a> broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up during a peak period and now need to scale back down. In any case, you likely don’t want the messages that are persisted in that store to be stuck until you bring things back online. And in the case that you don’t plan to bring things back online, you certainly don’t want them to be lost. So what do you do?<br><a id="more"></a></p>
 <p>One strategy that I see a lot of people employ is to stop all the producers, and then wait until all the messages get processed by the consumers. This works fine for a lot of customers. And if you’re currently doing it this way (and it’s working), don’t worry. You’re certainly not doing anything wrong. However, this requires a lot of coordination and planning. </p>
@@ -394,7 +437,7 @@
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
   </entry>
   
@@ -403,7 +446,7 @@
     <link href="http://blog.joshdreagan.com/2016/07/28/ha_deployments_with_fuse/"/>
     <id>http://blog.joshdreagan.com/2016/07/28/ha_deployments_with_fuse/</id>
     <published>2016-07-29T03:34:04.000Z</published>
-    <updated>2016-11-21T18:27:46.342Z</updated>
+    <updated>2017-12-01T18:54:44.623Z</updated>
     
     <content type="html"><![CDATA[<p>When out and about, I often get the question: “How do I setup HA (high availability) with <a href="http://developers.redhat.com/products/fuse/overview/" target="_blank" rel="external">Red Hat’s JBoss Fuse</a>?”. People ask this question and they expect a simple, straightforward answer. And why shouldn’t they? The question is simple enough right? I could ask the same question about something like <a href="http://tomcat.apache.org/" target="_blank" rel="external">Tomcat</a> and get a well documented answer involving little more than a loadbalancer. Unfortunately, the answer for Fuse is a bit more involved and usually starts with the annoying response of “it depends”.<br><a id="more"></a></p>
 <p>So let’s expand on that a bit… Considering my previous example of Tomcat (which is just a Servlet container), what protocol does it speak? Easy! It only talks 1 protocol… HTTP. But what protocol does Fuse speak? Well… since it’s an integration framework, the answer is several. It may be consuming from a REST service and placing the contents in files. Or maybe it’s accepting HL7 messages over TCP and dumping them onto JMS queues. And the way that you’d make a REST service HA is very different from the way that you’d make a file consumer HA (which is very different from the way you’d make a JMS broker HA, …). So you can see that while the answer of “it depends” might be a bit annoying, it is actually the most accurate answer I could give.</p>
@@ -456,15 +499,15 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
       <category term="activemq" scheme="http://blog.joshdreagan.com/tags/activemq/"/>
     
-      <category term="a-mq" scheme="http://blog.joshdreagan.com/tags/a-mq/"/>
+      <category term="amq" scheme="http://blog.joshdreagan.com/tags/amq/"/>
     
   </entry>
   
@@ -601,9 +644,9 @@
     </summary>
     
     
-      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
     
       <category term="infinispan" scheme="http://blog.joshdreagan.com/tags/infinispan/"/>
     
@@ -633,9 +676,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
@@ -685,9 +728,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
@@ -764,9 +807,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
@@ -848,9 +891,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
@@ -1016,13 +1059,13 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
+      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
       <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="wildfly" scheme="http://blog.joshdreagan.com/tags/wildfly/"/>
     
       <category term="eap" scheme="http://blog.joshdreagan.com/tags/eap/"/>
-    
-      <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
     
       <category term="cxf" scheme="http://blog.joshdreagan.com/tags/cxf/"/>
     
@@ -1103,9 +1146,9 @@
     
       <category term="fuse" scheme="http://blog.joshdreagan.com/tags/fuse/"/>
     
-      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
-    
       <category term="camel" scheme="http://blog.joshdreagan.com/tags/camel/"/>
+    
+      <category term="jboss" scheme="http://blog.joshdreagan.com/tags/jboss/"/>
     
       <category term="karaf" scheme="http://blog.joshdreagan.com/tags/karaf/"/>
     
