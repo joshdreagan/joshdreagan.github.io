@@ -4,7 +4,7 @@ tags:
   - activemq
   - artemis
   - jboss
-  - a-mq
+  - amq
   - camel
   - fuse
   - openshift

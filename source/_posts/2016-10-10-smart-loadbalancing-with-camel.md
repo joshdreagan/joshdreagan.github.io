@@ -4,7 +4,7 @@ tags:
   - fuse
   - camel
   - jboss
-  - a-mq
+  - amq
   - activemq
 banner: post-bg.jpg
 permalink: smart_loadbalancing_with_camel

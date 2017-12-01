@@ -5,7 +5,7 @@ tags:
   - camel
   - cxf
   - activemq
-  - a-mq
+  - amq
   - jboss
 banner: post-bg.jpg
 permalink: ha_deployments_with_fuse

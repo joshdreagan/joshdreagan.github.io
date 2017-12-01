@@ -3,7 +3,7 @@ title: ActiveMQ HA Performance Comparison
 tags:
   - activemq
   - jboss
-  - a-mq
+  - amq
 banner: post-bg.jpg
 permalink: activemq_ha_performance_comparison
 date: 2017-03-15 14:07:01

@@ -3,7 +3,7 @@ title: Scaling JBoss A-MQ on OpenShift
 tags:
   - activemq
   - jboss
-  - a-mq
+  - amq
   - camel
   - fuse
   - openshift

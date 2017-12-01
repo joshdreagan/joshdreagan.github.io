@@ -1,7 +1,7 @@
 ---
 title: Decommissioning JBoss A-MQ brokers
 tags:
-  - a-mq
+  - amq
   - activemq
   - jboss
 banner: post-bg.jpg
