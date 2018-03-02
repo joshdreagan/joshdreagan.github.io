@@ -75,5 +75,5 @@ deploy:
 - type: git
   repo: git@github.com:joshdreagan/joshdreagan.github.io.git
   branch: master
-- type: shell
-  command: ./hexo-deployer-ipfs
+#- type: shell
+#  command: ./hexo-deployer-ipfs
