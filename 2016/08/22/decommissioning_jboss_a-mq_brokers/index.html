@@ -6,17 +6,19 @@
     <title>Decommissioning JBoss A-MQ Brokers | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="There are many reasons why someone might need to decommision a JBoss A-MQ broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up">
+<meta name="keywords" content="jboss,amq,activemq">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Decommissioning JBoss A-MQ Brokers">
 <meta property="og:url" content="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="There are many reasons why someone might need to decommision a JBoss A-MQ broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/post-bg.jpg">
 <meta property="og:updated_time" content="2017-12-01T18:56:01.662Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Decommissioning JBoss A-MQ Brokers">
 <meta name="twitter:description" content="There are many reasons why someone might need to decommision a JBoss A-MQ broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -256,13 +258,13 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>There are many reasons why someone might need to decommision a <a href="https://www.redhat.com/en/technologies/jboss-middleware/amq" target="_blank" rel="external">JBoss A-MQ</a> broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up during a peak period and now need to scale back down. In any case, you likely don’t want the messages that are persisted in that store to be stuck until you bring things back online. And in the case that you don’t plan to bring things back online, you certainly don’t want them to be lost. So what do you do?<br><a id="more"></a></p>
+            <p>There are many reasons why someone might need to decommision a <a href="https://www.redhat.com/en/technologies/jboss-middleware/amq" target="_blank" rel="noopener">JBoss A-MQ</a> broker. Perhaps you are taking a server down for maintenance. Maybe you’re trying to do an upgrade. Or maybe you’ve scaled up during a peak period and now need to scale back down. In any case, you likely don’t want the messages that are persisted in that store to be stuck until you bring things back online. And in the case that you don’t plan to bring things back online, you certainly don’t want them to be lost. So what do you do?<br><a id="more"></a></p>
 <p>One strategy that I see a lot of people employ is to stop all the producers, and then wait until all the messages get processed by the consumers. This works fine for a lot of customers. And if you’re currently doing it this way (and it’s working), don’t worry. You’re certainly not doing anything wrong. However, this requires a lot of coordination and planning. </p>
 <p>It requires coordination and planning because A-MQ (at the broker level) doesn’t really have the ability to stop the production of messages without also stopping the consumption of messages. This is due to the fact that the default configuration (which is what most people will use) only opens one transport connector (listener) that will service both producers and consumers. You can disconnect individual clients, but if they decide to reconnect there’s nothing that’s going to stop them. Most people control this on the application side. They just shut down all of their producer applications (or at least the initial ingress ones) and wait for the consumers to fully process the existing messages. Like I said, there’s nothing wrong with this approach if it’s working for you. But I’ve effectively shut my entire system down even if I’m only decommissioning a single broker. What if I can’t have that much downtime? </p>
 <p>Maybe I could get creative with my clustering and partition my load (ie, multiple network of brokers that are separated from eachother). Then I’d only affect a single partition of my cluster at a time. My producer clients could failover and reconnect to another partition during this downtime so it would seem as if I’m still operational. Then I could swap them back if desired when I’m done. Definitely a step in the right direction, but I’m still taking down a whole partition of brokers just to decommision one.</p>
-<p>Another option would be to open two separate transport connectors (listeners) and have producers connect to one and consumers to the other. I’ve complicated my client code a bit, but maybe that’s ok. It’s not <em>too</em> bad after all… And now I have the ability to shut down the producer transport connector separately from the consumer transport connector at a single broker level, thus ensuring that no more messages will be produced to my broker while still allowing them to be consumed. But what if I have a <a href="http://activemq.apache.org/networks-of-brokers.html" target="_blank" rel="external">network of brokers</a> setup? I’ll need to also disable my network connector so that messages don’t get forwarded to me. Ok… we’re getting better… One outstanding problem is that I now have to rely on the locally connected consumers to successfully process all of my messages. How long will I need to wait? How many consumers are even connected to my broker?</p>
-<p>This brings us to the final solution (and best in my opinion). I can take advantage of the fact that ActiveMQ is really just a very flexible set of libraries and I can create a “message drainer” application to purge my persistent store. What do I mean? Well, first I would create a simple Java app that will spin up an embedded broker. I can point that embedded broker at a KahaDB persistent store. Then I can start consuming messages from it (like I would from any broker) and send them off to another broker. And since my embedded broker is local (ie., inside my JVM), I can just connect to it using the <a href="http://activemq.apache.org/vm-transport-reference.html" target="_blank" rel="external">VM transport</a>. So I don’t even have to worry about remote clients. They can’t even see my broker. They will simply <a href="http://activemq.apache.org/failover-transport-reference.html" target="_blank" rel="external">failover</a> to another active broker as soon as I take mine down and have no knowledge that I’m even connected and draining the messages.</p>
-<p>Neat! Now I don’t have to worry about coordinating my applications, separating my transport connectors, bringing down brokers unnecessarily, … I can simply bring down the broker that I wish to decommission. Then just run my “message drainer” application, point it to the KahaDB of my downed broker, and give it the url of an active broker that I’d like to send my messages off to. Once I’ve finished draining the messages, I can get rid of my broker and it’s persistent store. Or if I was just doing maintenance, I can bring the broker back online and it will see its store with no messages. So no need to worry about dupicates. This solution is simple, requires no unnecessary downtime, and can be used in any situation from performing maintenance to down-scaling. Here’s some sample source code to get you started: <a href="https://github.com/joshdreagan/activemq-drainer" target="_blank" rel="external">https://github.com/joshdreagan/activemq-drainer</a>. Enjoy!</p>
+<p>Another option would be to open two separate transport connectors (listeners) and have producers connect to one and consumers to the other. I’ve complicated my client code a bit, but maybe that’s ok. It’s not <em>too</em> bad after all… And now I have the ability to shut down the producer transport connector separately from the consumer transport connector at a single broker level, thus ensuring that no more messages will be produced to my broker while still allowing them to be consumed. But what if I have a <a href="http://activemq.apache.org/networks-of-brokers.html" target="_blank" rel="noopener">network of brokers</a> setup? I’ll need to also disable my network connector so that messages don’t get forwarded to me. Ok… we’re getting better… One outstanding problem is that I now have to rely on the locally connected consumers to successfully process all of my messages. How long will I need to wait? How many consumers are even connected to my broker?</p>
+<p>This brings us to the final solution (and best in my opinion). I can take advantage of the fact that ActiveMQ is really just a very flexible set of libraries and I can create a “message drainer” application to purge my persistent store. What do I mean? Well, first I would create a simple Java app that will spin up an embedded broker. I can point that embedded broker at a KahaDB persistent store. Then I can start consuming messages from it (like I would from any broker) and send them off to another broker. And since my embedded broker is local (ie., inside my JVM), I can just connect to it using the <a href="http://activemq.apache.org/vm-transport-reference.html" target="_blank" rel="noopener">VM transport</a>. So I don’t even have to worry about remote clients. They can’t even see my broker. They will simply <a href="http://activemq.apache.org/failover-transport-reference.html" target="_blank" rel="noopener">failover</a> to another active broker as soon as I take mine down and have no knowledge that I’m even connected and draining the messages.</p>
+<p>Neat! Now I don’t have to worry about coordinating my applications, separating my transport connectors, bringing down brokers unnecessarily, … I can simply bring down the broker that I wish to decommission. Then just run my “message drainer” application, point it to the KahaDB of my downed broker, and give it the url of an active broker that I’d like to send my messages off to. Once I’ve finished draining the messages, I can get rid of my broker and it’s persistent store. Or if I was just doing maintenance, I can bring the broker back online and it will see its store with no messages. So no need to worry about dupicates. This solution is simple, requires no unnecessary downtime, and can be used in any situation from performing maintenance to down-scaling. Here’s some sample source code to get you started: <a href="https://github.com/joshdreagan/activemq-drainer" target="_blank" rel="noopener">https://github.com/joshdreagan/activemq-drainer</a>. Enjoy!</p>
 
         
         </div>
@@ -273,7 +275,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/" data-id="cjaohpy3t00163llh0a5wt3s0" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2016/08/22/decommissioning_jboss_a-mq_brokers/" data-id="cjwbaeu9a000928lh883eq7pd" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -388,6 +390,63 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="../../../../2017/12/01/upgrading_amq_6_to_amq_7/" class="thumbnail">
     
     
@@ -423,63 +482,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -489,7 +491,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -498,7 +500,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -510,7 +512,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

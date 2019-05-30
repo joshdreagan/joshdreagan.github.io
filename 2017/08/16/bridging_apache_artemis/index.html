@@ -6,17 +6,19 @@
     <title>Bridging Apache Artemis | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you’d pick Apache Artemis… ;) Bu">
+<meta name="keywords" content="fuse,camel,jboss,amq,activemq,artemis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Bridging Apache Artemis">
 <meta property="og:url" content="http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you’d pick Apache Artemis… ;) Bu">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/post-bg.jpg">
 <meta property="og:updated_time" content="2017-12-01T18:55:57.562Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bridging Apache Artemis">
 <meta name="twitter:description" content="In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you’d pick Apache Artemis… ;) Bu">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -256,17 +258,17 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you’d pick <a href="https://activemq.apache.org/artemis/" target="_blank" rel="external">Apache Artemis</a>… ;) But in the real world, it is much more common that customers will have a very large existing codebase and will have to transition to the latest/greatest over some much longer period of time. And during that period, it’s helpful to be able to set up some sort of bridge between your brokers so that your old and new code can still communicate.<a id="more"></a></p>
-<p>Before we get started though, there are a few things to clear up… The term “bridge” can mean may things. Artemis has something called a “<a href="https://activemq.apache.org/artemis/docs/latest/core-bridges.html" target="_blank" rel="external">Core Bridge</a>“. Core bridges do <strong>not</strong> use the JMS API, and are used only for bridging Artemis instances together (either explicitly, or implicitly when using cluster connections). While useful, Core bridges are not the focus of this post. Instead, we’re going to talk about how you might bridge Artemis to another JMS broker (ie, <a href="https://www.ibm.com/software/products/en/ibm-mq" target="_blank" rel="external">IBM MQ</a>).</p>
-<p>There is a baked in JMS bridge implementation in the Artemis codebase that you can use if you’d like. You can check out the docs on it here: [<a href="https://activemq.apache.org/artemis/docs/latest/jms-bridge.html" target="_blank" rel="external">https://activemq.apache.org/artemis/docs/latest/jms-bridge.html</a>]. It’s pretty basic, but functional if you don’t require any kind of transformations or other flexibility. To use it, simply instantiate an instance of <code>org.apache.activemq.artemis.jms.bridge.JMSBridge</code>, and pass it the required arguments (ie, source/destination <code>org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory</code> instances, source/destination <code>org.apache.activemq.artemis.jms.bridge.DestinationFactory</code> instances, source/destination credentials, …). Once you have your instance, you can call <code>start()</code> on it to begin consuming/producing messages. There’s even an example included in the distribution: [<a href="https://github.com/apache/activemq-artemis/tree/master/examples/features/standard/jms-bridge" target="_blank" rel="external">jms-bridge</a>]. Seems pretty straightforward right? Well… maybe not. If you’re running Artemis standalone (like most people), you don’t really have a good way to load extra code. That is, there’s no “hot deploy” folder where you can just drop a jar file with this config in it and have it automatically startup and shutdown with the broker. There has been some effort to create a plugin framework in the newer versions, but a quick look at the code showed that it still doesn’t provide hooks into start/stop or other broker lifecycle events. So what do we do?</p>
-<p>As it turns out, there is an embedded <a href="http://www.eclipse.org/jetty/" target="_blank" rel="external">Jetty</a> instance that serves the web admin console. And it already starts/stops with the server. So we can just piggyback on that to bootstrap our code. But if I’m going through all of this effort to bootstrap some code, I might as well use something with a bit more power (ie, <a href="http://camel.apache.org/" target="_blank" rel="external">Apache Camel</a>). That way, if I have any need to perform message transformations, set unique headers for idempotent consumption, wiretap audit logs, or do anything else outside of simply copying messages, I can do so. Sounds simple enough, but how do I actually do it?</p>
+            <p>In a perfect world, every project would be a greenfield project and you could pick and choose the latest/greatest broker every time. And of course, if given the choice you’d pick <a href="https://activemq.apache.org/artemis/" target="_blank" rel="noopener">Apache Artemis</a>… ;) But in the real world, it is much more common that customers will have a very large existing codebase and will have to transition to the latest/greatest over some much longer period of time. And during that period, it’s helpful to be able to set up some sort of bridge between your brokers so that your old and new code can still communicate.<a id="more"></a></p>
+<p>Before we get started though, there are a few things to clear up… The term “bridge” can mean may things. Artemis has something called a “<a href="https://activemq.apache.org/artemis/docs/latest/core-bridges.html" target="_blank" rel="noopener">Core Bridge</a>“. Core bridges do <strong>not</strong> use the JMS API, and are used only for bridging Artemis instances together (either explicitly, or implicitly when using cluster connections). While useful, Core bridges are not the focus of this post. Instead, we’re going to talk about how you might bridge Artemis to another JMS broker (ie, <a href="https://www.ibm.com/software/products/en/ibm-mq" target="_blank" rel="noopener">IBM MQ</a>).</p>
+<p>There is a baked in JMS bridge implementation in the Artemis codebase that you can use if you’d like. You can check out the docs on it here: [<a href="https://activemq.apache.org/artemis/docs/latest/jms-bridge.html" target="_blank" rel="noopener">https://activemq.apache.org/artemis/docs/latest/jms-bridge.html</a>]. It’s pretty basic, but functional if you don’t require any kind of transformations or other flexibility. To use it, simply instantiate an instance of <code>org.apache.activemq.artemis.jms.bridge.JMSBridge</code>, and pass it the required arguments (ie, source/destination <code>org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory</code> instances, source/destination <code>org.apache.activemq.artemis.jms.bridge.DestinationFactory</code> instances, source/destination credentials, …). Once you have your instance, you can call <code>start()</code> on it to begin consuming/producing messages. There’s even an example included in the distribution: [<a href="https://github.com/apache/activemq-artemis/tree/master/examples/features/standard/jms-bridge" target="_blank" rel="noopener">jms-bridge</a>]. Seems pretty straightforward right? Well… maybe not. If you’re running Artemis standalone (like most people), you don’t really have a good way to load extra code. That is, there’s no “hot deploy” folder where you can just drop a jar file with this config in it and have it automatically startup and shutdown with the broker. There has been some effort to create a plugin framework in the newer versions, but a quick look at the code showed that it still doesn’t provide hooks into start/stop or other broker lifecycle events. So what do we do?</p>
+<p>As it turns out, there is an embedded <a href="http://www.eclipse.org/jetty/" target="_blank" rel="noopener">Jetty</a> instance that serves the web admin console. And it already starts/stops with the server. So we can just piggyback on that to bootstrap our code. But if I’m going through all of this effort to bootstrap some code, I might as well use something with a bit more power (ie, <a href="http://camel.apache.org/" target="_blank" rel="noopener">Apache Camel</a>). That way, if I have any need to perform message transformations, set unique headers for idempotent consumption, wiretap audit logs, or do anything else outside of simply copying messages, I can do so. Sounds simple enough, but how do I actually do it?</p>
 <p>First, you’ll need to create a WAR containing all of your dependencies as well as your Spring XML defined Camel routes. We’ll refer to this as <code>jms-bridge.war</code>… In the Camel routes, you’ll place your actual JMS bridge definitions (as many as you need). In the <code>WEB-INF/web.xml</code>, you’ll boostrap the Spring ApplicationContext using the <code>org.springframework.web.context.ContextLoaderListener</code> class. This is a pretty standard way to bootstrap a Spring application into a servlet container.</p>
 <p>Second, you’ll copy <code>jms-bridge.war</code> file into the <code>$ARTEMIS_HOME/web</code> folder.</p>
 <p>Finally, you’ll add a definition to the <code>$ARTEMIS_INSTANCE/etc/bootstrap.xml</code> file as shown below:</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">broker</span> <span class="attr">xmlns</span>=<span class="string">"http://activemq.org/schema"</span>&gt;</span></div><div class="line">  ...</div><div class="line">  <span class="tag">&lt;<span class="name">web</span> <span class="attr">bind</span>=<span class="string">"http://localhost:8161"</span> <span class="attr">path</span>=<span class="string">"web"</span>&gt;</span></div><div class="line">    ...</div><div class="line">    <span class="tag">&lt;<span class="name">app</span> <span class="attr">url</span>=<span class="string">"jms-bridge"</span> <span class="attr">war</span>=<span class="string">"jms-bridge.war"</span>/&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">web</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">broker</span>&gt;</span></div></pre></td></tr></table></figure>
 <p><em>Notice the use of <code>$ARTEMIS_HOME</code> and <code>$ARTEMIS_INSTANCE</code> in the second and third steps… <code>$ARTEMIS_HOME</code> refers to the location that you unzipped the Artemis distribution. <code>$ARTEMIS_INSTANCE</code> refers to the directory of your broker instance (created with the “<code>artemis create ...</code>“ command.</em></p>
 <p>Now when you start the broker instance, it will load up and start the Camel routes and begin bridging. Pretty cool! But we bundled up all of our dependencies inside our WAR file (ie, all of the IBM MQ JMS client libs). And we also bundled our Camel routes definition inside the WAR as well. And since the WAR file sits in the <code>$ARTEMIS_HOME/web</code> directory, its configurations apply to any and all of the instances that we create/run on that machine. Not to mention the fact that every change to my Camel routes will require a build/deploy/restart. All of this kind of sucks and we can do better… </p>
-<p>If you dig into the code a bit more, you’ll see that the “main” that spins up the Artemis broker will actually add several directories, JARs, &amp; ZIPs to the classpath. Specifically, it will add the <code>$ARTEMIS_HOME/etc</code> &amp; <code>$ARTEMIS_INSTANCE/etc</code> directories. It will then scan through the <code>$ARTEMIS_HOME/lib</code> &amp; <code>$ARTEMIS_INSTANCE/lib</code> directories, and add any JARs or ZIPs that it finds to the classpath (sorted by name). So that means that we can take all of our use-case specific stuff (ie, all of the IBM MQ JMS client libs) and put them in the <code>$ARTEMIS_INSTANCE/lib</code> folder. It also means that we can take the Camel routes configuration, and put it in the <code>$ARTEMIS_INSTANCE/etc</code> directory. Now we have a completely generic WAR that we deploy in the <code>$ARTEMIS_HOME/lib</code> directory. That WAR can be activated on an instance defined basis as needed. And each instance can have the dependencies and configuration that it requires completely independent of other instances. Additionally, I have the added benefit of being able to edit the Camel routes configuration and apply my changes with only a restart (ie, no re-build/re-deploy required). Neat! Want to see what it looks like? Take a look at this sample project: [<a href="https://github.com/joshdreagan/artemis-jms-bridge" target="_blank" rel="external">https://github.com/joshdreagan/artemis-jms-bridge</a>].</p>
+<p>If you dig into the code a bit more, you’ll see that the “main” that spins up the Artemis broker will actually add several directories, JARs, &amp; ZIPs to the classpath. Specifically, it will add the <code>$ARTEMIS_HOME/etc</code> &amp; <code>$ARTEMIS_INSTANCE/etc</code> directories. It will then scan through the <code>$ARTEMIS_HOME/lib</code> &amp; <code>$ARTEMIS_INSTANCE/lib</code> directories, and add any JARs or ZIPs that it finds to the classpath (sorted by name). So that means that we can take all of our use-case specific stuff (ie, all of the IBM MQ JMS client libs) and put them in the <code>$ARTEMIS_INSTANCE/lib</code> folder. It also means that we can take the Camel routes configuration, and put it in the <code>$ARTEMIS_INSTANCE/etc</code> directory. Now we have a completely generic WAR that we deploy in the <code>$ARTEMIS_HOME/lib</code> directory. That WAR can be activated on an instance defined basis as needed. And each instance can have the dependencies and configuration that it requires completely independent of other instances. Additionally, I have the added benefit of being able to edit the Camel routes configuration and apply my changes with only a restart (ie, no re-build/re-deploy required). Neat! Want to see what it looks like? Take a look at this sample project: [<a href="https://github.com/joshdreagan/artemis-jms-bridge" target="_blank" rel="noopener">https://github.com/joshdreagan/artemis-jms-bridge</a>].</p>
 
         
         </div>
@@ -277,7 +279,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/" data-id="cjaohpy43001q3llhpme70grg" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2017/08/16/bridging_apache_artemis/" data-id="cjwbaeu9e000g28lhoeu66o4k" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -392,6 +394,63 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="../../../12/01/upgrading_amq_6_to_amq_7/" class="thumbnail">
     
     
@@ -427,63 +486,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -493,7 +495,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -502,7 +504,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -514,7 +516,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

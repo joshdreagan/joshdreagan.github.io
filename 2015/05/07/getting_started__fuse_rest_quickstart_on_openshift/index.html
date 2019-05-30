@@ -6,17 +6,19 @@
     <title>Getting Started - Fuse REST Quickstart on OpenShift | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.">
+<meta name="keywords" content="fuse,camel,jboss,karaf,openshift,fabric8,cxf">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Getting Started - Fuse REST Quickstart on OpenShift">
 <meta property="og:url" content="http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.png">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/post-bg.png">
 <meta property="og:updated_time" content="2016-07-21T22:18:09.726Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Getting Started - Fuse REST Quickstart on OpenShift">
 <meta name="twitter:description" content="This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.png">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/post-bg.png">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -257,52 +259,52 @@ ga('send', 'pageview');
         
             
             <p>This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat’s OpenShift Online infrastructure.<br><a id="more"></a></p>
-<p>The first thing you’ll do is open up a browser and navigate to <a href="https://openshift.redhat.com/" target="_blank" rel="external">OpenShift Online</a>. If you don’t already have an account, you can sign up for a free one. However, the free account is restricted to 3 <em>small</em> gears which will not run JBoss Fuse instances. So you will need to upgrade to a paid account to complete this guide.</p>
+<p>The first thing you’ll do is open up a browser and navigate to <a href="https://openshift.redhat.com/" target="_blank" rel="noopener">OpenShift Online</a>. If you don’t already have an account, you can sign up for a free one. However, the free account is restricted to 3 <em>small</em> gears which will not run JBoss Fuse instances. So you will need to upgrade to a paid account to complete this guide.</p>
 <h1 id="Step-1-Create-A-Domain-Namespace"><a href="#Step-1-Create-A-Domain-Namespace" class="headerlink" title="Step 1: Create A Domain/Namespace"></a>Step 1: Create A Domain/Namespace</h1><p>After you’ve created an OpenShift Online account and logged in, you will end up at the landing page.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/landing_page.png" alt="[Landing Page]" title="[Landing Page]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/landing_page.png" title="[Landing Page]">
 <p>Before creating any apps, you’ll need to create a domain/namespace. If you already have a domain/namespace, and you’d like to re-use it, you can skip this step. This is a unique identifier that allows you to group applications. Click on the “<strong>Settings</strong>“ tab at the top of the page.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/setting_button.png" alt="[Settings Button]" title="[Settings Button]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/setting_button.png" title="[Settings Button]">
 <p>Enter your desired domain/namespace and click the “<strong>Create</strong>“ button.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_domain.png" alt="[Create Domain Button]" title="[Create Domain Button]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_domain.png" title="[Create Domain Button]">
 <p>Now you’re ready to create your JBoss Fuse cluster.</p>
 <h1 id="Step-2-Create-A-JBoss-Fuse-Cluster"><a href="#Step-2-Create-A-JBoss-Fuse-Cluster" class="headerlink" title="Step 2: Create A JBoss Fuse Cluster"></a>Step 2: Create A JBoss Fuse Cluster</h1><p>To create a JBoss Fuse cluster, first navigate to the applications page by clicking the “<strong>Applications</strong>“ button at the top of the screen.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/applications_button.png" alt="[Applications Button]" title="[Applications Button]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/applications_button.png" title="[Applications Button]">
 <p>If you don’t already have any applications, you will see a link to “<strong>Create your first application now</strong>“ like in the picture below.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application_link.png" alt="[Create Application Link]" title="[Create Application Link]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application_link.png" title="[Create Application Link]">
 <p>Click the link and it will begin the “<strong>Create Application</strong>“ workflow. On the first page, you will see a list of available <em>cartridges</em>.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-01.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-01.png" title="[Create Application]">
 <p>You’ll want to find and click on the “<strong>JBoss Fuse 6.1</strong>“ cartridge pictured below. If you can’t find it, you can use the search box.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-02.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-02.png" title="[Create Application]">
 <p>Next, you’ll configure the cartridge.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-03.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-03.png" title="[Create Application]">
 <p>Fill in the “<strong>Public URL</strong>“ field with the desired application name. You’ll notice that it automatically appends your domain/namespace that you created in <strong>Step 1</strong>.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-04.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-04.png" title="[Create Application]">
 <p>Select the desired “<strong>Gear Size</strong>“. You must use at least a <em>medium</em> sized gear to run the JBoss Fuse cartridge.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-05.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-05.png" title="[Create Application]">
 <p>When you’re satisfied with your settings, click the “<strong>Create Application</strong>“ button. Be patient, as it might take a minute or so to finish. <strong>Do not navigate away (or refresh) the page!</strong></p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-06.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-06.png" title="[Create Application]">
 <p>Once your application has been successfully created, you will be presented with an informational screen like the one shown below. <strong>Make sure to capture this information as you will need it later and there is no way to get it once you’ve left this page!</strong></p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-07.png" alt="[Create Application]" title="[Create Application]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/create_application-07.png" title="[Create Application]">
 <h1 id="Step-3-Provision-A-Child-Container"><a href="#Step-3-Provision-A-Child-Container" class="headerlink" title="Step 3: Provision A Child Container"></a>Step 3: Provision A Child Container</h1><p>Now that you have a JBoss Fuse cluster, you can provision a child container with the actual quickstart deployed. Click on the “<strong>Applications</strong>“ tab at the top of the page, and you should see your newly created JBoss Fuse application.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/applications_list.png" alt="[Application List]" title="[Application List]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/applications_list.png" title="[Application List]">
 <p>Click on that application, and it should open up the JBoss Fuse Management Console. You will need to login using the credentials that were displayed for you at the end of <strong>Step 2</strong>.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_login.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_login.png" title="[Fuse Console]">
 <p>After you login, you should see the JBoss Fuse Management Console’s landing page.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_landing_page.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_landing_page.png" title="[Fuse Console]">
 <p>Click on the “<strong>Runtime</strong>“ tab to view the list of servers that are currently part of this cluster.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_runtime_button.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_runtime_button.png" title="[Fuse Console]">
 <p>At the moment, there should be only 1 and it is the Fabric Registry server (indicated by the little cloud icon).</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_container_list.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_container_list.png" title="[Fuse Console]">
 <p>Click on the “<strong>Create</strong>“ button toward the top right of the page to begin the “<strong>Create Container</strong>“ workflow.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container_button.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container_button.png" title="[Fuse Console]">
 <p>Fill in the desired “<strong>Container Name</strong>“ and “<strong>Gear Size</strong>“ making sure to use at least a <em>medium</em> or larger. You can enter your OpenShift Online credentials and click the “<strong>Login to OpenShift</strong>“ button to have it fill in the “<strong>OpenShift Domain</strong>“ field. Select the “<strong>rest</strong>“ profile under the “<strong>Example / Quickstarts</strong>“ folder.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container-01.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container-01.png" title="[Fuse Console]">
 <p>When done, click the “<strong>Create And Start Container</strong>“ button. Be patient, as it might take a minute or so to finish. <strong>Do not navigate away (or refresh) the page!</strong></p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container-02.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container-02.png" title="[Fuse Console]">
 <p>Once the container has been created, you will be redirected back to the “<strong>Containers</strong>“ page. You will notice that there are now 2. One is the Fabric Registry server, and one is hosting your application.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container-03.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_create_container-03.png" title="[Fuse Console]">
 <p>Click on the “<strong>APIs</strong>“ tab to view the base URI of the REST service you’ve just deployed. It will be in the “<strong>Location</strong>“ column.</p>
-<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_apis.png" alt="[Fuse Console]" title="[Fuse Console]">
+<img src="/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/fuse_console_apis.png" title="[Fuse Console]">
 <h1 id="Step-4-Test-The-Application"><a href="#Step-4-Test-The-Application" class="headerlink" title="Step 4: Test The Application"></a>Step 4: Test The Application</h1><p>Open a browser and navigate to the URI that you discovered in <strong>Step 3</strong>, appending <code>/customerservice/customers/123</code> like in the picture below. If successful, you should see some XML text come back.</p>
 
 <p>If all went well, you’ve now got a running JBoss Fuse cluster with the REST quickstart deployed to a child instance.</p>
@@ -316,7 +318,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/" data-id="cjaohpy3h000x3llhzdi7gezg" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2015/05/07/getting_started__fuse_rest_quickstart_on_openshift/" data-id="cjwbaeu97000528lhvzbia75t" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -391,19 +393,19 @@ ga('send', 'pageview');
         
 <nav id="article-nav">
     
-        <a href="../../08/connecting_feedhenry_to_fuse_rest_quickstart/" id="article-nav-newer" class="article-nav-link-wrap">
+        <a href="../getting_started__feedhenry_hello_world/" id="article-nav-newer" class="article-nav-link-wrap">
             <strong class="article-nav-caption">Newer</strong>
             <div class="article-nav-title">
                 
-                    Connecting FeedHenry to Fuse REST Quickstart
+                    Getting Started - FeedHenry Hello World
                 
             </div>
         </a>
     
     
-        <a href="../getting_started__feedhenry_hello_world/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="../../../04/10/getting_started__camel_on_eap/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">Older</strong>
-            <div class="article-nav-title">Getting Started - FeedHenry Hello World</div>
+            <div class="article-nav-title">Getting Started - Camel on EAP</div>
         </a>
     
 </nav>
@@ -427,6 +429,63 @@ ga('send', 'pageview');
         <h3 class="widget-title">recent</h3>
         <div class="widget">
             <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
                 
                     <li>
                         
@@ -466,63 +525,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -532,7 +534,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -541,7 +543,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -553,7 +555,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

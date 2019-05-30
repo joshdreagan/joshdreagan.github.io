@@ -6,17 +6,19 @@
     <title>Ordered Messaging With ActiveMQ &amp; Camel | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple desig">
+<meta name="keywords" content="camel,activemq">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Ordered Messaging With ActiveMQ & Camel">
+<meta property="og:title" content="Ordered Messaging With ActiveMQ &amp; Camel">
 <meta property="og:url" content="http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple desig">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/post-bg.jpg">
 <meta property="og:updated_time" content="2016-07-21T22:17:28.227Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ordered Messaging With ActiveMQ & Camel">
+<meta name="twitter:title" content="Ordered Messaging With ActiveMQ &amp; Camel">
 <meta name="twitter:description" content="I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple desig">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -258,29 +260,29 @@ ga('send', 'pageview');
             
             <p>I’ve been to several customers over the years who have a requirement to consume messages from a JMS queue in an ordered fashion. The discussions always go the same way… It starts out as a simple design, but becomes really problematic when they get to the implementation phase. Turns out, it’s really not all that simple once you try to scale. In this blog post, we’ll explore in a bit more detail and give some possible solutions.<br><a id="more"></a></p>
 <blockquote>
-<p>The sample code for this blog can be found at <a href="https://github.com/joshdreagan/ordered-activemq-consumer" target="_blank" rel="external">https://github.com/joshdreagan/ordered-activemq-consumer</a>.</p>
+<p>The sample code for this blog can be found at <a href="https://github.com/joshdreagan/ordered-activemq-consumer" target="_blank" rel="noopener">https://github.com/joshdreagan/ordered-activemq-consumer</a>.</p>
 </blockquote>
 <h2 id="Typical-Architecture"><a href="#Typical-Architecture" class="headerlink" title="Typical Architecture"></a>Typical Architecture</h2><p>So the first thing that people do is to create some test code. They know that JMS queues preserve order. So the logic goes that, if I put messages on the queue in order, I should be able to pull them off in the same order. They end up with something that looks similar to the picture below.</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/simple.png" alt="[simple]" title="[simple]">
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/simple.png" title="[simple]">
 <p>Run a test and you’ll see that it does indeed work. Ship it! Well… maybe not just yet…</p>
 <h2 id="Problems"><a href="#Problems" class="headerlink" title="Problems"></a>Problems</h2><p>This architecture may work in a very simple use case, but it has some serious limitations.</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/you_should_feel_bad.jpg" alt="[You should feel bad...]" title="[You should feel bad...]">
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/you_should_feel_bad.jpg" title="[You should feel bad...]">
 <p>The first problem that you’ll encounter is that this setup is really slow. It’s a given that, in order to process messages in order, the processing must occur in a single thread. However, I will likely have more than one group that could be processed independently. So in theory, I can have multiple producers sending sequences of messages. Take a look at the illustration below.</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_producer.png" alt="[Multiple producers]" title="[Multiple producers]">
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_producer.png" title="[Multiple producers]">
 <p>Technically, everything still works. The single consumer will receive both sequences of messages and will process them in the order he receives them. So in the end, both groups will have their messages processed in order. But hopefully the flaw in this setup is obvious. As we scale up and add more and more producer groups, we are bottlenecked in performance by the single consumer. What happens when we try to scale the consumers?</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_consumer.png" alt="[Multiple consumers]" title="[Multiple consumers]">
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_consumer.png" title="[Multiple consumers]">
 <p>Things no longer work. Because the broker is going to loadbalance messages to the available consumers, we have no guarantee that the sequences of messages will be processed on the same thread. Which means we can’t guarantee order. And since we can’t add more consumers, there’s no sense in scaling out and adding more brokers either. Bummer… :(</p>
-<h2 id="Possible-Solutions"><a href="#Possible-Solutions" class="headerlink" title="Possible Solutions"></a>Possible Solutions</h2><p>So the question is… How do we scale things out while maintaining our ability to process groups of messages in order? Well, one solution you might consider is <a href="http://activemq.apache.org/message-groups.html" target="_blank" rel="external">ActiveMQ’s Message Groups</a>. Basically, it’s a really neat feature that allows you to do “sticky” loadbalancing of messages to the available consumers. If the producers include a <code>JMSXGroupID</code> header on the JMS message, the broker will check to see if there is a consumer available that has already received messages with that same <code>JMSXGroupID</code>. If one is available, it will deliver the message to it (and all subsequent messages as well as long as it remains available). If not (either because this is the first it has seen that <code>JMSXGroupID</code>, or because the previous consumer has gone away), it will pick a new one. Here’s how that might look:</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/message_groups.png" alt="[ActiveMQ Message Groups]" title="[ActiveMQ Message Groups]">
+<h2 id="Possible-Solutions"><a href="#Possible-Solutions" class="headerlink" title="Possible Solutions"></a>Possible Solutions</h2><p>So the question is… How do we scale things out while maintaining our ability to process groups of messages in order? Well, one solution you might consider is <a href="http://activemq.apache.org/message-groups.html" target="_blank" rel="noopener">ActiveMQ’s Message Groups</a>. Basically, it’s a really neat feature that allows you to do “sticky” loadbalancing of messages to the available consumers. If the producers include a <code>JMSXGroupID</code> header on the JMS message, the broker will check to see if there is a consumer available that has already received messages with that same <code>JMSXGroupID</code>. If one is available, it will deliver the message to it (and all subsequent messages as well as long as it remains available). If not (either because this is the first it has seen that <code>JMSXGroupID</code>, or because the previous consumer has gone away), it will pick a new one. Here’s how that might look:</p>
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/message_groups.png" title="[ActiveMQ Message Groups]">
 <p>Problem solved right? Depends on if you only need to use a single broker. And if you want to use more than one, it depends on how strict you are about the message ordering. Most of the time, things works fine. And if “most of the time” is good enough for your requirements, then this is definitely the simplest solution. So go with it.</p>
 <p>But let’s go ahead and discuss the corner case where it doesn’t work out so well. There are 2 things to be aware of: First, when a message is received by a broker, it is persisted in that broker’s store and exists only on that broker. Second, if a consumer goes away for any reason (ie, network blip, restart, …) the broker will pick a new recipient and start sending the messages to it instead. So let’s assume that I have a network of brokers setup (because I like to scale). And if I have a network of brokers setup, I’ll probably use some form of failover (because I like to be HA for my clients). So in this setup, what happens if we send a message to a broker, but the broker is taken down before it can deliver it. The producers would failover and keep sending messages to the next available broker. That broker would pick a consumer and continue delivering messages to it with no knowledge that the failed broker was still holding on to some messages. Now I’m back to getting my messages out of order. Here’s what that might look like:</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_brokers__message_groups.png" alt="[ActiveMQ Message Groups in a cluster]" title="[ActiveMQ Message Groups in a cluster]">
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_brokers__message_groups.png" title="[ActiveMQ Message Groups in a cluster]">
 <p>Furthermore, what if I don’t have control over the producers? If I don’t control them, I might not be able to enforce that they set a <code>JMSXGroupID</code> header. So how might I go about solving this conundrum? I’m glad you asked. :)</p>
-<p>One solution would be to use some Camel magic. <a href="http://camel.apache.org/" target="_blank" rel="external">Because Camel is awesome!</a> If I use Camel as a consumer, I can have it pipe the messages into an <a href="http://camel.apache.org/aggregator2.html" target="_blank" rel="external">aggregator</a> that can just store them up in a list. Once I’ve received all of them, I can then send them to a <a href="http://camel.apache.org/splitter.html" target="_blank" rel="external">splitter</a> to get them back to individual messages, and then send those individual messages through a <a href="http://camel.apache.org/resequencer.html" target="_blank" rel="external">resequencer</a> (and finally to my desired destination). My messages for each group/sequence will be processed in a single thread (assuming I don’t enable any parallel processing) and will be emitted in order. EIPs for the win! The nice thing about this solution is that I don’t have to worry about those stuck messages. As soon as the failed broker comes back online (or its slave takes over), I will receive that stuck message. And until it does, all of my other messages for that group/sequence will sit patiently and wait inside my aggregation repository. Another thing to note is that I don’t have to complete my aggregation based on some fixed number. I have all kinds of flexibility for my criteria. Take a look at the <a href="http://camel.apache.org/aggregator2.html" target="_blank" rel="external">Camel docs</a> for more info. Here’s a nice picture:</p>
-<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_brokers__camel.png" alt="[Camel in a cluster]" title="[Camel in a cluster]">
-<p>So what’s the catch? Well… technically all of the aggregation repository implementations that exist so far can’t work in a cluster or even with multiple threads. There has been some work to handle optimistic locking, but if you give it a try (or dig through the code if you don’t believe me) you’ll find that they only handle the case of 2 threads trying to do the initial insert at the same time. They still have an issue where 2 threads might be attempting to update the repository at the same time and could squash eachother’s changes. Luckily, Camel lets us write our own <code>org.apache.camel.spi.AggregationRepository</code> implementations. Did I mention that Camel rocks!? Take a look at the example code found here: <a href="https://github.com/joshdreagan/ordered-activemq-consumer" target="_blank" rel="external">https://github.com/joshdreagan/ordered-activemq-consumer</a>.</p>
+<p>One solution would be to use some Camel magic. <a href="http://camel.apache.org/" target="_blank" rel="noopener">Because Camel is awesome!</a> If I use Camel as a consumer, I can have it pipe the messages into an <a href="http://camel.apache.org/aggregator2.html" target="_blank" rel="noopener">aggregator</a> that can just store them up in a list. Once I’ve received all of them, I can then send them to a <a href="http://camel.apache.org/splitter.html" target="_blank" rel="noopener">splitter</a> to get them back to individual messages, and then send those individual messages through a <a href="http://camel.apache.org/resequencer.html" target="_blank" rel="noopener">resequencer</a> (and finally to my desired destination). My messages for each group/sequence will be processed in a single thread (assuming I don’t enable any parallel processing) and will be emitted in order. EIPs for the win! The nice thing about this solution is that I don’t have to worry about those stuck messages. As soon as the failed broker comes back online (or its slave takes over), I will receive that stuck message. And until it does, all of my other messages for that group/sequence will sit patiently and wait inside my aggregation repository. Another thing to note is that I don’t have to complete my aggregation based on some fixed number. I have all kinds of flexibility for my criteria. Take a look at the <a href="http://camel.apache.org/aggregator2.html" target="_blank" rel="noopener">Camel docs</a> for more info. Here’s a nice picture:</p>
+<img src="/2016/05/27/ordered_messaging_with_activemq_and_camel/multiple_brokers__camel.png" title="[Camel in a cluster]">
+<p>So what’s the catch? Well… technically all of the aggregation repository implementations that exist so far can’t work in a cluster or even with multiple threads. There has been some work to handle optimistic locking, but if you give it a try (or dig through the code if you don’t believe me) you’ll find that they only handle the case of 2 threads trying to do the initial insert at the same time. They still have an issue where 2 threads might be attempting to update the repository at the same time and could squash eachother’s changes. Luckily, Camel lets us write our own <code>org.apache.camel.spi.AggregationRepository</code> implementations. Did I mention that Camel rocks!? Take a look at the example code found here: <a href="https://github.com/joshdreagan/ordered-activemq-consumer" target="_blank" rel="noopener">https://github.com/joshdreagan/ordered-activemq-consumer</a>.</p>
 <p>Basically, I just copied most of the code from the existing <code>org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository</code> implementation. But I added a <code>version</code> column to the underlying database tables and some logic to check and increment it (or throw an exception if it doesn’t match) on insert/update. I’m sure there’s a lot more that could be done to make it more robust (like have it implement <code>org.apache.camel.spi.RecoverableAggregationRepository</code> as well). But hey… this is just an example. Do your own coding damnit!</p>
-<p>I’m sure this isn’t an exhaustive list of every possible way to solve this problem. But it’s a least a couple… And that should definitely be worth a glass of <a href="https://www.masterofmalt.com/whiskies/lagavulin/lagavulin-16-year-old-whisky/" target="_blank" rel="external">good Scotch</a>. So if you see me at <a href="https://www.redhat.com/en/summit" target="_blank" rel="external">Red Hat Summit</a>… :)</p>
+<p>I’m sure this isn’t an exhaustive list of every possible way to solve this problem. But it’s a least a couple… And that should definitely be worth a glass of <a href="https://www.masterofmalt.com/whiskies/lagavulin/lagavulin-16-year-old-whisky/" target="_blank" rel="noopener">good Scotch</a>. So if you see me at <a href="https://www.redhat.com/en/summit" target="_blank" rel="noopener">Red Hat Summit</a>… :)</p>
 
         
         </div>
@@ -291,7 +293,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/" data-id="cjaohpy3r00153llhizk9xemh" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2016/05/27/ordered_messaging_with_activemq_and_camel/" data-id="cjwbaeuax000v28lhqd9rn9k7" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -406,6 +408,63 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="../../../../2017/12/01/upgrading_amq_6_to_amq_7/" class="thumbnail">
     
     
@@ -441,63 +500,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -507,7 +509,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -516,7 +518,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -528,7 +530,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

@@ -6,17 +6,19 @@
     <title>Upgrading AMQ 6 to AMQ 7 | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="So Red Hat AMQ 7 has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reachin">
+<meta name="keywords" content="jboss,amq,activemq,artemis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Upgrading AMQ 6 to AMQ 7">
 <meta property="og:url" content="http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="So Red Hat AMQ 7 has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reachin">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/post-bg.jpg">
 <meta property="og:updated_time" content="2017-12-01T22:30:03.108Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Upgrading AMQ 6 to AMQ 7">
 <meta name="twitter:description" content="So Red Hat AMQ 7 has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reachin">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -256,11 +258,11 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>So <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="external">Red Hat AMQ 7</a> has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reaching out and asking for help/instructions on how to migrate. So far I’ve been replying that I already blogged about that here: <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. But that reply has been met with some confusion. So I figured I’d write up a more concrete set of instructions.<a id="more"></a></p>
+            <p>So <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="noopener">Red Hat AMQ 7</a> has been out for a while now, and there have already been a lot of customers who are understandably eager to upgrade to the latest and greatest version. Many of them have been reaching out and asking for help/instructions on how to migrate. So far I’ve been replying that I already blogged about that here: <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. But that reply has been met with some confusion. So I figured I’d write up a more concrete set of instructions.<a id="more"></a></p>
 <p>Let’s start by stating the problem: “I have a current, production system that is utilizing AMQ 6 and I’d like to upgrade it to AMQ 7 with as little downtime as possible”. Well… such things do require a bit of planning, but it’s not as difficult as it might seem. The easiest way to upgrade any app is <em>usually</em> to do a rolling upgrade. I emphasize “<em>usually</em>“ because every customer has a slightly different case, architecture, requirements, or other wrenches that can make things more difficult. But for the purpose of this blog, let’s focus on the most typical case.</p>
-<p>For the first step, let’s walk through upgrading the brokers. First, we’ll need to install AMQ 7 and create a broker instance. No need to enumerate the steps here since that’s already been covered in the docs: [<a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_amq/7.0/html/using_amq_broker/" target="_blank" rel="external">https://access.redhat.com/documentation/en-us/red_hat_jboss_amq/7.0/html/using_amq_broker/</a>]. For the purpose of this post, we’ll assume that you plan to match your existing setup (ie, if you currently have a master/slave pair, you will install a new AMQ 7 master/slave pair). If you’re installing to new hardware, you can go ahead and start the newly created broker instance(s). Otherwise, we’ll have to shut down the existing AMQ 6 broker before starting the AMQ 7 broker. Yes… you could modify the ports and bring it up alongside your AMQ 6 broker, but you risk causing a contention for resources if you do so. So best not to tempt fate…</p>
+<p>For the first step, let’s walk through upgrading the brokers. First, we’ll need to install AMQ 7 and create a broker instance. No need to enumerate the steps here since that’s already been covered in the docs: [<a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_amq/7.0/html/using_amq_broker/" target="_blank" rel="noopener">https://access.redhat.com/documentation/en-us/red_hat_jboss_amq/7.0/html/using_amq_broker/</a>]. For the purpose of this post, we’ll assume that you plan to match your existing setup (ie, if you currently have a master/slave pair, you will install a new AMQ 7 master/slave pair). If you’re installing to new hardware, you can go ahead and start the newly created broker instance(s). Otherwise, we’ll have to shut down the existing AMQ 6 broker before starting the AMQ 7 broker. Yes… you could modify the ports and bring it up alongside your AMQ 6 broker, but you risk causing a contention for resources if you do so. So best not to tempt fate…</p>
 <p>Next, let’s talk about the clients. One of the awesome features in AMQ 7 is that is supports all of the same protocols that AMQ 6 did (in addition to a couple more). This means that your existing clients (with their existing client libraries) can seamlessly connect to the new AMQ 7 brokers. All you’ll need to do is give the clients the new broker URL and they can immediately begin producing/consuming. And you don’t even need to do that if you installed to the same hardware and bound to the same port. In fact, if your clients are using the “failover” protocol (and you didn’t update the host/port), they will automatically switch over as soon as you take down the AMQ 6 broker and bring the AMQ 7 broker online. Neat! <img style="display: inline; height: 15px;" src="/2017/12/01/upgrading_amq_6_to_amq_7/banana_dance.gif"> It’s worth noting that this will not be the case forever. Eventually, the OpenWire format (and potentially other formats) will be deprecated and removed from support. But that is a long ways away. So you’ll have plenty of time to go back through and update all of your client applications with the newer client libraries as time/budget permits.</p>
-<p>But what about those in-flight messages? The messages that had been accepted by the old AMQ 6 instance, but had not yet been delivered to a consumer client. Well, that is exactly what I wrote <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="my previous blog post">my previous blog post</a> about. Those messages cannot be lost. So we need to “drain” them from the old AMQ 6 KahaDB store and send them to the new AMQ 7 broker. Luckily, due to the fact that the AMQ 7 broker can still speak OpenWire, you can use the exact same drainer code that I provided in that blog: [<a href="https://github.com/joshdreagan/activemq-drainer" target="_blank" rel="external">https://github.com/joshdreagan/activemq-drainer</a>]. Super neat! <img style="display: inline; height: 15px;" src="/2017/12/01/upgrading_amq_6_to_amq_7/carlton_dance.gif"></p>
+<p>But what about those in-flight messages? The messages that had been accepted by the old AMQ 6 instance, but had not yet been delivered to a consumer client. Well, that is exactly what I wrote <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="my previous blog post">my previous blog post</a> about. Those messages cannot be lost. So we need to “drain” them from the old AMQ 6 KahaDB store and send them to the new AMQ 7 broker. Luckily, due to the fact that the AMQ 7 broker can still speak OpenWire, you can use the exact same drainer code that I provided in that blog: [<a href="https://github.com/joshdreagan/activemq-drainer" target="_blank" rel="noopener">https://github.com/joshdreagan/activemq-drainer</a>]. Super neat! <img style="display: inline; height: 15px;" src="/2017/12/01/upgrading_amq_6_to_amq_7/carlton_dance.gif"></p>
 <p>That’s it! Rinse and repeat for each broker instance/pair. You can do it all at once, or in a “rolling” fashion. Up to you…</p>
 <p>So to summarize, here are the high-level steps that you will perform:</p>
 <ul>
@@ -272,7 +274,7 @@ ga('send', 'pageview');
 <li>Eventually plan on upgrading your client libraries.</li>
 <li>Optionally delete the old AMQ 6 installation once you’re satisfied that the upgrade has completed successfully.</li>
 </ul>
-<p>Did I cover every possible use case, permutation, and complication? No… But this should be a good starting point. And if you need more guidance, well… that’s what we have <a href="https://www.redhat.com/en/services/consulting" target="_blank" rel="external">Red Hat Consulting</a> for.</p>
+<p>Did I cover every possible use case, permutation, and complication? No… But this should be a good starting point. And if you need more guidance, well… that’s what we have <a href="https://www.redhat.com/en/services/consulting" target="_blank" rel="noopener">Red Hat Consulting</a> for.</p>
 
         
         </div>
@@ -283,7 +285,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/" data-id="cjaohpy42001n3llh0zd2wz4z" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2017/12/01/upgrading_amq_6_to_amq_7/" data-id="cjwbaeu9f000i28lhfz592opy" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -358,6 +360,15 @@ ga('send', 'pageview');
         
 <nav id="article-nav">
     
+        <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    Camel CXFRS Contract First
+                
+            </div>
+        </a>
+    
     
         <a href="../../../08/16/bridging_apache_artemis/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">Older</strong>
@@ -385,6 +396,63 @@ ga('send', 'pageview');
         <h3 class="widget-title">recent</h3>
         <div class="widget">
             <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
                 
                     <li>
                         
@@ -424,63 +492,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -490,7 +501,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -499,7 +510,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -511,7 +522,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

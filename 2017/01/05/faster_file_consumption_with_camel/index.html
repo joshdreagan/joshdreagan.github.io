@@ -6,17 +6,19 @@
     <title>Faster File Consumption With Camel | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, Apache Ca">
+<meta name="keywords" content="fuse,camel,jboss">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Faster File Consumption With Camel">
 <meta property="og:url" content="http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, Apache Ca">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/post-bg.jpg">
 <meta property="og:updated_time" content="2017-01-05T20:38:21.783Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Faster File Consumption With Camel">
 <meta name="twitter:description" content="One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, Apache Ca">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -256,14 +258,14 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, <a href="http://camel.apache.org/" target="_blank" rel="external">Apache Camel’s</a> <a href="http://camel.apache.org/file2.html" target="_blank" rel="external">File</a> and <a href="http://camel.apache.org/ftp.html" target="_blank" rel="external">FTP</a> components make this extremely easy. So much so, that it requires very little thought to get up and running. And if you’re consuming small numbers of larger batch files, perhaps the defaults are good enough and you don’t need to put much though into it. If, however, you’re consuming large numbers of smaller files and you want to get the highest possible performance, there are a few configurations that you might want to consider.<a id="more"></a></p>
+            <p>One of the most frequently requested use cases that I encounter out in the field is to ingest file-based data (batch or otherwise), and then validate, transform, process, store… it. Luckily, <a href="http://camel.apache.org/" target="_blank" rel="noopener">Apache Camel’s</a> <a href="http://camel.apache.org/file2.html" target="_blank" rel="noopener">File</a> and <a href="http://camel.apache.org/ftp.html" target="_blank" rel="noopener">FTP</a> components make this extremely easy. So much so, that it requires very little thought to get up and running. And if you’re consuming small numbers of larger batch files, perhaps the defaults are good enough and you don’t need to put much though into it. If, however, you’re consuming large numbers of smaller files and you want to get the highest possible performance, there are a few configurations that you might want to consider.<a id="more"></a></p>
 <p>When writing a file poller, one of the most commonly overlooked requirements is that you need some sort of mechanism to determine when the writer is done writing. If you grab a file before it’s complete, you’ll end up truncating it and ending up with garbage data. Unfortunately, how you would make that determination on one filesystem does not necessarily work on all filesystems. In addition, the different strategies will have different performance characteristics and usually end up being your biggest bottleneck (outside of the actual processing of the data). Luckily, Camel provides you with several strategies out-of-the-box and even allows you to create your own if none of them meet your needs. So how to choose…</p>
 <p>First, let’s cover the absolute fastest, most generic solution. If you control the process writing the file as well as the process reading the file, you can use a “temp file” strategy. That is, I can have my writer write a file with some sort of temporary name (ie, appending an “.inprogress” extension), and then atomically move it to its final name when the write is complete (ie, remove the “.inprogress” extension). I can then easily have my consumer filter out the temporary files and only consume files that are complete. Camel can do all of this work for you. So no need to panic over writing a bunch of extra code. Simply set the appropriate options on the producer (ie, <code>tempFileName</code>) and the consumer (ie, <code>exclude</code> or <code>antExclude</code>) and call it a day. :)</p>
 <p>Another similar solution is to use the “done file” strategy. In this strategy, you will write the file, and when it is complete you will write out an additional file with the same name and some “marker” extension (ie, “.done”). You will then instruct your consumer to only pick up files if it finds their corresponding “done” file. Again, Camel makes this a simple matter of configuration. Just set the <code>doneFileName</code> option on the producer and the <code>doneFileName</code> option on the consumer. To me, this seems a bit more clunky than the previous solution, but the end result is the same.</p>
-<p>Both of the previous strategies are extremely fast and will work on pretty much any filesystem. However, as previously stated, they require you to have control over the producer and consumer sides. So what if you only control the consumer? Well… you could use one of the <code>readLock</code> options. Unfortunately, most of the available <code>readLock</code> options are more concerned with making sure no other consumers pick up the same file than they are with making sure the writer is done writing. And since we have <a href="https://github.com/joshdreagan/clustered-file-consumer" target="_blank" rel="external">other ways to make sure other consumers don’t step on our toes</a>, we’ll just concentrate on the options that help us with the latter issue.</p>
+<p>Both of the previous strategies are extremely fast and will work on pretty much any filesystem. However, as previously stated, they require you to have control over the producer and consumer sides. So what if you only control the consumer? Well… you could use one of the <code>readLock</code> options. Unfortunately, most of the available <code>readLock</code> options are more concerned with making sure no other consumers pick up the same file than they are with making sure the writer is done writing. And since we have <a href="https://github.com/joshdreagan/clustered-file-consumer" target="_blank" rel="noopener">other ways to make sure other consumers don’t step on our toes</a>, we’ll just concentrate on the options that help us with the latter issue.</p>
 <p>The most robust option that’s available out-of-the-box is the “changed” strategy. Basically, the way it works is that the consumer will grab a file and check its last-modified timestamp. It will then continue to check the last-modified timestamp (at the configured <code>readLockCheckInterval</code>) until it determines that the file has stopped changing (ie, the previous poll’s last-modified matches the current one). Once it has determined that the file is no longer changing, it will consume it and pass it to the rest of the route for processing. This strategy is an excellent option because it works pretty much anywhere (ie, local filesystem, FTP, SFTP, …), and is configurable enough to handle the case of “slow writers” (by tweaking/increasing the <code>readLockCheckInterval</code> option). And if you’re getting small numbers of larger files, it’s probably fast enough. But if you’re trying to consume large numbers of smaller files, you will quickly see the bottleneck… The current implementation will loop through each file and (for each file) check the timestamp. It will continue to loop and check the timestamp on that one file until it either detects that it has stopped changing, or it hits its timeout (configured via the <code>readLockTimeout</code> option). It will not move on to the next file until one of those conditions is satisified. Which means that, if I have lots of producers writing files, those files could all be stuck waiting to be consumed because of a single slow producer. In practice, I’ve actually seen this happen and it’s leads to a very bad situation where the polling itself starts to take too long (<em>at the filesystem level and outside of the control of Camel</em>) because of the sheer number of files in a directory. Once this starts to happen, it really just starts a snowball effect. So it’s difficult to recover from and usually requires manual intervention. So what do we do?</p>
-<p>Well… Luckily, Camel is awesome enough that it allows us to extend it whenever it’s out-of-the-box options don’t meet our needs. Suck on <strong>that</strong> competition! :) Specifically, in the previous scenario, we actually solved the problem by creating our own custom version of the “changed” strategy. Only, in our version, we didn’t pause and repeat checks on a single file. Instead, we looped through the files and (for each file) checked its stats. We then added those stats to a cache and moved on to the next file. On each subsequent poll, we would check the file’s stats against the cached ones to determine if it had stopped changing (for at least the <code>readLockCheckInterval</code> amount of time). This allowed us to continue processing any files that were ready without having to wait behind a single one that wasn’t. In practice, we were able to use this strategy to consume very large numbers of files with only a single server. Take a look at the sample source code if you’d like to give it a try: <a href="https://github.com/joshdreagan/camel-fastfile" target="_blank" rel="external">https://github.com/joshdreagan/camel-fastfile</a>.</p>
-<p><em>Worth noting that this is a recreation of the original work (as best as I could remember) that I did with my awesome colleague <a href="https://www.linkedin.com/in/scottvancamp" target="_blank" rel="external">Scott Van Camp</a> whose awesome coding skills are only rivaled by his awesome beard growing skills. So he gets to share in the credit/blame… :)</em></p>
+<p>Well… Luckily, Camel is awesome enough that it allows us to extend it whenever it’s out-of-the-box options don’t meet our needs. Suck on <strong>that</strong> competition! :) Specifically, in the previous scenario, we actually solved the problem by creating our own custom version of the “changed” strategy. Only, in our version, we didn’t pause and repeat checks on a single file. Instead, we looped through the files and (for each file) checked its stats. We then added those stats to a cache and moved on to the next file. On each subsequent poll, we would check the file’s stats against the cached ones to determine if it had stopped changing (for at least the <code>readLockCheckInterval</code> amount of time). This allowed us to continue processing any files that were ready without having to wait behind a single one that wasn’t. In practice, we were able to use this strategy to consume very large numbers of files with only a single server. Take a look at the sample source code if you’d like to give it a try: <a href="https://github.com/joshdreagan/camel-fastfile" target="_blank" rel="noopener">https://github.com/joshdreagan/camel-fastfile</a>.</p>
+<p><em>Worth noting that this is a recreation of the original work (as best as I could remember) that I did with my awesome colleague <a href="https://www.linkedin.com/in/scottvancamp" target="_blank" rel="noopener">Scott Van Camp</a> whose awesome coding skills are only rivaled by his awesome beard growing skills. So he gets to share in the credit/blame… :)</em></p>
 
         
         </div>
@@ -274,7 +276,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/" data-id="cjaohpy3w001b3llhfgbn8jyk" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2017/01/05/faster_file_consumption_with_camel/" data-id="cjwbaeu9c000c28lhf32wajyq" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -389,6 +391,63 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="../../../12/01/upgrading_amq_6_to_amq_7/" class="thumbnail">
     
     
@@ -424,63 +483,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -490,7 +492,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -499,7 +501,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -511,7 +513,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

@@ -6,17 +6,19 @@
     <title>Calling Native Code With Camel | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="Usually when a customer has some legacy/native code that they need to invoke from Camel (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote">
+<meta name="keywords" content="fuse,camel,jboss">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Calling Native Code With Camel">
 <meta property="og:url" content="http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="Usually when a customer has some legacy/native code that they need to invoke from Camel (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/post-bg.jpg">
 <meta property="og:updated_time" content="2016-11-22T02:06:03.659Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Calling Native Code With Camel">
 <meta name="twitter:description" content="Usually when a customer has some legacy/native code that they need to invoke from Camel (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -256,30 +258,30 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>Usually when a customer has some legacy/native code that they need to invoke from <a href="http://camel.apache.org/" target="_blank" rel="external">Camel</a> (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote invocation mechanism. Then they can just call it with the appropriate <a href="http://camel.apache.org/cxf.html" target="_blank" rel="external">Camel Component</a>. While I still think that this is best option, I recently had a customer ask if Camel had the ability to call native code directly. So I figured what the heck… might as well blog about it…<a id="more"></a></p>
+            <p>Usually when a customer has some legacy/native code that they need to invoke from <a href="http://camel.apache.org/" target="_blank" rel="noopener">Camel</a> (or any Java program really), I recommend that they expose it via SOAP, REST, or some other standardized remote invocation mechanism. Then they can just call it with the appropriate <a href="http://camel.apache.org/cxf.html" target="_blank" rel="noopener">Camel Component</a>. While I still think that this is best option, I recently had a customer ask if Camel had the ability to call native code directly. So I figured what the heck… might as well blog about it…<a id="more"></a></p>
 <p>Native code can be written in many languages (obviously…). And unfortunately, the mechanisms that you would use to invoke the compiled binaries (<code>.dll</code>‘s or <code>.so</code>‘s) are not always the same. In this blog post, I’m going to cover what I think are the most common (or at least the most commonly requested) native languages and how to invoke them.</p>
-<h2 id="C"><a href="#C" class="headerlink" title="C"></a>C</h2><p>Of the languages that I’ll cover in this post, calling C libaries is definitely the easiest. Once I have my compiled library (<code>.dll</code> or <code>.so</code>), I can just call it using <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/jni/" target="_blank" rel="external">JNI</a> or <a href="https://github.com/java-native-access/jna" target="_blank" rel="external">JNA</a>. </p>
+<h2 id="C"><a href="#C" class="headerlink" title="C"></a>C</h2><p>Of the languages that I’ll cover in this post, calling C libaries is definitely the easiest. Once I have my compiled library (<code>.dll</code> or <code>.so</code>), I can just call it using <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/jni/" target="_blank" rel="noopener">JNI</a> or <a href="https://github.com/java-native-access/jna" target="_blank" rel="noopener">JNA</a>. </p>
 <p>Of the two, I prefer JNA since it doesn’t require me to generate any code using <code>javah</code> or really have much knowledge of the C code itself. All I need to do is create a Java interface that extends <code>com.sun.jna.Library</code> and that matches the signature of the C library (or more specifically its methods). Then I can create a proxy instance automatically using the <code>com.sun.jna.Native#loadLibrary(java.lang.String, java.lang.Class)</code> method (passing the name of your library and the interface class). </p>
-<p><em>Note: You don’t give the full path or name of the library. The name is automatically wrapped with the platform-specific parts and the path is looked up via a <a href="https://github.com/java-native-access/jna/blob/master/www/GettingStarted.md" target="_blank" rel="external">variety of mechanisms</a> (ie, the <code>jna.library.path</code> system property).</em> </p>
-<p>Once I have a proxy object, I can invoke methods on it like I would with any Java Bean in Camel using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="external">Bean Component</a>. </p>
-<p>Fairly straighforward right? Take a look at this project (specifically the “camel-native-c” module) if you’d like to see it all working: <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="external">https://github.com/joshdreagan/camel-native</a>.</p>
+<p><em>Note: You don’t give the full path or name of the library. The name is automatically wrapped with the platform-specific parts and the path is looked up via a <a href="https://github.com/java-native-access/jna/blob/master/www/GettingStarted.md" target="_blank" rel="noopener">variety of mechanisms</a> (ie, the <code>jna.library.path</code> system property).</em> </p>
+<p>Once I have a proxy object, I can invoke methods on it like I would with any Java Bean in Camel using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="noopener">Bean Component</a>. </p>
+<p>Fairly straighforward right? Take a look at this project (specifically the “camel-native-c” module) if you’d like to see it all working: <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="noopener">https://github.com/joshdreagan/camel-native</a>.</p>
 <h2 id="C-1"><a href="#C-1" class="headerlink" title="C++"></a>C++</h2><p>Invoking C++ code is slightly more involved than C code, but is still pretty simple. The options (ie, JNI or JNA) are the same, and for the most part the code is the same. </p>
-<p>If you choose to use JNA (which I did), you still need to define an interface that matches the method signatures of the C++ library (and implements <code>com.sun.jna.Library</code>). And you still need to load the library and create the proxy object using the <code>com.sun.jna.Native</code> class. The differences/complications come from this thing called <a href="https://en.wikipedia.org/wiki/Name_mangling" target="_blank" rel="external">Name Mangling</a>.</p>
+<p>If you choose to use JNA (which I did), you still need to define an interface that matches the method signatures of the C++ library (and implements <code>com.sun.jna.Library</code>). And you still need to load the library and create the proxy object using the <code>com.sun.jna.Native</code> class. The differences/complications come from this thing called <a href="https://en.wikipedia.org/wiki/Name_mangling" target="_blank" rel="noopener">Name Mangling</a>.</p>
 <p>Name mangling is something that C++ compilers do to account for namespaces and overloaded methods and such. Most compilers do specify exactly how they perform the mangling, but unfortunately none of them do it the same. That is, the Windows C++ compiler will mangle the names differently than the GNU C++ compiler. At any rate, the end result is that my C++ method will not have the same name in its compiled form as it did in its source form. For example, if I had a method called <code>add</code> in my source, the GNU compiler might turn it into something like <code>_ZN10Calculator3addEii</code> (depending on the namespace and method signature of course) <em>(see note below)</em>. That means that when I try to invoke the method on my <code>com.sun.jna.Library</code> interface, I won’t have the right name (and will get an exception). </p>
 <p>So how do I get around all this name mangling tomfoolery? Well, luckily, JNA allows us to provide a custom <code>com.sun.jna.FunctionMapper</code>. That means I can tell JNA that, when I call a function named <code>add</code>, it really needs to call a funtion named <code>_ZN10Calculator3addEii</code> in the underlying native library. Neat! </p>
 <p>One more oddity to handle… For whatever reason, the name mangling also adds an extra argument to the method signature. But once again, JNA has a mechanism to fix it. We can create a custom <code>com.sun.jna.InvocationMapper</code> to intercept the invocation and add a <code>null</code> argument to the beginning of the arg list. </p>
-<p>That’s it! Now I can invoke it using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="external">Bean Component</a> just like I did in the C example. </p>
-<p>Like I said… slightly more involved, but still pretty simple. To see it all in action, take a look at this project (specifically the “camel-native-cpp” module): <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="external">https://github.com/joshdreagan/camel-native</a>.</p>
+<p>That’s it! Now I can invoke it using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="noopener">Bean Component</a> just like I did in the C example. </p>
+<p>Like I said… slightly more involved, but still pretty simple. To see it all in action, take a look at this project (specifically the “camel-native-cpp” module): <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="noopener">https://github.com/joshdreagan/camel-native</a>.</p>
 <p><em>Note: You can use the <code>nm</code> tool on Linux to find the mangled names (ie, <code>nm -D libc-calculator.so</code>).</em></p>
-<h2 id="C-35"><a href="#C-35" class="headerlink" title="C&#35;"></a>C&#35;</h2><p>C# (or any .NET code) is probably the most complicated case. On Windows, .NET DLLs are not the same format as a truely native DLL. This is because they aren’t really native code. They’re what Microsoft calls <a href="https://en.wikipedia.org/wiki/Managed_code" target="_blank" rel="external">Managed Code</a>. Managed code is code that must be run in a virtual machine. Think Java and its JVM, but more Microsofty… So it can’t be invoked directly (or at least not without loading a virtual machine). That means that using JNI or JNA directly are out. So what do I do? Well, there are a few options. </p>
-<p>If my .NET DLL exposed a <a href="https://en.wikipedia.org/wiki/Component_Object_Model" target="_blank" rel="external">COM</a> interface, I could write a C++ wrapper that calls the .NET DLL through COM. Then I could follow the above instructions for invoking C++ code. But what if my library didn’t expose a COM interface? In my experience, most don’t. And even if it did, that seems like a lot of effort, and I’m quite lazy… </p>
-<p>I could perhaps use a paid tool like <a href="https://www.javonet.com/" target="_blank" rel="external">javOnet</a> or <a href="http://jnbridge.com/" target="_blank" rel="external">JNBridge</a>. Both seem simple enough to use and are probaly pretty stable. But they both cost a lot of money, and I’m quite cheap… </p>
-<p>So what’s left? I went with a project called <a href="http://jni4net.com/" target="_blank" rel="external">jni4net</a>. It does all the work for me (no writing wrapper code), and the price is right (free!). Plus, it’s the only one of the options I found that was open source (and I like open source! :)). Now for the bad news… It’s not the most full-featured or simplest tool in the world. That’s ok though. My cheapness typically wins out over my laziness. So here goes…</p>
+<h2 id="C-35"><a href="#C-35" class="headerlink" title="C&#35;"></a>C&#35;</h2><p>C# (or any .NET code) is probably the most complicated case. On Windows, .NET DLLs are not the same format as a truely native DLL. This is because they aren’t really native code. They’re what Microsoft calls <a href="https://en.wikipedia.org/wiki/Managed_code" target="_blank" rel="noopener">Managed Code</a>. Managed code is code that must be run in a virtual machine. Think Java and its JVM, but more Microsofty… So it can’t be invoked directly (or at least not without loading a virtual machine). That means that using JNI or JNA directly are out. So what do I do? Well, there are a few options. </p>
+<p>If my .NET DLL exposed a <a href="https://en.wikipedia.org/wiki/Component_Object_Model" target="_blank" rel="noopener">COM</a> interface, I could write a C++ wrapper that calls the .NET DLL through COM. Then I could follow the above instructions for invoking C++ code. But what if my library didn’t expose a COM interface? In my experience, most don’t. And even if it did, that seems like a lot of effort, and I’m quite lazy… </p>
+<p>I could perhaps use a paid tool like <a href="https://www.javonet.com/" target="_blank" rel="noopener">javOnet</a> or <a href="http://jnbridge.com/" target="_blank" rel="noopener">JNBridge</a>. Both seem simple enough to use and are probaly pretty stable. But they both cost a lot of money, and I’m quite cheap… </p>
+<p>So what’s left? I went with a project called <a href="http://jni4net.com/" target="_blank" rel="noopener">jni4net</a>. It does all the work for me (no writing wrapper code), and the price is right (free!). Plus, it’s the only one of the options I found that was open source (and I like open source! :)). Now for the bad news… It’s not the most full-featured or simplest tool in the world. That’s ok though. My cheapness typically wins out over my laziness. So here goes…</p>
 <p>First we need to generate and build the wrapper code. Sadly, the tool has a few steps to its build (making scripting a little complex), but it’s not too bad. You have to run the <code>proxygen.exe</code> command line tool (located in the <code>bin</code> directory of the distribution) and point it at your .NET DLL to generate the Java and C# wrapper code. This process also generates a <code>build.cmd</code> file that must then be used to actually build the code into a DLL library and its respective JAR file. This obviously doesn’t really mesh well with the way most Java builds are written. But with a bit of cleverness/ugliness, we can make it work.</p>
 <p>Now that we have some generated/compiled wrapper code, we need to initialize what jni4net calls the “bridge” and register the assemblies. <strong>This must be done at startup before any of the generated code/methods are used.</strong> A simple “initializer” class that calls the <code>net.sf.jni4net.Bridge#init()</code> and <code>net.sf.jni4net.Bridge#LoadAndRegisterAssemblyFrom(java.io.File)</code> methods will do the trick. </p>
-<p>Once this is done, we can invoke the generated wrapper class methods using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="external">Bean Component</a> just like in the previous examples.</p>
-<p>All done right? Not quite… If you tried to this yourself, you probably noticed that there are all kinds of exceptions that occur when you actually try to run your project. This stems from a bit of quirkiness with the way that jni4net finds and loads the DLLs and JARs. As it turns out, the tool is quite opinionated about where its libraries live (making running in production potentially tricky). What do I mean? In order to run, the location of the jni4net JAR files (both generated and the ones that come with the distribution) must live in the same directory as your DLL files (both generated and the .NET one you’re trying to make use of). A quick look at <a href="https://github.com/jni4net/jni4net/blob/master/jni4net.j/src/main/java/net/sf/jni4net/CLRLoader.java" target="_blank" rel="external">the code</a> showed that this is because it uses a combination of path and naming conventions to figure out the locations of the supporting libs. Unfortunately, this is currently hard-coded. :( Fortunately, this is an open source project! So anyone with a bit of free time could fix this and submit a pull request. :)</p>
-<p>All in all it’s a bit cumbersome, but works. And that’s what really matters right? For an actual running example, take a look at this project (specifically the “camel-native-csharp” module): <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="external">https://github.com/joshdreagan/camel-native</a>.</p>
+<p>Once this is done, we can invoke the generated wrapper class methods using the <a href="https://camel.apache.org/bean.html" target="_blank" rel="noopener">Bean Component</a> just like in the previous examples.</p>
+<p>All done right? Not quite… If you tried to this yourself, you probably noticed that there are all kinds of exceptions that occur when you actually try to run your project. This stems from a bit of quirkiness with the way that jni4net finds and loads the DLLs and JARs. As it turns out, the tool is quite opinionated about where its libraries live (making running in production potentially tricky). What do I mean? In order to run, the location of the jni4net JAR files (both generated and the ones that come with the distribution) must live in the same directory as your DLL files (both generated and the .NET one you’re trying to make use of). A quick look at <a href="https://github.com/jni4net/jni4net/blob/master/jni4net.j/src/main/java/net/sf/jni4net/CLRLoader.java" target="_blank" rel="noopener">the code</a> showed that this is because it uses a combination of path and naming conventions to figure out the locations of the supporting libs. Unfortunately, this is currently hard-coded. :( Fortunately, this is an open source project! So anyone with a bit of free time could fix this and submit a pull request. :)</p>
+<p>All in all it’s a bit cumbersome, but works. And that’s what really matters right? For an actual running example, take a look at this project (specifically the “camel-native-csharp” module): <a href="https://github.com/joshdreagan/camel-native" target="_blank" rel="noopener">https://github.com/joshdreagan/camel-native</a>.</p>
 
         
         </div>
@@ -290,7 +292,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/" data-id="cjaohpy3x001d3llhc5y30wca" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2016/11/21/calling_native_code_with_camel/" data-id="cjwbaeuay000y28lhw0c9n9lq" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -405,6 +407,63 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="../../../../2017/12/01/upgrading_amq_6_to_amq_7/" class="thumbnail">
     
     
@@ -440,63 +499,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/25/scaling_jboss_a-mq_on_openshift//post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/25/scaling_jboss_a-mq_on_openshift/" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../../2017/03/15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../../2017/03/15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -506,7 +508,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -515,7 +517,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -527,7 +529,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>

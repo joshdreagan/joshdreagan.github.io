@@ -6,17 +6,19 @@
     <title>Scaling JBoss A-MQ on OpenShift | Reagan&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="I frequently get asked by customers if it’s possible to run Red Hat JBoss A-MQ on Red Hat OpenShift, and while the answer has been “yes” for quite a while now, it has always been followed by a few cav">
+<meta name="keywords" content="fuse,camel,jboss,spring-boot,openshift,amq,activemq">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Scaling JBoss A-MQ on OpenShift">
 <meta property="og:url" content="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/index.html">
-<meta property="og:site_name" content="Reagan's Blog">
+<meta property="og:site_name" content="Reagan&#39;s Blog">
 <meta property="og:description" content="I frequently get asked by customers if it’s possible to run Red Hat JBoss A-MQ on Red Hat OpenShift, and while the answer has been “yes” for quite a while now, it has always been followed by a few cav">
-<meta property="og:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/post-bg.jpg">
 <meta property="og:updated_time" content="2017-12-01T18:55:53.182Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Scaling JBoss A-MQ on OpenShift">
 <meta name="twitter:description" content="I frequently get asked by customers if it’s possible to run Red Hat JBoss A-MQ on Red Hat OpenShift, and while the answer has been “yes” for quite a while now, it has always been followed by a few cav">
-<meta name="twitter:image" content="http://blog.joshdreagan.com/post-bg.jpg">
+<meta name="twitter:image" content="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/post-bg.jpg">
     
 
     
@@ -158,11 +160,11 @@ ga('send', 'pageview');
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                20
+                23
                 <span>posts</span>
             </div>
             <div class="article-info-block">
-                19
+                21
                 <span>tags</span>
             </div>
         </div>
@@ -256,15 +258,15 @@ ga('send', 'pageview');
         <div class="article-entry" itemprop="articleBody">
         
             
-            <p>I frequently get asked by customers if it’s possible to run <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="external">Red Hat JBoss A-MQ</a> on <a href="https://developers.redhat.com/products/openshift/overview/" target="_blank" rel="external">Red Hat OpenShift</a>, and while the answer has been “yes” for quite a while now, it has always been followed by a few caveats. In particular, the issue of scaling…<a id="more"></a></p>
-<p>But before we get into the issue of scaling, let’s talk a little about how the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_a-mq_for_openshift/" target="_blank" rel="external">official image template</a> works. Basically, it can operate in three different modes (as of this blog date). </p>
-<p>The first, is persistent with no scaling. This is the equivalent of a single master/slave setup. Only, there is no need for an actual “slave” instance. If the master goes down, OpenShift will detect it and will spin up a new instance on the same or another node. And since the new instance/pod will have the same <a href="https://kubernetes.io/docs/user-guide/persistent-volumes/#persistentvolumeclaims" target="_blank" rel="external">PersistentVolumeClaim</a>, the broker will come online and see all of its in-flight messages exactly as they were. If I were to attempt to scale-up the instance in this mode, I would basically just spin up a bunch of passive “slaves” since they’ll all try to mount the same PersistentVolumeClaim/KahaDB, and will be unable to get the file-lock (and will resort to polling it until they can). And as described above, the slaves serve no real purpose because OpenShift is already monitoring and will bring up a new instance if needed. But what if I want to scale? What if I want to have many active instances sharing the load?</p>
-<p>That brings us to the next mode. Which is non-persistent with scaling. In this mode, all of the instances share the same <a href="https://kubernetes.io/docs/user-guide/services/" target="_blank" rel="external">Service</a>, but have no <a href="https://kubernetes.io/docs/user-guide/persistent-volumes" target="_blank" rel="external">PersistentVolume</a> attached. That means that clients (both producers and consumers) can be distributed across all of the instances. And, since each of the instances is networked together, the messages will find their way to a valid consumer. The instances will be automatically network together in a mesh configuration, and discover eachother using the same Kubernetes Service abstraction that the clients can use. So theoretically, I can scale this up as large as I need to handle my client load. But as I stated above, there is no PersistentVolume attached. Which means that my in-flight messages could potentially be lost if the owning broker goes down. So what if I want it all? What if I need the ability to scale-up, but also need persistence?</p>
-<p>In that case, we would use the third mode. Which is persistent with scaling. In this mode, all of the brokers are networked together (using the same Kubernetes Service discovery mechanism as above), but they all also mount the same PersistentVolumeClaim. So how do they have separate KahaDB’s (and prevent all trying to lock the same one)? It’s actually quite simple… In this mode, they will all mount the same volume, but will use subdirectories inside that mount. So within the mount, you will get a bunch of directories called “split-1”, “split-2”, … and so on. If you want to see exactly how this works, you can open up a remote shell to one of the pods (ie, <code>oc rsh &lt;POD_NAME&gt;</code>) and take a look at the A-MQ start script. It just loops through (starting at 1) each of the directories until it finds one that it can get a file-lock on. Once it does, it starts up a broker instance and uses that sub-directory to store its KahaDB. It’s worth noting here that, since all of the instances will share the same actual PersistentVolume (and it’s underlying filesystem), you will need to use a distributed filesystem (ie, <a href="https://www.gluster.org/" target="_blank" rel="external">GlusterFS</a>) with ReadWriteMany access so you don’t hit a storage performance bottleneck. Now I can run A-MQ on OpenShift and scale-up as much as I want (or as much as I have resources for anyway). </p>
+            <p>I frequently get asked by customers if it’s possible to run <a href="https://developers.redhat.com/products/amq/overview/" target="_blank" rel="noopener">Red Hat JBoss A-MQ</a> on <a href="https://developers.redhat.com/products/openshift/overview/" target="_blank" rel="noopener">Red Hat OpenShift</a>, and while the answer has been “yes” for quite a while now, it has always been followed by a few caveats. In particular, the issue of scaling…<a id="more"></a></p>
+<p>But before we get into the issue of scaling, let’s talk a little about how the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_a-mq_for_openshift/" target="_blank" rel="noopener">official image template</a> works. Basically, it can operate in three different modes (as of this blog date). </p>
+<p>The first, is persistent with no scaling. This is the equivalent of a single master/slave setup. Only, there is no need for an actual “slave” instance. If the master goes down, OpenShift will detect it and will spin up a new instance on the same or another node. And since the new instance/pod will have the same <a href="https://kubernetes.io/docs/user-guide/persistent-volumes/#persistentvolumeclaims" target="_blank" rel="noopener">PersistentVolumeClaim</a>, the broker will come online and see all of its in-flight messages exactly as they were. If I were to attempt to scale-up the instance in this mode, I would basically just spin up a bunch of passive “slaves” since they’ll all try to mount the same PersistentVolumeClaim/KahaDB, and will be unable to get the file-lock (and will resort to polling it until they can). And as described above, the slaves serve no real purpose because OpenShift is already monitoring and will bring up a new instance if needed. But what if I want to scale? What if I want to have many active instances sharing the load?</p>
+<p>That brings us to the next mode. Which is non-persistent with scaling. In this mode, all of the instances share the same <a href="https://kubernetes.io/docs/user-guide/services/" target="_blank" rel="noopener">Service</a>, but have no <a href="https://kubernetes.io/docs/user-guide/persistent-volumes" target="_blank" rel="noopener">PersistentVolume</a> attached. That means that clients (both producers and consumers) can be distributed across all of the instances. And, since each of the instances is networked together, the messages will find their way to a valid consumer. The instances will be automatically network together in a mesh configuration, and discover eachother using the same Kubernetes Service abstraction that the clients can use. So theoretically, I can scale this up as large as I need to handle my client load. But as I stated above, there is no PersistentVolume attached. Which means that my in-flight messages could potentially be lost if the owning broker goes down. So what if I want it all? What if I need the ability to scale-up, but also need persistence?</p>
+<p>In that case, we would use the third mode. Which is persistent with scaling. In this mode, all of the brokers are networked together (using the same Kubernetes Service discovery mechanism as above), but they all also mount the same PersistentVolumeClaim. So how do they have separate KahaDB’s (and prevent all trying to lock the same one)? It’s actually quite simple… In this mode, they will all mount the same volume, but will use subdirectories inside that mount. So within the mount, you will get a bunch of directories called “split-1”, “split-2”, … and so on. If you want to see exactly how this works, you can open up a remote shell to one of the pods (ie, <code>oc rsh &lt;POD_NAME&gt;</code>) and take a look at the A-MQ start script. It just loops through (starting at 1) each of the directories until it finds one that it can get a file-lock on. Once it does, it starts up a broker instance and uses that sub-directory to store its KahaDB. It’s worth noting here that, since all of the instances will share the same actual PersistentVolume (and it’s underlying filesystem), you will need to use a distributed filesystem (ie, <a href="https://www.gluster.org/" target="_blank" rel="noopener">GlusterFS</a>) with ReadWriteMany access so you don’t hit a storage performance bottleneck. Now I can run A-MQ on OpenShift and scale-up as much as I want (or as much as I have resources for anyway). </p>
 <p>So what’s the “scaling problem” I mentioned earlier? Well… if I want to scale-up, I’ll probably also want to scale-down at some point. And if I scale down, I now have KahaDB’s sitting in “split-x” folders that could potentially have in-flight messages. And those messages likely can’t wait until I scale back up and happen to get an instance that mounts that particular “split” directory. So really, I need to drain those messages out of that stale KahaDB and push them to one of my remaining active brokers. So how might I go about that?</p>
-<p>One solution might be to use a broker plugin that (on shutdown) will automatically drain messages off to other brokers. This could work, but would probably be problematic. First, you would have to make sure that all of your <a href="http://activemq.apache.org/configuring-version-5-transports.html" target="_blank" rel="external">ActiveMQ TransportConnectors</a> are shutdown before you start draining the messages. If you fail to do this, you could potentially be accepting new messages from clients and might never finish actually draining. The second (and probably more important problem) is that you don’t have an infinite amount of time to finish your work. When Kubernetes schedules a pod for shutdown, it does give a max time for it to complete its graceful shutdown. But if you exceed this timeout, it will forcefully shut down. So exactly how much time do you need to drain off all of your messages? It depends… It depends on how many in-flight messages you have stored in that KahaDB. It depends on how fast you can send those messages (maybe they’re large messages). It depends on how much space you have available on the other brokers (because of <a href="http://activemq.apache.org/producer-flow-control.html" target="_blank" rel="external">Producer Flow Control</a>). The point is, there is no valid number for “shutdown timeout”. You need as much time as it takes. So what do we do?</p>
-<p>Luckily for you, I’m sure you’ve already read my previous blog on <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. And in there, you’ve already seen my final proposed solution (and code example) for draining those messages. So really, all we have to do is make that code work on OpenShift. Here’s a first cut at it [<a href="https://github.com/joshdreagan/activemq-pv-monitor" target="_blank" rel="external">https://github.com/joshdreagan/activemq-pv-monitor</a>]. In this example, I use the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_fuse_integration_services_2.0_for_openshift/" target="_blank" rel="external">FIS 2.0</a> tools to create a simple <a href="https://developers.redhat.com/products/fuse/overview/" target="_blank" rel="external">Red Hat JBoss Fuse</a> app that will monitor the A-MQ “split-x” directories. If it finds a KahaDB that it’s able to get a file-lock on, it will drain its messages to another available broker (which it discovers using the same Kubernetes Service discovery mechanism described above). And since it’s a separate Pod, it can run for as long as it needs to. So no need to worry about pesky timeouts. The example could use some more error handling and various other QA, but it should be a good starting point.</p>
-<p>So now we can scale-up, we can scale-down, and if we’re feeling lazy, we can even auto-scale. Cool beans! As always, hopefully you find this useful. And if so, buy me a beer this year at <a href="https://www.redhat.com/en/summit/2017" target="_blank" rel="external">Red Hat Summit</a>. :)</p>
+<p>One solution might be to use a broker plugin that (on shutdown) will automatically drain messages off to other brokers. This could work, but would probably be problematic. First, you would have to make sure that all of your <a href="http://activemq.apache.org/configuring-version-5-transports.html" target="_blank" rel="noopener">ActiveMQ TransportConnectors</a> are shutdown before you start draining the messages. If you fail to do this, you could potentially be accepting new messages from clients and might never finish actually draining. The second (and probably more important problem) is that you don’t have an infinite amount of time to finish your work. When Kubernetes schedules a pod for shutdown, it does give a max time for it to complete its graceful shutdown. But if you exceed this timeout, it will forcefully shut down. So exactly how much time do you need to drain off all of your messages? It depends… It depends on how many in-flight messages you have stored in that KahaDB. It depends on how fast you can send those messages (maybe they’re large messages). It depends on how much space you have available on the other brokers (because of <a href="http://activemq.apache.org/producer-flow-control.html" target="_blank" rel="noopener">Producer Flow Control</a>). The point is, there is no valid number for “shutdown timeout”. You need as much time as it takes. So what do we do?</p>
+<p>Luckily for you, I’m sure you’ve already read my previous blog on <a href="/2016/08/22/decommissioning_jboss_a-mq_brokers/" title="Decommissioning JBoss A-MQ brokers">Decommissioning JBoss A-MQ brokers</a>. And in there, you’ve already seen my final proposed solution (and code example) for draining those messages. So really, all we have to do is make that code work on OpenShift. Here’s a first cut at it [<a href="https://github.com/joshdreagan/activemq-pv-monitor" target="_blank" rel="noopener">https://github.com/joshdreagan/activemq-pv-monitor</a>]. In this example, I use the <a href="https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_jboss_fuse_integration_services_2.0_for_openshift/" target="_blank" rel="noopener">FIS 2.0</a> tools to create a simple <a href="https://developers.redhat.com/products/fuse/overview/" target="_blank" rel="noopener">Red Hat JBoss Fuse</a> app that will monitor the A-MQ “split-x” directories. If it finds a KahaDB that it’s able to get a file-lock on, it will drain its messages to another available broker (which it discovers using the same Kubernetes Service discovery mechanism described above). And since it’s a separate Pod, it can run for as long as it needs to. So no need to worry about pesky timeouts. The example could use some more error handling and various other QA, but it should be a good starting point.</p>
+<p>So now we can scale-up, we can scale-down, and if we’re feeling lazy, we can even auto-scale. Cool beans! As always, hopefully you find this useful. And if so, buy me a beer this year at <a href="https://www.redhat.com/en/summit/2017" target="_blank" rel="noopener">Red Hat Summit</a>. :)</p>
 
         
         </div>
@@ -275,7 +277,7 @@ ga('send', 'pageview');
 
 </div>
 
-    <a data-url="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/" data-id="cjaohpy41001l3llh10kel2y2" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="http://blog.joshdreagan.com/2017/03/25/scaling_jboss_a-mq_on_openshift/" data-id="cjwbaeu9d000f28lhikhopojt" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -390,6 +392,63 @@ ga('send', 'pageview');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi//post-bg.jpg)" alt="Streaming in the Cloud With Camel and Strimzi" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2019/05/30/streaming_in_the_cloud_with_camel_and_strimzi/" class="title">Streaming in the Cloud With Camel and Strimzi</a></p>
+                            <p class="item-date"><time datetime="2019-05-30T23:23:43.000Z" itemprop="datePublished">2019-05-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/08/30/camel_aggregation_strategies/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/08/30/camel_aggregation_strategies//post-bg.jpg)" alt="Camel Aggregation Strategies" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/08/30/camel_aggregation_strategies/" class="title">Camel Aggregation Strategies</a></p>
+                            <p class="item-date"><time datetime="2018-08-31T04:43:34.000Z" itemprop="datePublished">2018-08-30</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="thumbnail">
+    
+    
+        <span style="background-image:url(../../../../2018/03/02/camel_cxfrs_contract_first//post-bg.jpg)" alt="Camel CXFRS Contract First" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="../../../../2018/03/02/camel_cxfrs_contract_first/" class="title">Camel CXFRS Contract First</a></p>
+                            <p class="item-date"><time datetime="2018-03-02T07:00:51.000Z" itemprop="datePublished">2018-03-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="../../../12/01/upgrading_amq_6_to_amq_7/" class="thumbnail">
     
     
@@ -425,63 +484,6 @@ ga('send', 'pageview');
                         </div>
                     </li>
                 
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../../08/14/transactions_and_alternatives_with_camel/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../../08/14/transactions_and_alternatives_with_camel//post-bg.jpg)" alt="Transactions and Alternatives With Camel" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../../08/14/transactions_and_alternatives_with_camel/" class="title">Transactions and Alternatives With Camel</a></p>
-                            <p class="item-date"><time datetime="2017-08-14T15:54:38.000Z" itemprop="datePublished">2017-08-14</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="" class="thumbnail">
-    
-    
-        <span style="background-image:url(/post-bg.jpg)" alt="Scaling JBoss A-MQ on OpenShift" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="" class="title">Scaling JBoss A-MQ on OpenShift</a></p>
-                            <p class="item-date"><time datetime="2017-03-25T22:56:02.000Z" itemprop="datePublished">2017-03-25</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="../../15/activemq_ha_performance_comparison/" class="thumbnail">
-    
-    
-        <span style="background-image:url(../../15/activemq_ha_performance_comparison//post-bg.jpg)" alt="ActiveMQ HA Performance Comparison" class="thumbnail-image"></span>
-    
-</a>
-
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"></p>
-                            <p class="item-title"><a href="../../15/activemq_ha_performance_comparison/" class="title">ActiveMQ HA Performance Comparison</a></p>
-                            <p class="item-date"><time datetime="2017-03-15T20:07:01.000Z" itemprop="datePublished">2017-03-15</time></p>
-                        </div>
-                    </li>
-                
             </ul>
         </div>
     </div>
@@ -491,7 +493,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/08/">August 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/03/">March 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2017/01/">January 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/11/">November 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/10/">October 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/07/">July 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/05/">May 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2016/02/">February 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/05/">May 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../../../archives/2015/04/">April 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -500,7 +502,7 @@ ga('send', 'pageview');
     <div class="widget-wrap">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
-            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/a-mq/">a-mq</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/activemq/">activemq</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/amq/">amq</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/artemis/">artemis</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/bpms/">bpms</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/camel/">camel</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/cxf/">cxf</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/eap/">eap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fabric8/">fabric8</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/feedhenry/">feedhenry</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/fuse/">fuse</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/infinispan/">infinispan</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jboss/">jboss</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/jbpm/">jbpm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/karaf/">karaf</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/narayana/">narayana</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/openshift/">openshift</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/spring-boot/">spring-boot</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/strimzi/">strimzi</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../../tags/wildfly/">wildfly</a><span class="tag-list-count">3</span></li></ul>
         </div>
     </div>
 
@@ -512,7 +514,7 @@ ga('send', 'pageview');
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2017 Josh Reagan<br>
+            &copy; 2019 Josh Reagan<br>
             Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
         </div>
     </div>
