@@ -3,7 +3,6 @@ title: Faster File Consumption With Camel
 tags:
   - fuse
   - camel
-  - jboss
 banner: post-bg.jpg
 permalink: faster_file_consumption_with_camel
 date: 2017-01-05 13:38:21
@@ -25,4 +24,3 @@ The most robust option that's available out-of-the-box is the "changed" strategy
 Well... Luckily, Camel is awesome enough that it allows us to extend it whenever it's out-of-the-box options don't meet our needs. Suck on __that__ competition! :) Specifically, in the previous scenario, we actually solved the problem by creating our own custom version of the "changed" strategy. Only, in our version, we didn't pause and repeat checks on a single file. Instead, we looped through the files and (for each file) checked its stats. We then added those stats to a cache and moved on to the next file. On each subsequent poll, we would check the file's stats against the cached ones to determine if it had stopped changing (for at least the `readLockCheckInterval` amount of time). This allowed us to continue processing any files that were ready without having to wait behind a single one that wasn't. In practice, we were able to use this strategy to consume very large numbers of files with only a single server. Take a look at the sample source code if you'd like to give it a try: [https://github.com/joshdreagan/camel-fastfile](https://github.com/joshdreagan/camel-fastfile).
 
 _Worth noting that this is a recreation of the original work (as best as I could remember) that I did with my awesome colleague [Scott Van Camp](https://www.linkedin.com/in/scottvancamp) whose awesome coding skills are only rivaled by his awesome beard growing skills. So he gets to share in the credit/blame... :)_
-

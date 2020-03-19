@@ -5,8 +5,7 @@ permalink: amqp_performance_testing
 date: 2016-02-02 00:00:00
 tags:
 - activemq
-- jboss
-- a-mq
+- amq
 ---
 
 I recently had a customer that wanted us to do some load testing of [Red Hat's JBoss A-MQ](http://www.jboss.org/products/amq/overview/) for them. In particular, this customer wanted the tests performed using the AMQP protocol instead of ActiveMQ's native OpenWire. From previous engagements, I knew that there would be a performance difference. But after a quick look I didn't see any blogs or posts on the subject. More specifically, I didn't see any posts that detailed how to run the tests yourself so that you could get real numbers in your own environment. So I figured I'd write up some steps and post my results for future reference.
@@ -74,7 +73,7 @@ OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was
 [INFO] ------------------------------------------------------------------------
 [INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
 [INFO] ------------------------------------------------------------------------
-[INFO] 
+[INFO]
 [INFO] --- activemq-perf-maven-plugin:5.11.0:producer (default-cli) @ amqp-perf-test ---
 [INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/tcp-producer.properties
 [INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI
@@ -122,7 +121,7 @@ OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was
 [INFO] ------------------------------------------------------------------------
 [INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
 [INFO] ------------------------------------------------------------------------
-[INFO] 
+[INFO]
 [INFO] --- activemq-perf-maven-plugin:5.11.0:consumer (default-cli) @ amqp-perf-test ---
 [INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/tcp-consumer.properties
 [INFO] Created: org.apache.activemq.ActiveMQConnectionFactory using SPIConnectionFactory: org.apache.activemq.tool.spi.ActiveMQReflectionSPI
@@ -169,7 +168,7 @@ OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was
 [INFO] ------------------------------------------------------------------------
 [INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
 [INFO] ------------------------------------------------------------------------
-[INFO] 
+[INFO]
 [INFO] --- activemq-perf-maven-plugin:5.11.0:producer (default-cli) @ amqp-perf-test ---
 [INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/amqp-producer.properties
 [INFO] Created: org.apache.qpid.jms.JmsConnectionFactory using SPIConnectionFactory: org.jboss.examples.amqp.spi.AMQPReflectionSPIConnectionFactory
@@ -219,7 +218,7 @@ OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=2048m; support was
 [INFO] ------------------------------------------------------------------------
 [INFO] Building ActiveMQ Perf: AMQP Perf Test 1.0.0-SNAPSHOT
 [INFO] ------------------------------------------------------------------------
-[INFO] 
+[INFO]
 [INFO] --- activemq-perf-maven-plugin:5.11.0:consumer (default-cli) @ amqp-perf-test ---
 [INFO] Loading properties file: /home/jreagan/Development/Projects/joshdreagan/amqp-perf-test/src/main/resources/amqp-consumer.properties
 [INFO] Created: org.apache.qpid.jms.JmsConnectionFactory using SPIConnectionFactory: org.jboss.examples.amqp.spi.AMQPReflectionSPIConnectionFactory
@@ -259,4 +258,3 @@ Max Average Client Throughput Excluding Min/Max: clientName=JmsConsumer0, value=
 {% endcodeblock %}
 
 That's it! You can see that OpenWire is quite a bit faster in this case. But please don't take my word for it... clone the project, tweak some configurations, try scaling the producers/consumers/brokers, and run the test yourself to see what results you'll get.
-

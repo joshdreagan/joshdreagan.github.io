@@ -5,8 +5,11 @@ permalink: custom_camel_loadbalancer_with_infinispan
 date: 2015-12-04 00:00:00
 tags:
 - camel
+- fuse
 - infinispan
+- datagrid
 - wildfly
+- jboss
 ---
 
 Apache Camel is a pretty full-featured EIP implementation framework. It has several existing strategies for load-balancing right out of the box. Round Robin, Random, Sticky, Weighted Round Robin, Weighted Random,... the list goes on and on. But being that it's a very well written and pluggable framework, it also gives you the ability to drop in your own custom strategies should you find that none of the existing ones meet your specific needs. So for this post, I created a custom Camel Load Balancer implementation utilizing an Infinispan cache to dynamically discover and load-balance between destination endpoints.

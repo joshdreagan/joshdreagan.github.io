@@ -4,6 +4,7 @@ tags:
   - fuse
   - camel
   - spring-boot
+  - activemq
   - artemis
   - amq
 banner: post-bg.jpg
@@ -22,7 +23,7 @@ So what would such a solution look like in Artemis? Well, sort like this:
 
 {% asset_img artemis_async_dr.png %}
 
-Let's break it down... First, we can use a feature known as "diverts" to wiretap off a local copy of our messages into one or more buffer queues. Then, we can use something called a "core bridge" to forward the buffered messages to an address on a secondary site. Technically, using these features, we can have as many backup sites as we'd like. We're only limited by our available bandwidth. So mirroring of data is actually quite simple. At least in concept... 
+Let's break it down... First, we can use a feature known as "diverts" to wiretap off a local copy of our messages into one or more buffer queues. Then, we can use something called a "core bridge" to forward the buffered messages to an address on a secondary site. Technically, using these features, we can have as many backup sites as we'd like. We're only limited by our available bandwidth. So mirroring of data is actually quite simple. At least in concept...
 
 One issue that we will encounter is that, because we're forwarding to/from the same named address on each data center, the messages will continue to divert and forward around in an endless loop. Not ideal. What we really need is some way to selectively divert messages so that we'll only copy/forward messages that originated at our DC. Any other messages would still be processed, but we would assume that they were sent from another DC and thus we would not need to forward them around. Luckily, diverts include the ability to filter. So we can simply add a header stating the origin DC and then use that to filter out any messages that did not originate in our DC. That means that we just need all of our clients to include that header, and we've solved our circular forwarding issue. But what if I don't control or can't change my clients to add that header? Well, core bridges allow you to specify a message transformer. So we can use that to automatically "stamp" the messages as they're forwarded. Neat!
 

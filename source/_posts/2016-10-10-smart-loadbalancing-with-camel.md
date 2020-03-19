@@ -3,7 +3,6 @@ title: Smart LoadBalancing With Camel
 tags:
   - fuse
   - camel
-  - jboss
   - amq
   - activemq
 banner: post-bg.jpg

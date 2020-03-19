@@ -11,6 +11,7 @@ tags:
 - jbpm
 - bpms
 - jboss
+- wildfly
 ---
 
 ## The Problem

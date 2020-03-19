@@ -7,7 +7,6 @@ tags:
 - fuse
 - jboss
 - wildfly
-- eap
 - camel
 - cxf
 ---
@@ -39,7 +38,7 @@ Specify your preferred project location (or let it use the default) and click "_
 
 {% asset_img "new_project-03.png" [New Project] %}
 
-Select the appropriate Maven archetype from the list. The one we use for this example is "__io.fabric8:camel-cxf-contract-first-arch:1.0.0.redhat-379__". Enter your preferred _Group Id_, _Artifact Id_, _Version_, & _Package_. When done, click "__Finish__". 
+Select the appropriate Maven archetype from the list. The one we use for this example is "__io.fabric8:camel-cxf-contract-first-arch:1.0.0.redhat-379__". Enter your preferred _Group Id_, _Artifact Id_, _Version_, & _Package_. When done, click "__Finish__".
 
 {% asset_img "new_project-04.png" [New Project] %}
 

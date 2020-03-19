@@ -4,7 +4,6 @@ tags:
   - amq
   - activemq
   - artemis
-  - jboss
 banner: post-bg.jpg
 permalink: upgrading_amq_6_to_amq_7
 date: 2017-12-01 15:30:03

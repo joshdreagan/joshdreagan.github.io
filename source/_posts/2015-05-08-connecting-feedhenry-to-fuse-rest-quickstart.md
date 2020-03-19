@@ -11,7 +11,6 @@ tags:
 - camel
 - cxf
 - openshift
-- jboss
 ---
 
 This guide demonstrates step-by-step how to connect a FeedHenry Hello World application to a JBoss Fuse REST quickstart backend running on Red Hat's OpenShift Online.
@@ -127,7 +126,7 @@ Finally, edit the `/README.md` file and change the sample request body to "_123_
 {% codeblock %}
 # FeedHenry Hello World MBaaS Server
 
-This is a blank 'hello world' FeedHenry MBaaS. Use it as a starting point for building your APIs. 
+This is a blank 'hello world' FeedHenry MBaaS. Use it as a starting point for building your APIs.
 
 # Group Hello World API
 
@@ -135,7 +134,7 @@ This is a blank 'hello world' FeedHenry MBaaS. Use it as a starting point for bu
 
 'Hello world' endpoint.
 
-## hello [POST] 
+## hello [POST]
 
 'Hello world' endpoint.
 

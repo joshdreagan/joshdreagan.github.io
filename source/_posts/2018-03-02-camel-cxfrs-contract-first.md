@@ -3,7 +3,6 @@ title: Camel CXFRS Contract First
 tags:
   - fuse
   - camel
-  - jboss
   - cxf
 permalink: camel_cxfrs_contract_first
 banner: post-bg.jpg

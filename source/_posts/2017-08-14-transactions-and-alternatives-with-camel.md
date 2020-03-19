@@ -3,7 +3,6 @@ title: Transactions and Alternatives with Camel
 tags:
   - activemq
   - artemis
-  - jboss
   - amq
   - camel
   - fuse
@@ -11,8 +10,8 @@ tags:
   - spring-boot
   - narayana
   - karaf
-  - eap
   - wildfly
+  - jboss
 banner: post-bg.jpg
 permalink: transactions_and_alternatives_with_camel
 date: 2017-08-14 09:54:38

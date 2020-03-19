@@ -3,7 +3,6 @@ title: Bridging Apache Artemis
 tags:
   - activemq
   - artemis
-  - jboss
   - amq
   - camel
   - fuse
@@ -40,7 +39,6 @@ Finally, you'll add a definition to the `$ARTEMIS_INSTANCE/etc/bootstrap.xml` fi
 
 *Notice the use of `$ARTEMIS_HOME` and `$ARTEMIS_INSTANCE` in the second and third steps... `$ARTEMIS_HOME` refers to the location that you unzipped the Artemis distribution. `$ARTEMIS_INSTANCE` refers to the directory of your broker instance (created with the "`artemis create ...`" command.*
 
-Now when you start the broker instance, it will load up and start the Camel routes and begin bridging. Pretty cool! But we bundled up all of our dependencies inside our WAR file (ie, all of the IBM MQ JMS client libs). And we also bundled our Camel routes definition inside the WAR as well. And since the WAR file sits in the `$ARTEMIS_HOME/web` directory, its configurations apply to any and all of the instances that we create/run on that machine. Not to mention the fact that every change to my Camel routes will require a build/deploy/restart. All of this kind of sucks and we can do better... 
+Now when you start the broker instance, it will load up and start the Camel routes and begin bridging. Pretty cool! But we bundled up all of our dependencies inside our WAR file (ie, all of the IBM MQ JMS client libs). And we also bundled our Camel routes definition inside the WAR as well. And since the WAR file sits in the `$ARTEMIS_HOME/web` directory, its configurations apply to any and all of the instances that we create/run on that machine. Not to mention the fact that every change to my Camel routes will require a build/deploy/restart. All of this kind of sucks and we can do better...
 
 If you dig into the code a bit more, you'll see that the "main" that spins up the Artemis broker will actually add several directories, JARs, & ZIPs to the classpath. Specifically, it will add the `$ARTEMIS_HOME/etc` & `$ARTEMIS_INSTANCE/etc` directories. It will then scan through the `$ARTEMIS_HOME/lib` & `$ARTEMIS_INSTANCE/lib` directories, and add any JARs or ZIPs that it finds to the classpath (sorted by name). So that means that we can take all of our use-case specific stuff (ie, all of the IBM MQ JMS client libs) and put them in the `$ARTEMIS_INSTANCE/lib` folder. It also means that we can take the Camel routes configuration, and put it in the `$ARTEMIS_INSTANCE/etc` directory. Now we have a completely generic WAR that we deploy in the `$ARTEMIS_HOME/lib` directory. That WAR can be activated on an instance defined basis as needed. And each instance can have the dependencies and configuration that it requires completely independent of other instances. Additionally, I have the added benefit of being able to edit the Camel routes configuration and apply my changes with only a restart (ie, no re-build/re-deploy required). Neat! Want to see what it looks like? Take a look at this sample project: [[https://github.com/joshdreagan/artemis-jms-bridge](https://github.com/joshdreagan/artemis-jms-bridge)].
-

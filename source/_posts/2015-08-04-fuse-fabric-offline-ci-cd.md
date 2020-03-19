@@ -9,7 +9,6 @@ tags:
 - camel
 - cxf
 - fabric8
-- jboss
 ---
 
 This is a follow-on to the [excellent blog post](http://blog.christianposta.com/fabric8/fuse-fabric-profile-migration-for-continuous-delivery/) that my colleague Christian Posta wrote on doing CI/CD with Fuse Fabric. In particular, this post will extend upon his write-up by showing how to migrate Fabric8 profiles and Maven artifacts into environments which are disconnected from the development environment.

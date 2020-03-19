@@ -7,7 +7,6 @@ tags:
 - fuse
 - karaf
 - camel
-- jboss
 ---
 
 This guide demonstrates step-by-step how to create a sample Camel project in JBoss Developer Studio (JBDS) using the Maven archetypes that come out of the box. Specifically, we’ll be creating a Spring based file poller project. We'll then deploy the project to a JBoss Fuse server and verify that it is running properly.
@@ -37,7 +36,7 @@ Specify your preferred project location (or let it use the default) and click "_
 
 {% asset_img "new_project-0.png" [New Project] %}
 
-Select the appropriate Maven archetype from the list. The one we use for this example is "__org.apache.camel.archetypes:camel-archetype-spring:2.12.0.redhat-610379__". Enter your preferred _Group Id_, _Artifact Id_, _Version_, & _Package_. When done, click "__Finish__". 
+Select the appropriate Maven archetype from the list. The one we use for this example is "__org.apache.camel.archetypes:camel-archetype-spring:2.12.0.redhat-610379__". Enter your preferred _Group Id_, _Artifact Id_, _Version_, & _Package_. When done, click "__Finish__".
 
 {% asset_img "new_project-04.png" [New Project] %}
 
@@ -70,11 +69,11 @@ Click the "__Browse__" button and navigate to the root directory of your JBoss F
 
 {% asset_img "$2" [$1] %}
 
-Enter the appropriate details/credentials for your JBoss Fuse server and click "__Finish__". 
+Enter the appropriate details/credentials for your JBoss Fuse server and click "__Finish__".
 
 {% asset_img "create_new_server-04.png" [Create New Server] %}
 
-You should now have a new server configuration as shown below. 
+You should now have a new server configuration as shown below.
 
 {% asset_img "create_new_server-05.png" [Create New Server] %}
 

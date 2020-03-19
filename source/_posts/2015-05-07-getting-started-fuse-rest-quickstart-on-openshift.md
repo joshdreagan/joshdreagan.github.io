@@ -10,7 +10,6 @@ tags:
 - karaf
 - camel
 - cxf
-- jboss
 ---
 
 This guide demonstrates step-by-step how to create a Fuse cluster and deploy one of the quickstart applications using Red Hat's OpenShift Online infrastructure.

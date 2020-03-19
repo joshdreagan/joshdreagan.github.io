@@ -2,7 +2,6 @@
 title: ActiveMQ HA Performance Comparison
 tags:
   - activemq
-  - jboss
   - amq
 banner: post-bg.jpg
 permalink: activemq_ha_performance_comparison
@@ -22,7 +21,7 @@ First, I wanted to run a baseline (since this is not about performance numbers d
 
 Once I had my baseline, I spun up another 'm4.xlarge' instance in the same region, but on another availability zone. We'll call this one "broker 2" I also created and attached an EBS volume (using a standard SSD) to both of my "broker" instances ("broker 1" and "broker 2"). I installed DRBD on the instances and configured it to replicate synchronously (using [Protocol C](https://docs.linbit.com/doc/users-guide-84/s-replication-protocols/)) from "broker 1" to "broker 2". Once I brought them online and the initial sync was done, I ran the same tests as above and captured the numbers. The numbers can be found in the table below in the "DRBD (across availability zones)" row. As you can see from the results, we do get a performance drop (because we have to write the data twice), but it's not too bad since we're not having to replicate across a WAN yet.
 
-Finally, I terminated the "broker 2" instance and recreated it in another region. So now, the "broker 1" and "client" instances were in the "US West (Oregon)" region. And the "broker 2" instance was in the "US East (N. Virginia)" region. I reconnected DRBD to replicate from "broker 1" to "broker 2" and waited for the initial sync to complete (this took a while). Once that was done, I re-ran the same tests and captured the output again. It can be found in the table below in the "DRBD (across regions)" row. 
+Finally, I terminated the "broker 2" instance and recreated it in another region. So now, the "broker 1" and "client" instances were in the "US West (Oregon)" region. And the "broker 2" instance was in the "US East (N. Virginia)" region. I reconnected DRBD to replicate from "broker 1" to "broker 2" and waited for the initial sync to complete (this took a while). Once that was done, I re-ran the same tests and captured the output again. It can be found in the table below in the "DRBD (across regions)" row.
 
 Now we see the "performance tradeoffs" I was talking about... In my tests, it was between 1-2 orders of magnitude slower than local storage. So I will repeat my statement from my previous blog... "You will not be processing large sets of data while synchronously replicating across a WAN."
 
@@ -66,4 +65,3 @@ __50 Threads__
  - {% asset_link 50/drbd/consumer-drbd.txt DRBD Consumer (across availability zones) %}
  - {% asset_link 50/drbd/producer-drbd-x-region.txt DRBD Producer (across regions) %}
  - {% asset_link 50/drbd/consumer-drbd-x-region.txt DRBD Consumer (across regions) %}
-

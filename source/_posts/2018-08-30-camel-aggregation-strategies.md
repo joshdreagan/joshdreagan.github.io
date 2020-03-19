@@ -3,7 +3,6 @@ title: Camel Aggregation Strategies
 tags:
   - fuse
   - camel
-  - jboss
 banner: post-bg.jpg
 permalink: camel_aggregation_strategies
 date: 2018-08-30 22:43:34
