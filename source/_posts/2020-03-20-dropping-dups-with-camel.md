@@ -8,7 +8,9 @@ tags:
   - artemis
 banner: post-bg.jpg
 permalink: dropping_dups_with_camel
+date: 2020-03-20 14:57:20
 ---
+
 
 In {% post_link artemis_disaster_recovery "my last post" %}, I talked about a couple of strategies for setting up disaster recovery for [Apache Artemis](https://activemq.apache.org/components/artemis/) brokers. In hindsight though, I thought that the subject of the [Idempotent Camel Consumer](https://camel.apache.org/manual/latest/eips/idempotentConsumer-eip.html) could have used a little more discussion.<!-- more -->
 
