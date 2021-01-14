@@ -1,7 +1,0 @@
-#!/bin/bash -ex
-
-key='blog';
-site_hash=$(ipfs add --recursive --quieter --pin ./public/);
-if [[ -z "${site_hash}" ]]; then echo 'Error adding site to IPFS'; exit 1; fi;
-
-ipfs name publish --key=${key} ${site_hash};
