@@ -34,7 +34,7 @@ Select "__Fuse Project__" as the project type and click "__Next >__".
 
 Specify your preferred project location (or let it use the default) and click "__Next >__".
 
-![New Project](new_project-0.png)
+![New Project](new_project-03.png)
 
 Select the appropriate Maven archetype from the list. The one we use for this example is "__org.apache.camel.archetypes:camel-archetype-spring:2.12.0.redhat-610379__". Enter your preferred _Group Id_, _Artifact Id_, _Version_, & _Package_. When done, click "__Finish__".
 

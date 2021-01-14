@@ -49,7 +49,7 @@ Click the link and it will begin the "__Create Application__" workflow. On the f
 
 You'll want to find and click on the "__JBoss Fuse 6.1__" cartridge pictured below. If you can't find it, you can use the search box.
 
-![Create Application](create_application-02.)
+![Create Application](create_application-02.png)
 
 Next, you'll configure the cartridge.
 
@@ -115,8 +115,6 @@ Click on the "__APIs__" tab to view the base URI of the REST service you've just
 
 # Step 4: Test The Application
 
-Open a browser and navigate to the URI that you discovered in __Step 3__, appending `/customerservice/customers/123` like in the picture below. If successful, you should see some XML text come back.
-
-![Application Test](application_test.png)
+Open a browser and navigate to the URI that you discovered in __Step 3__, appending `/customerservice/customers/123`. If successful, you should see some XML text come back.
 
 If all went well, you've now got a running JBoss Fuse cluster with the REST quickstart deployed to a child instance.
