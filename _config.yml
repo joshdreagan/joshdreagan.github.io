@@ -56,7 +56,8 @@ time_format: 'HH:mm:ss'
 updated_option: mtime
 per_page: 0
 pagination_dir: page
-include: null
+include:
+  - ".nojekyll"
 exclude:
   - "**/*.xcf"
 ignore: null
